@@ -35,6 +35,12 @@ function noise(img, x, y, w, h, seed) { let s = seed || 7; const rnd = () => (s 
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const o = ((y + j) * img.w + x + i) * 4; const v = 60 + 120 * rnd(); img.data[o] = v; img.data[o + 1] = v * 0.9; img.data[o + 2] = v * 0.8; img.data[o + 3] = 255; } }
 const HERO = Object.fromEntries(META.heroes.map(h => [h.key, h]));
 function pickHeroes(n, seed) { const ks = META.heroes.filter(h => h.basics.length === 3 && h.ult && fs.existsSync(`${ICON}/full/${h.ult}.png`) && h.basics.every(b => fs.existsSync(`${ICON}/full/${b}.png`))).map(h => h.key);
+  /* 候选不够就立刻报错。以前这里没有检查:找不到图标时 ks 为空, ks[s % 0] 恒为 undefined,
+     while 永远凑不满 n 个 —— 同步死循环, 连一行输出都没有, 看起来像是被测的代码卡死了。
+     图标按仓库外的相对路径 ../../plugin/icons 找, 仓库不在 ad-draft/app 这个位置时就会中招
+     (09-13 审 PR 时在错放层级的 worktree 里实际卡过, 差点把一个没问题的 PR 判成"让 worker 卡死") */
+  if (ks.length < n) throw new Error(`合成测试找不到足够的图标:要 ${n} 个英雄, 在 ${ICON} 只找到 ${ks.length} 个。` +
+    `图标按仓库外的相对路径 ../../plugin/icons 查找, 请确认仓库位于 ad-draft/app 且 plugin/icons 存在`);
   let s = seed || 1; const out = []; while (out.length < n) { s = (s * 1103515245 + 12345) & 0x7fffffff; const k = ks[s % ks.length]; if (!out.includes(k)) out.push(k); } return out; }
 /* cells: 行 0-1 大招(12 格, 按 heroes 顺序), 行 2-7: col0 英雄卡 A, col1-3 A 的三技能, col4-6 B 的三技能, col7 英雄卡 B; A=heroes[2*(r-2)], B=heroes[2*(r-2)+1] */
 function cellKey(heroes, c) { if (c.role === "ult") return { key: HERO[heroes[c.row * 6 + c.col]].ult, hero: heroes[c.row * 6 + c.col] };

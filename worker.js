@@ -17,9 +17,19 @@ R.init({ lib: { keys: JSON.parse(fs.readFileSync(D + "/lib_keys.json")), q: new 
   meta: JSON.parse(fs.readFileSync(D + "/meta.json")), layout: JSON.parse(fs.readFileSync(D + "/layout_2560x1440.json")),
   bright: JSON.parse(fs.readFileSync(D + "/lib_bright.json")), heroBright: JSON.parse(fs.readFileSync(D + "/hero_bright.json")) });
 const E = path.join(__dirname, "engine", "server"); const Dr = require(E + "/draft.js"), AI = require(E + "/ai.js");
-const scorePlayers = require("./player_scores.js").createPlayerScorer();
 const sig = z => 1 / (1 + Math.exp(-z));
 const log = (tag, msg) => parentPort.postMessage({ type: "log", tag, msg });
+/* 组合评分只是显示层:它加载失败或者某一帧出错, 都不能拖垮识别和推荐。
+   · 启动时加载失败 → 换成返回空数组的评分器(以前整个 worker 起不来, 插件直接没用);
+   · 某一帧评分出错 → 这一帧评分为空, 状态和推荐照发(以前它和状态在同一个 try 里, 一抛整帧都发不出去)。
+   同一类错误只记一次, 不每帧刷屏。回归测试:test/player_scores_guard.js(往 worker 里注入会出错的评分器) */
+const scoreErrSeen = new Set();
+const logScoreErr = (what, e) => { if (scoreErrSeen.has(what)) return; scoreErrSeen.add(what);
+  log("error", `组合评分${what}(不影响识别和推荐): ${String(e && e.stack || e).slice(0, 400)}`); };
+let scorePlayers;
+try { scorePlayers = require("./player_scores.js").createPlayerScorer(); }
+catch (e) { scorePlayers = () => []; logScoreErr("加载失败, 本次运行不显示组合明细", e); }
+const safeScore = (panels, layout) => { try { return scorePlayers(panels, layout); } catch (e) { logScoreErr("出错, 出错的帧不显示组合明细", e); return []; } };
 let DISP = null;   // 主进程告知的物理分辨率;版式按它缩放
 const OMNI_M = +process.env.OMNI_M || 128;   // 每个候选走子取平均的次数, 与 ai.js 保持一致
 let POOL = null, seedSeq = 0;                // 引擎线程池:候选独立, 铺满核心 ≈ 线性加速
@@ -444,7 +454,7 @@ parentPort.on("message", async m => {
     /* 快通道基准 = 上一张**扫描帧**(同一分辨率同一判据)。以前拿全分辨率的判定当基准, 暗色英雄卡在两种分辨率下判得不一样,
        每张扫描帧都显示"1 格变黑/2 格变亮", 快通道整整半分钟是瞎的(实测 50 多行)。 */
     lastS = S;
-    cachedState = { type: "state", playerScores: scorePlayers(S.panels, R.LAYOUT()), phase, ms, my_turn: S.my_turn, current: S.current, me: S.me, align: S.align, taken: nTaken, poolOk: S.pool_heroes.length === 12, pre: pickedAtCur, nextIsMe: pickedAtCur && effIsMe, board: true };
+    cachedState = { type: "state", playerScores: safeScore(S.panels, R.LAYOUT()), phase, ms, my_turn: S.my_turn, current: S.current, me: S.me, align: S.align, taken: nTaken, poolOk: S.pool_heroes.length === 12, pre: pickedAtCur, nextIsMe: pickedAtCur && effIsMe, board: true };
     parentPort.postMessage(cachedState);
     if (S.pool_heroes.length === 12) chooseAdvice(S, startIdx, pickedAtCur, null);
   } catch (e) { log("error", String(e && e.stack || e)); parentPort.postMessage({ type: "error", msg: String(e && e.stack || e) }); }
