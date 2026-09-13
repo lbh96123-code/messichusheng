@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
+    "test:player-scores": "node test/player_scores.js && node test/player_scores_overlay.js && node test/overlay_hide.js",
     "pack": "electron-packager . ADAssistant --platform=win32 --arch=x64 --out=dist --overwrite --asar=false --prune=true --ignore='^/dist' --ignore='^/test($|/)' --ignore='^/test_.*' --ignore='^/prof\\.js' --ignore='^/old($|/)' --ignore='^/data/lib\\.bin$' --ignore='^/tools($|/)' --ignore='\\.v0[0-9]$' --ignore='\\.bak$'"
   },
   "devDependencies": {

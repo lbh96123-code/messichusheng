@@ -11,7 +11,7 @@ const HOTKEY = { "隐藏/显示": "F6", "切换显示模式": "F8", "暂停/继�
      test —— 运行模式。只管截图和日志的详细程度, 不改变任何判断逻辑。任何版本都能切。
      core —— 状态估计内核, "1x"(稳定) 或 "v2"(试验)。只管谁来判断"被拿走了没有 / 归谁"。
    两者不耦合:测试模式不会替你换内核, 换内核也不会替你改截图策略。 */
-const cfg = { all: false, paused: false, plevel: 0, hidden: false, test: false, core: "1x" };   // plevel 0..3 = 界面上的 1~4 档;hidden = 一键隐藏(只藏显示, 识别/计算照常跑)
+const cfg = { all: false, paused: false, plevel: 0, hidden: false, showPlayerScores: true, test: false, core: "1x" };   // plevel 0..3 = 界面上的 1~4 档;hidden = 一键隐藏(只藏显示, 识别/计算照常跑)
 const PLN = ["1 团队", "2 略偏个人", "3 偏个人", "4 贪"]; let needFull = true, phase = "idle", lastStatus = "", boardSeen = false, capN = 0, capMs = 0, capMsFull = 0, capFull = 0;
 /* ---- 日志:%APPDATA%/ADAssistant/logs/ad_YYYYMMDD_HHMMSS.log,截图也放这里 ---- */
 const LOGDIR = path.join(app.getPath("userData"), "logs"); fs.mkdirSync(LOGDIR, { recursive: true });
@@ -32,9 +32,8 @@ function makeTrayIcon() { const { PNG } = require("pngjs"); const p = new PNG({ 
    不需要显示时画空内容即可,一个全透明窗口几乎不花钱。 */
 function createOverlay() {
   const d = screen.getPrimaryDisplay(); const b = d.bounds;
-  /* 只盖屏幕上面 80%:棋盘最低一行格子到约 76% 高度, 顶部提示条在 6% 处 —— 下面那 20% 永远不画东西,
-     少一块全屏透明合成面 = 少一截 GPU 内存 */
-  const ovH = Math.round(b.height * 0.8);
+  /* 覆盖上方 90%：第五位玩家旁的竖向评分明细底部约在 89%。 */
+  const ovH = Math.round(b.height * 0.9);
   overlay = new BrowserWindow({ x: b.x, y: b.y, width: b.width, height: ovH, frame: false, transparent: true, alwaysOnTop: true, skipTaskbar: true, hasShadow: false, resizable: false, focusable: false, show: false, paintWhenInitiallyHidden: true,
     webPreferences: { preload: path.join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
   overlay.setAlwaysOnTop(true, "screen-saver"); overlay.setIgnoreMouseEvents(true); overlay.setContentProtection(true);   // 不出现在截屏里;不要 forward:true
@@ -44,7 +43,7 @@ function createOverlay() {
 }
 const send = (ch, m) => { if (overlay && !overlay.isDestroyed()) overlay.webContents.send(ch, m); };
 /* scale = 识别坐标(≤2560 宽) → 覆盖窗 DIP 坐标 的比例 */
-function sendCfg() { const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core }); }
+function sendCfg() { const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core }); }
 function setVisible(v) { if (!overlay || overlay.isDestroyed()) return; if (!overlay.isVisible()) overlay.showInactive();
   if (v) overlay.setAlwaysOnTop(true, "screen-saver"); else send("clear", {}); }
 /* ---- 截屏 ----
@@ -146,6 +145,7 @@ function buildMenu() { return Menu.buildFromTemplate([
   { label: `AD 选技助手 v${VERSION}`, enabled: false },
   { label: (cfg.hidden ? "👁 恢复显示" : "🙈 隐藏显示(识别照常运行)") + kk("隐藏/显示"), click: () => toggleHidden() },
   { label: (cfg.all ? "● 团队模式(我方五人)" : "● 单人模式(只看我)") + " — 点击切换" + kk("切换显示模式"), click: () => { cfg.all = !cfg.all; sync(); } },
+  { label: "显示双方组合明细", type: "checkbox", checked: cfg.showPlayerScores, click: () => { cfg.showPlayerScores = !cfg.showPlayerScores; sync(); } },
   { label: "个人权重(只影响你自己的回合)" + kk("团队/个人优先"), enabled: false },
   ...PLN.map((n, i) => ({ label: n + ["  (现在的算法)", "  (每手最多让队伍少 1 个百分点)", "  (最多少 2.5 个百分点)", "  (最多少 5 个百分点)"][i], type: "radio", checked: cfg.plevel === i, click: () => { cfg.plevel = i; sync(); } })),
   { label: (cfg.paused ? "▶ 继续" : "⏸ 暂停") + kk("暂停/继续"), click: () => { cfg.paused = !cfg.paused; sync(); } },
@@ -162,7 +162,7 @@ function buildMenu() { return Menu.buildFromTemplate([
   { label: "保存当前截图(排障用)", click: () => { snapOnce = true; log("key", "菜单: 保存截图"); } },
   { label: "打开日志文件夹", click: () => shell.openPath(LOGDIR) },
   { type: "separator" }, { label: "退出", click: () => app.quit() }]); }
-function sync() { tray.setContextMenu(buildMenu()); sendCfg(); log("cfg", `all=${cfg.all} paused=${cfg.paused} hidden=${cfg.hidden} 个人权重=${PLN[cfg.plevel]} 模式=${cfg.test ? "测试" : "正式"} 内核=${cfg.core}`); }
+function sync() { tray.setContextMenu(buildMenu()); sendCfg(); log("cfg", `all=${cfg.all} paused=${cfg.paused} hidden=${cfg.hidden} showPlayerScores=${cfg.showPlayerScores} 个人权重=${PLN[cfg.plevel]} 模式=${cfg.test ? "测试" : "正式"} 内核=${cfg.core}`); }
 /* 一键隐藏:覆盖层什么都不画(切换那一下闪 2 秒提示, 确认按键生效), 截屏/识别/引擎照常跑 —— 再按一次立刻显示最新结果,
    可以反复开关确认插件一直在正常工作 */
 function toggleHidden() { cfg.hidden = !cfg.hidden; sync(); tray.setToolTip(`AD 选技助手 v${VERSION}${cfg.hidden ? " · 已隐藏" : ""} · ${lastStatus}`); }

@@ -6,7 +6,7 @@ canvas{position:absolute;left:0;top:0}
 </style></head><body><canvas id="c"></canvas><div id="status"></div><div id="toast"></div><script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),status=document.getElementById('status'),toast=document.getElementById('toast');let toastT=null;
 let scale=1,cfg={all:false,paused:false},lastState=null,adv=null,err='',busy=false;
-function fit(){cv.width=innerWidth;cv.height=innerHeight;}fit();addEventListener('resize',fit);
+function fit(){cv.width=innerWidth;cv.height=innerHeight;}fit();addEventListener('resize',()=>{fit();draw();});
 /* 画法(游戏画面本身很鲜艳,所以每条亮边外面都套一圈黑边,靠明暗对比而不是颜色取胜):
    前三 = 金/银/铜 粗框(外黑 10px + 亮色 6px + 外发光) + 左上角大号名次徽章
    4-10 = 青色 中框(外黑 6px + 3px)  + 小徽章
@@ -21,7 +21,29 @@ function bar(x,y,w,h,txt,col,fs,alpha){ctx.globalAlpha=alpha;ctx.fillStyle='#000
 function badge(x,y,r,n,col){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();
  ctx.lineWidth=2;ctx.strokeStyle=col;ctx.stroke();ctx.fillStyle=col;ctx.font=`bold ${Math.round(r*1.35)}px "Segoe UI",system-ui`;
  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(n),x,y+1);}
-function draw(){ctx.clearRect(0,0,cv.width,cv.height);if(cfg.hidden||!adv||!adv.rows)return;
+function drawPlayers(){
+ if(cfg.showPlayerScores===false||!lastState||lastState.phase!=='active'||lastState.idle)return;
+ for(const p of lastState.playerScores||[]){
+  const [x,y,w,h]=p.box.map(v=>v/scale),unit=h/176,fs=Math.max(9,12*unit),pad=6*unit;
+  ctx.fillStyle='rgba(0,0,0,.84)';ctx.fillRect(x,y,w,h);
+  ctx.font=`bold ${fs}px "Microsoft YaHei",system-ui`;ctx.textBaseline='middle';
+  const line=(label,value,index)=>{
+   const yy=y+(16+index*20)*unit;
+   ctx.textAlign='left';ctx.fillStyle='#dce8f2';ctx.fillText(label,x+pad,yy,w-2*pad);
+   if(value===undefined)return;
+   const n=value==null?null:Math.round(value*100)/100;
+   ctx.fillStyle=n>0?'#7ee0a8':n<0?'#ff8585':'#dce8f2';ctx.textAlign='right';
+   ctx.fillText(n==null?'—':(n>0?'+':'')+n.toFixed(2),x+w-pad,yy,w*.53);
+  };
+  line('组合明细',undefined,0);
+  for(const [i,label,key] of [[1,'基础','main'],[2,'配合','synergy'],[3,'队友','team'],[4,'克制','counter']])line(label,p.parts?.[key]??null,i);
+  line('合计',p.total,5);
+  line(`英雄${p.heroKnown?'✓':'—'}`,undefined,6);
+  line(`技能${p.skillCount}/4${p.unknown?' 待认':''}`,undefined,7);
+ }
+}
+function draw(){ctx.clearRect(0,0,cv.width,cv.height);if(cfg.hidden||(cfg.phase&&cfg.phase!=='active'))return;
+ drawPlayers();if(!lastState||lastState.phase!=='active'||lastState.idle||!adv||!adv.rows)return;
  adv.rows.forEach((r,i)=>{if(!r.box)return;const [x,y,w,h]=r.box.map(v=>v/scale);
   const txt=(100*r.p).toFixed(1)+(r.d>=0?' +':' ')+(100*r.d).toFixed(1);
   if(i<3){const col=GOLD[i];
@@ -65,6 +87,6 @@ function st(){const hk=(cfg.hotkey||{}),k=n=>hk[n]?hk[n]:'托盘菜单';
 function flash(t){toast.textContent=t;toast.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>{toast.style.display='none';},2000);}
 ad.on('cfg',m=>{scale=m.scale||1;const was=cfg.hidden;cfg=m;const k=(m.hotkey||{})['隐藏/显示']||'托盘菜单';
  if(was!==undefined&&was!==m.hidden)flash(m.hidden?`AD 助手已隐藏 · 识别照常运行(${k} 恢复显示)`:`AD 助手恢复显示(${k} 隐藏)`);
- st();draw();});ad.on('state',m=>{lastState=m;err='';st();});
+ st();draw();});ad.on('state',m=>{lastState=m;err='';st();draw();});
 ad.on('advice',m=>{adv=m;busy=false;draw();});ad.on('computing',m=>{busy=true;draw();});ad.on('clear',()=>{adv=null;draw();});ad.on('error',m=>{err=(m.msg||'').slice(0,160);st();});
 </script></body></html>
