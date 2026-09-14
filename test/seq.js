@@ -42,10 +42,10 @@ w.on("message", m => {
   if (m.type === "ready") return next();
   if (m.type === "log") return console.log(`  [${m.tag}] ${m.msg}`);
   if (m.type === "want") return console.log(`  want full=${m.full} phase=${m.phase}`);
-  if (m.type === "snapshot") return console.log(`  snapshot ${m.why} ${(m.png.length / 1e6).toFixed(1)}MB`);
+  if (m.type === "snapshot") return console.log(`  snapshot ${m.why} ${((m.png ? m.png.length : m.raw.byteLength) / 1e6).toFixed(1)}MB`);   // v1.20 起 worker 发原始像素(raw), PNG 在主进程编码
   if (m.type === "clear") return console.log("  clear");
   if (m.type === "error") return console.log("  ERROR", m.msg);
   if (m.type === "advice") { if (m.stage === "done") console.log(`  advice ${m.side}${m.seat % 5 + 1} base ${(100 * m.base).toFixed(1)} top3 ${m.rows.slice(0, 3).map(r => r.name + " " + (100 * r.p).toFixed(1) + (r.box ? "" : " 无框")).join(" | ")}`); return; }
-  if (m.type === "state") { console.log(`  state ${m.phase}${m.idle ? " idle" : ""}${m.skipped ? " skipped" : ""}${m.waiting ? " waiting" : ""}${m.idle ? "" : ` cur=${m.current.side}${m.current.idx + 1} me=${m.me.side}${m.me.idx + 1} my=${m.my_turn} taken=${m.taken} ${m.ms}ms`}`);
+  if (m.type === "state") { console.log(`  state ${m.phase}${m.idle ? " idle" : ""}${m.skipped ? " skipped" : ""}${m.waiting ? " waiting" : ""}${m.idle ? "" : ` cur=${m.current.side}${m.current.idx + 1} me=${m.me ? m.me.side + (m.me.idx + 1) + (m.meSource === "manual" ? "(手动)" : "") : "未定"} my=${m.my_turn} taken=${m.taken} ${m.ms}ms`}`);
     clearTimeout(pending); setTimeout(next, m.idle ? 50 : 2500); }   // 给引擎 2.5 s 出 advice
 });

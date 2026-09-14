@@ -148,15 +148,24 @@ function tryLock(img, pres) {
     if (!prevSig || !lockWaitLogged) log("pool", prevSig ? `棋盘还在变(翻牌动画), 等画面停住再锁` : `看到棋盘, 等下一帧确认画面停住再锁`); lockWaitLogged = !!prevSig; return false; }
   lockWaitLogged = false;
   const t = new R.Tracker(); const q = t.reset(img); const ms = Date.now() - t0;
+  t.updateMe(R.readPanels(img, false));   // 锁池这一帧也投一票(本人座位要 3 票才认定)
   const ok = q.heroes === 12 && q.minMargin > 0.04;   // 行裕度:认错那次 0.003, 正确的几次 0.06~0.26
   log("pool", `${ok ? "锁定" : "拒绝"} 亮格${pres.bright} 暗格${pres.dark} 间隙暗${pres.gapDark.toFixed(2)} 检出格${q.nd} 英雄${q.heroes} 最小行裕度${q.minMargin.toFixed(3)} 参考黑格${q.darkCells} 亮度系数${q.ratio.toFixed(2)} 用时${ms}ms`);
+  /* 诊断:单看日志就能定位"哪一行、哪一格、框歪没歪"(09-13 那次只能靠截图反推出是格 18 的框被角框撑歪) */
+  try { const rows = t.pool.skills.filter(s => !s.ultslot && s.rowMargin != null), w = rows.reduce((a, s) => (!a || s.rowMargin < a.rowMargin ? s : a), null);
+    const cells = w ? rows.filter(s => s.hero === w.hero).sort((a, b) => a.cell - b.cell).map(s => `格${s.cell}${R.cn(s.key)}${s.s1.toFixed(2)}`).join("/") : "";
+    const dv = t.pool.align.dev || [], dev = dv.slice(0, 8).map(d => `格${d.cell} ${d.raw[2]}×${d.raw[3]}→${d.box[2]}×${d.box[3]}`).join(", ") + (dv.length > 8 ? ` …共 ${dv.length} 格` : "");
+    const G = R.GEO() || {}, geo = Object.entries(t.pool.align.geo || {}).map(([r, g]) => g.after == null ? `行${r}:亮格${g.n}未标定` : `行${r}:${g.before.toFixed(2)}→${g.after.toFixed(2)}${g.ok ? "" : "(不采用)"} 高${G[r] ? G[r].H.toFixed(2) : "?"}`).join(" ");
+    log("pool", `诊断 最弱行 ${w ? `${R.cn(w.hero)}(次选 ${w.rival ? R.cn(w.rival) : "?"} 裕度${w.rowMargin.toFixed(3)}): ${cells}` : "无"} | 弃用检出框 ${dev || "无"}`);
+    log("pool", `诊断 逐行几何(各行图标平均分 标定前→后) ${geo}`); }
+  catch (e) { log("error", "锁池诊断日志出错 " + e.message); }
   if (!ok) return reject(img, `英雄 ${q.heroes} 行裕度 ${q.minMargin.toFixed(3)}`, true);
   const old = tracker; rejects = 0;
   if (old && old.pool && old.pool.poolHeroes.slice().sort().join() === t.pool.poolHeroes.slice().sort().join()) {   // 同一局重锁:把已经认出的归属带过来
     t.owner = old.owner; t.heroOf = old.heroOf; t.firstT = old.firstT; t.pickT = old.pickT; t.frameNo = old.frameNo; t.lockFrame = old.lockFrame;   /* 帧号接着走, 否则旧落子的时间比新落子还大, 按时间排座位会乱 */
     /* 归属过程的其余状态也要带上:以前只带了归属结果, "哪些格已处理过"丢了 → 已归属的技能被当成新变暗的格子重走一遍、判成"不当落子";
        面板计数从头数 → 第一帧按"开局已在面板里"重记一遍、回合数被重置 */
-    for (const f of ["known", "suspect", "pend", "unknownBy", "orphan", "forced", "pc", "pcRaw", "pcRun", "pcInit", "surSince", "turn", "flaky", "flips", "hold", "nameHero", "nameRun"]) if (old[f] !== undefined) t[f] = old[f]; t.log = old.log.slice(); t.meSeat = old.meSeat; t.curSeat = old.curSeat; t.stable = old.stable; t.darkRun = old.darkRun; t.brightRun = old.brightRun; t.bhist = old.bhist; t.nameSize = old.nameSize;
+    for (const f of ["known", "suspect", "pend", "unknownBy", "orphan", "forced", "pc", "pcRaw", "pcRun", "pcInit", "surSince", "turn", "flaky", "flips", "hold", "nameHero", "nameRun"]) if (old[f] !== undefined) t[f] = old[f]; t.log = old.log.slice(); t.meSeat = old.meSeat; t.meVotes = old.meVotes; t.meAuto = old.meAuto; t.curSeat = old.curSeat; t.stable = old.stable; t.darkRun = old.darkRun; t.brightRun = old.brightRun; t.bhist = old.bhist; t.nameSize = old.nameSize;
     log("pool", `同一池子重锁, 保留归属 ${Object.keys(t.owner).length} 技能 ${Object.keys(t.heroOf).length} 英雄`); }
   else logIdx = 0;
   t.fullOrder = FULL_ORDER; t.orderSeat = n => { const x = FULL_ORDER[Math.max(0, Math.min(n, FULL_ORDER.length - 1))]; return [x < 5 ? "L" : "R", x % 5]; };   // 第 n 手归谁
@@ -238,6 +247,8 @@ function advise(S, startIdx, pre, ms, ahead, lockInfo) {
 let turnLock = null;   // {cur: 当前选人座位, j: 目标下标, keys: 显示中的前十}
 function isTarget(seat, S) { const side = seat < 5 ? "L" : "R"; return ALL ? side === S.me.side : (side === S.me.side && seat % 5 === S.me.idx); }
 function chooseAdvice(S, startIdx, picked, ms) {
+  /* 还没认出本人座位(v1.22):不猜, 不出推荐 —— 状态行提示"未确定你是几号位", 托盘可以手动指定 */
+  if (!S.me) { if (lastSig !== null) { seq++; if (POOL) POOL.cancel(); lastSig = null; lastAdvice = null; parentPort.postMessage({ type: "clear" }); } turnLock = null; return; }
   let j = startIdx; while (j < FULL_ORDER.length && !isTarget(FULL_ORDER[j], S)) j++;
   if (j >= FULL_ORDER.length) { if (lastSig !== null) { seq++; if (POOL) POOL.cancel(); lastSig = null; lastAdvice = null; parentPort.postMessage({ type: "clear" }); } return; }
   /* 锁定范围:目标就是下一个要选的人(不管他已经开始选, 还是上家刚落子、高亮还没移过来)。
@@ -334,7 +345,7 @@ function testPoints(img, src) {
   } catch (e) { log("error", "点位 " + (e && e.message || e)); }
 }
 /* ---- 主循环 ---- */
-let ALL = false, PLEVEL = 0;   // ALL=团队模式(显示我方五人);PLEVEL=个人权重档 0..3(界面上叫 1~4 档), 只影响我自己的回合
+let ALL = false, PLEVEL = 0, ME_PICK = null, mePickPool = null, meExpired = null;   // ME_PICK = 托盘手动指定的本人座位("L1".."R5"), 只对指定时那一局有效   // ALL=团队模式(显示我方五人);PLEVEL=个人权重档 0..3(界面上叫 1~4 档), 只影响我自己的回合
 /* 个人权重四档 = 每一手最多允许让队伍胜率比最好的低多少(在这个范围里挑个人分最高的)。
    标定(40 个随机局面, test/calib_personal.js):个人收益的大头在前 1~2 个百分点就拿到了(每手 +0.9 折合, 整局队伍约少 ≤1),
    4~5 个百分点起每手代价跳到 0.7~0.8(整局约少 4), 7 以上等于纯贪心到顶(整局约少 5)。 */
@@ -346,6 +357,7 @@ parentPort.on("message", async m => {
     DISP = [m.w, m.h]; const r = R.rescale(m.w, m.h);
     log("disp", `屏幕 ${m.w}x${m.h} → 版式比例 ${r.scale.toFixed(4)}${r.sixteenNine ? "" : " ⚠ 非 16:9, 带鱼屏版式未经验证, 可能对不准"}`); return; }
   if (m.type !== "frame" || busy) return; busy = true; frames++; ALL = !!m.all; PLEVEL = Math.max(0, Math.min(3, m.plevel | 0));
+  { const pick = /^[LR][1-5]$/.test(m.meSeat || "") ? m.meSeat : null; if (!pick) meExpired = null; ME_PICK = pick && pick !== meExpired ? pick : null; }
   { const t = !!m.test, c = m.core === "v2" ? "v2" : "1x";
     if (t !== TESTMODE || c !== CORE) { const was = needV2(); TESTMODE = t; CORE = c;
       log("cfg", `运行模式=${TESTMODE ? "🔬 测试(点位全截图 + 两版并行对照)" : "正式"} 状态估计内核=${CORE === "v2" ? "2.0(试验)" : "1.x(稳定)"}`);
@@ -390,6 +402,12 @@ parentPort.on("message", async m => {
       if ((phase !== "active" || forceReset) && presentRun >= 1 && Date.now() >= retryAt) tryLock(img, pres);   // 不再要求"看到棋盘第 2 帧":tryLock 里"连续两帧画面一样"本身就证明棋盘真在, 两条叠加会多等一帧
       if (phase !== "active") { parentPort.postMessage({ type: "state", phase, idle: true, pres, waiting: true, board: true, near: lastNd >= 40 }); return; }
     }
+    /* 托盘手动指定的本人座位:只对指定时的这一局有效(座位每局都变) —— 换了一局就作废, 通知主进程把菜单改回"自动" */
+    { const sig = tracker.pool.poolHeroes.slice().sort().join();
+      if (ME_PICK && mePickPool && mePickPool !== sig) { log("me", `换了一局, 手动指定的本人座位 ${ME_PICK} 作废, 恢复自动识别`); meExpired = ME_PICK; ME_PICK = null; parentPort.postMessage({ type: "meManualReset" }); }
+      mePickPool = ME_PICK ? (mePickPool || sig) : null;
+      const man = ME_PICK ? [ME_PICK[0], +ME_PICK[1] - 1] : null;
+      if (String(man) !== String(tracker.meManual)) { log("me", man ? `手动指定本人座位 ${ME_PICK}` : "本人座位改回自动识别"); tracker.meManual = man; tracker.meSeat = man || tracker.meAuto || null; pendingNext = true; } }   // 变了就强制做一次完整识别, 不等画面变化
     /* ---- 慢通道:完整识别 ---- */
     const qs = R.quickSig(img, tracker.boxesNow); const diff = R.sigDiff(qs, lastQuick);
     if (diff < 10 && cachedState && !pendingNext) { parentPort.postMessage({ ...cachedState, skipped: true }); return; }
@@ -421,6 +439,7 @@ parentPort.on("message", async m => {
       if (REC.file && trBytes >= TR_CAP) { log("trace", `轨迹到达 ${(TR_CAP / 1048576).toFixed(0)}MB 上限, 停止写盘`); REC.file = null; } }
     else S = tracker.update(img);
     const ms = Date.now() - t0; heavy++; tHeavy += ms;
+    if (tracker.meMsg) { log("me", tracker.meMsg); tracker.meMsg = null; }
     /* 快通道判定的落子, 完整识别要连续 2 帧 + 面板配对才确认(1~2 秒)。这段时间里局面如果把它时有时无, 推荐的计算会被打断重来 ——
        09-12 日志:落子后 0.4 秒和 1.7 秒各重来一次, 前半局每手白等 1.5~2 秒。现在:完整识别还看得到它暗着(或已确认)就一直算它已拿走;
        看到它亮回来 / 超过 6 秒没确认就放掉 */
@@ -442,19 +461,19 @@ parentPort.on("message", async m => {
         log("board", `第 ${nTaken} 手 [2.0] ${seats.join("  ")}   (带 ? 的是 2.0 自己说没把握的)`); } }
     if (nTaken >= 45 && !endSnapped) { endSnapped = true; snapshot(img, "draft_end"); }   // 快选完时存一张:这个分辨率下所有"被选走"格子的真实样子
     if (S.suspects && S.suspects.length && S.suspects.join() !== lastSusp) { lastSusp = S.suspects.join(); log("board", `不当落子的暗格: ${S.suspects.map(R.cn).join(", ")}`); }
-    if (curStr !== lastCur || nTaken !== lastTaken) { log("state", `当前选人 ${curStr} 我 ${S.me.side}${S.me.idx + 1} 轮到我=${S.my_turn} 已选走 ${nTaken} (技能${nTaken - S.taken_heroes.length}+英雄${S.taken_heroes.length}, 本帧黑格${S.rawDark}${S.occluded ? ` 看不清${S.occluded}` : ""}${S.pending ? " 待确认" : ""}) 对齐nd=${S.align.nd} 识别${ms}ms${EST ? ` (2.0 ${estMs}ms${CORE === "v2" ? " 在驱动" : " 并行对照"}${estDiff ? ", 有分歧" : ""})` : ""} 画面差${diff.toFixed(0)}`); lastCur = curStr; lastTaken = nTaken; }
+    if (curStr !== lastCur || nTaken !== lastTaken) { log("state", `当前选人 ${curStr} 我 ${S.me ? S.me.side + (S.me.idx + 1) : "未确定"} 轮到我=${S.my_turn} 已选走 ${nTaken} (技能${nTaken - S.taken_heroes.length}+英雄${S.taken_heroes.length}, 本帧黑格${S.rawDark}${S.occluded ? ` 看不清${S.occluded}` : ""}${S.pending ? " 待确认" : ""}) 对齐nd=${S.align.nd} 识别${ms}ms${EST ? ` (2.0 ${estMs}ms${CORE === "v2" ? " 在驱动" : " 并行对照"}${estDiff ? ", 有分歧" : ""})` : ""} 画面差${diff.toFixed(0)}`); lastCur = curStr; lastTaken = nTaken; }
     const curSeat = seatIdx(S.current);
     if (curSeat !== lastSeat) { pickedAtCur = false; lastSeat = curSeat; }
     else if (prevTaken >= 0 && nTaken > prevTaken) pickedAtCur = true;
     const startIdx = startIdxOf(S, pickedAtCur, nTaken); const effSeat = FULL_ORDER[startIdx];
     if (effSeat === curSeat) pickedAtCur = false;
-    const effIsMe = (effSeat < 5 ? "L" : "R") === S.me.side && effSeat % 5 === S.me.idx;
+    const effIsMe = !!S.me && (effSeat < 5 ? "L" : "R") === S.me.side && effSeat % 5 === S.me.idx;
     /* 快通道基准直接取自这一帧的原始黑格(与快扫同一判据):这样"全图识别之后、下一次快扫之前"发生的落子不会被吞掉,
        也不会把正在去抖确认中的格子当成新落子 */
     /* 快通道基准 = 上一张**扫描帧**(同一分辨率同一判据)。以前拿全分辨率的判定当基准, 暗色英雄卡在两种分辨率下判得不一样,
        每张扫描帧都显示"1 格变黑/2 格变亮", 快通道整整半分钟是瞎的(实测 50 多行)。 */
     lastS = S;
-    cachedState = { type: "state", playerScores: safeScore(S.panels, R.LAYOUT()), phase, ms, my_turn: S.my_turn, current: S.current, me: S.me, align: S.align, taken: nTaken, poolOk: S.pool_heroes.length === 12, pre: pickedAtCur, nextIsMe: pickedAtCur && effIsMe, board: true };
+    cachedState = { type: "state", playerScores: safeScore(S.panels, R.LAYOUT()), phase, ms, my_turn: S.my_turn, current: S.current, me: S.me, meSource: tracker.meManual ? "manual" : tracker.meAuto ? "auto" : null, align: S.align, taken: nTaken, poolOk: S.pool_heroes.length === 12, pre: pickedAtCur, nextIsMe: pickedAtCur && effIsMe, board: true };
     parentPort.postMessage(cachedState);
     if (S.pool_heroes.length === 12) chooseAdvice(S, startIdx, pickedAtCur, null);
   } catch (e) { log("error", String(e && e.stack || e)); parentPort.postMessage({ type: "error", msg: String(e && e.stack || e) }); }

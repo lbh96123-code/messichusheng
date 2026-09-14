@@ -34,7 +34,10 @@ function measure(fr) {
   /* 面板:先按池子候选认, 再看全库 —— 全库最像的不在池子里且明显更像 = 池子读错 */
   const poolKeys = t.pool.skills.filter(s => !s.unknown).map(s => s.key), inPool = new Set(poolKeys);
   R.calibratePanels(img, poolKeys);
-  const panels = R.readPanels(img, false); rec.slotAdj = JSON.parse(JSON.stringify(R.LAYOUT() && { L: 0, R: 0 })) && undefined;
+  const panels = R.readPanels(img, false);
+  /* 本人座位(v1.22):这一帧头像侧绿框投出的一票("R4" = 右5, 下标从 0 起);null = 没有明显的绿框 */
+  { const tm = new R.Tracker(); tm.updateMe(panels); rec.me = tm.meVotes[0] || null; rec.meRim = panels.map(p => r2(p.selfRim || 0)); }
+  rec.slotAdj = JSON.parse(JSON.stringify(R.LAYOUT() && { L: 0, R: 0 })) && undefined;
   rec.panels = []; rec.outOfPool = []; const sVals = [];
   for (const p of panels) { const seat = pq([p.side, p.idx]), slots = [];
     for (let j = 0; j < 4; j++) { if (!p.skills[j]) { slots.push(null); continue; }
@@ -78,7 +81,7 @@ for (const b of keep) {
   if (!cands.length) continue;
   const img = E.load(b.path); R.rescale(img.w, img.h);
   for (const a of cands) {
-    const { boxes } = R.alignBoard(img, false), A = a.t.boxAdj || {};
+    const pa = a.t.pool.align, { boxes } = R.boxesFor({}, pa.ox, pa.oy, pa.G), A = a.t.boxAdj || {};   // 和线上追踪一样:用 A 锁池时冻结的位置和几何, boxAdj 是相对它算的
     for (const c in A) if (boxes[c]) boxes[c] = [boxes[c][0] + A[c][0], boxes[c][1] + A[c][1], boxes[c][2] + A[c][2], boxes[c][3] + A[c][3]];
     const raw = R.takenFlags(img, a.t.refB, a.t.pool, boxes, a.t.refS);
     const cnt = { T: 0, N: 0, O: 0 }, tk = []; let agN = 0, agOk = 0;

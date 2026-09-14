@@ -5,24 +5,32 @@
 const { app, BrowserWindow, screen, desktopCapturer, Tray, Menu, globalShortcut, nativeImage, shell, ipcMain, session } = require("electron");
 const path = require("path"), fs = require("fs"); const { Worker } = require("worker_threads");
 const VERSION = require("./package.json").version;
-let overlay = null, tray = null, worker = null, timer = null, snapOnce = false;
+let overlay = null, tray = null, worker = null, timer = null, snapOnce = false, uploader = null;
 const HOTKEY = { "隐藏/显示": "F6", "切换显示模式": "F8", "暂停/继续": "F9", "重新识别": "F10", "团队/个人优先": "F7" };   // 实际注册成功的键(可能退让到 Alt+F8 等)
 /* 两个**互相独立**的开关:
      test —— 运行模式。只管截图和日志的详细程度, 不改变任何判断逻辑。任何版本都能切。
      core —— 状态估计内核, "1x"(稳定) 或 "v2"(试验)。只管谁来判断"被拿走了没有 / 归谁"。
    两者不耦合:测试模式不会替你换内核, 换内核也不会替你改截图策略。 */
-const cfg = { all: false, paused: false, plevel: 0, hidden: false, showPlayerScores: true, test: false, core: "1x" };   // plevel 0..3 = 界面上的 1~4 档;hidden = 一键隐藏(只藏显示, 识别/计算照常跑)
+const cfg = { all: false, paused: false, plevel: 0, hidden: false, showPlayerScores: true, test: false, core: "1x", meSeat: "auto" };   // meSeat = "auto" 或手动指定的 "L1".."R5"(只对当前这一局有效)
+let meShown = null;   // 最近一次状态里的本人座位(托盘菜单上显示)   // plevel 0..3 = 界面上的 1~4 档;hidden = 一键隐藏(只藏显示, 识别/计算照常跑)
 const PLN = ["1 团队", "2 略偏个人", "3 偏个人", "4 贪"]; let needFull = true, phase = "idle", lastStatus = "", boardSeen = false, capN = 0, capMs = 0, capMsFull = 0, capFull = 0;
 /* ---- 日志:%APPDATA%/ADAssistant/logs/ad_YYYYMMDD_HHMMSS.log,截图也放这里 ---- */
 const LOGDIR = path.join(app.getPath("userData"), "logs"); fs.mkdirSync(LOGDIR, { recursive: true });
 const stamp = d => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}_${String(d.getHours()).padStart(2, "0")}${String(d.getMinutes()).padStart(2, "0")}${String(d.getSeconds()).padStart(2, "0")}`;
 const LOGFILE = path.join(LOGDIR, `ad_${stamp(new Date())}.log`); let logBuf = [], logTimer = null;
 function log(tag, msg) { const d = new Date(); const t = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}.${String(d.getMilliseconds()).padStart(3, "0")}`;
-  logBuf.push(`[${t}] ${tag.padEnd(7)} ${msg}\n`); if (!logTimer) logTimer = setTimeout(flushLog, 500); }
+  logBuf.push(`[${t}] ${tag.padEnd(7)} ${msg}\n`); if (!logTimer) logTimer = setTimeout(flushLog, 500); if (uploader) uploader.onLog(tag, msg); }
 function flushLog() { logTimer = null; if (!logBuf.length) return; const s = logBuf.join(""); logBuf = []; try { fs.appendFileSync(LOGFILE, s); } catch (e) { } }
 function pruneLogs() { try { const now = Date.now(); const fsz = fs.readdirSync(LOGDIR).map(f => ({ f, p: path.join(LOGDIR, f), st: fs.statSync(path.join(LOGDIR, f)) }));
   for (const x of fsz) if ((x.f.endsWith(".log") || x.f.endsWith(".jsonl")) && now - x.st.mtimeMs > 7 * 86400e3) fs.unlinkSync(x.p);
   const pngs = fsz.filter(x => x.f.endsWith(".png")).sort((a, b) => b.st.mtimeMs - a.st.mtimeMs); for (const x of pngs.slice(12)) fs.unlinkSync(x.p); } catch (e) { } }
+/* ---- 设置落盘(userData/settings.json):目前只有"自动上传日志"开关和随机安装号 —— 朋友关掉以后重启不能又自己打开 ---- */
+const SETFILE = path.join(app.getPath("userData"), "settings.json"); let settings = {};
+try { settings = JSON.parse(fs.readFileSync(SETFILE, "utf8")) || {}; } catch (e) { }
+if (!settings.installId) settings.installId = require("crypto").randomBytes(6).toString("hex");
+if (settings.uploadLogs === undefined) settings.uploadLogs = true;
+const saveSettings = () => { try { fs.writeFileSync(SETFILE, JSON.stringify(settings, null, 1)); } catch (e) { } }; saveSettings();
+uploader = require("./logupload.js").create({ logdir: LOGDIR, logfile: LOGFILE, version: VERSION, installId: settings.installId, log, flush: () => flushLog(), enabled: () => settings.uploadLogs });
 /* ---- 托盘图标 ---- */
 function makeTrayIcon() { const { PNG } = require("pngjs"); const p = new PNG({ width: 16, height: 16 });
   for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const i = (y * 16 + x) * 4; const on = (x > 1 && x < 14 && y > 1 && y < 14); p.data[i] = on ? 0xff : 0; p.data[i + 1] = on ? 0xd7 : 0; p.data[i + 2] = on ? 0x6a : 0; p.data[i + 3] = on ? 255 : 0; }
@@ -43,7 +51,7 @@ function createOverlay() {
 }
 const send = (ch, m) => { if (overlay && !overlay.isDestroyed()) overlay.webContents.send(ch, m); };
 /* scale = 识别坐标(≤2560 宽) → 覆盖窗 DIP 坐标 的比例 */
-function sendCfg() { const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core }); }
+function sendCfg() { const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core, meSeat: cfg.meSeat }); }
 function setVisible(v) { if (!overlay || overlay.isDestroyed()) return; if (!overlay.isVisible()) overlay.showInactive();
   if (v) overlay.setAlwaysOnTop(true, "screen-saver"); else send("clear", {}); }
 /* ---- 截屏 ----
@@ -98,7 +106,8 @@ function startWorker() {
   { const cs = capSize(); worker.postMessage({ type: "display", w: cs.w, h: cs.h }); }
   worker.on("message", m => {
     if (m.type === "log") return log(m.tag, m.msg);
-    if (m.type === "want") { if (m.full) needFull = true; if (m.phase && m.phase !== phase) { phase = m.phase; log("cap", phase === "active" ? "选技中: 每 250ms 一张半分辨率扫描帧, 需要时补全分辨率" : "空闲: 每 1.5s 一张半分辨率"); setVisible(phase === "active"); sendCfg(); } return; }
+    if (m.type === "meManualReset") { cfg.meSeat = "auto"; sync(); return; }   // 换了一局, 手动指定的座位作废
+    if (m.type === "want") { if (m.full) needFull = true; if (m.phase && m.phase !== phase) { phase = m.phase; uploader.onPhase(phase); log("cap", phase === "active" ? "选技中: 每 250ms 一张半分辨率扫描帧, 需要时补全分辨率" : "空闲: 每 1.5s 一张半分辨率"); setVisible(phase === "active"); sendCfg(); } return; }
     /* 截图由工作线程送来**裸像素**(它只做一次拷贝就转移过来), PNG 编码放在这里做 ——
        编码要几百毫秒, 放在工作线程会卡住识别, 放这里最多让截屏拍子晚一拍。 */
     if (m.type === "snapshot") { const f = path.join(LOGDIR, `snap_${stamp(new Date())}_${m.why}.png`);
@@ -106,9 +115,10 @@ function startWorker() {
         const p = new PNG({ width: m.w, height: m.h, deflateLevel: 1 }); p.data = Buffer.from(m.raw);
         fs.writeFileSync(f, PNG.sync.write(p, { deflateLevel: 1 })); log("snap", `已存 ${path.basename(f)} (${m.why}, ${m.w}x${m.h})`);
       } catch (e) { log("snap", "存失败 " + e); } }); return; }
-    if (m.type === "state") { if (m.phase && m.phase !== phase) { phase = m.phase; setVisible(phase === "active"); sendCfg(); }
+    if (m.type === "state") { if (m.phase && m.phase !== phase) { phase = m.phase; uploader.onPhase(phase); setVisible(phase === "active"); sendCfg(); }
+      if (!m.idle) { const ms = m.me ? `${m.me.side === "L" ? "左" : "右"}${m.me.idx + 1}` : null; if (ms !== meShown) { meShown = ms; tray && tray.setContextMenu(buildMenu()); } }
       if (!!m.board !== boardSeen) boardSeen = !!m.board;
-      const st = m.idle ? `idle 亮${m.pres && m.pres.bright} 暗${m.pres && m.pres.dark}` : `active 当前${m.current.side}${m.current.idx + 1} 我${m.me.side}${m.me.idx + 1}`; if (st !== lastStatus) { lastStatus = st; tray && tray.setToolTip(`AD 选技助手 v${VERSION}${cfg.hidden ? " · 已隐藏" : ""} · ${st}`); } }
+      const st = m.idle ? `idle 亮${m.pres && m.pres.bright} 暗${m.pres && m.pres.dark}` : `active 当前${m.current.side}${m.current.idx + 1} 我${m.me ? m.me.side + (m.me.idx + 1) + (m.meSource === "manual" ? "(手动)" : "") : "未确定"}`; if (st !== lastStatus) { lastStatus = st; tray && tray.setToolTip(`AD 选技助手 v${VERSION}${cfg.hidden ? " · 已隐藏" : ""} · ${st}`); } }
     if (m.type === "advice" || m.type === "state" || m.type === "clear" || m.type === "error" || m.type === "computing") send(m.type, m);
     if (m.type === "error") log("error", m.msg);
   });
@@ -129,7 +139,7 @@ async function loop() {
     /* 鼠标位置(换算到识别用的全分辨率坐标):鼠标悬停的那一格游戏会弹介绍框/变样子, 识别端把它当"看不清" */
     let cursor = null; try { const cp = screen.getCursorScreenPoint(), d = screen.getPrimaryDisplay(), cs = capSize();
       cursor = [(cp.x - d.bounds.x) * cs.w / d.bounds.width, (cp.y - d.bounds.y) * cs.h / d.bounds.height]; } catch (e) { }
-    if (f && worker) { const snap = snapOnce; snapOnce = false; worker.postMessage({ type: "frame", ...f, full, all: cfg.all, plevel: cfg.plevel, snap, cursor, test: cfg.test, core: cfg.core }, [f.buf]); } }
+    if (f && worker) { const snap = snapOnce; snapOnce = false; worker.postMessage({ type: "frame", ...f, full, all: cfg.all, plevel: cfg.plevel, meSeat: cfg.meSeat, snap, cursor, test: cfg.test, core: cfg.core }, [f.buf]); } }
   catch (e) { needFull = needFull || full; log("error", "截屏 " + e); send("error", { msg: String(e) }); }
   finally { inflight = false; }
 }
@@ -146,6 +156,10 @@ function buildMenu() { return Menu.buildFromTemplate([
   { label: (cfg.hidden ? "👁 恢复显示" : "🙈 隐藏显示(识别照常运行)") + kk("隐藏/显示"), click: () => toggleHidden() },
   { label: (cfg.all ? "● 团队模式(我方五人)" : "● 单人模式(只看我)") + " — 点击切换" + kk("切换显示模式"), click: () => { cfg.all = !cfg.all; sync(); } },
   { label: "显示双方组合明细", type: "checkbox", checked: cfg.showPlayerScores, click: () => { cfg.showPlayerScores = !cfg.showPlayerScores; sync(); } },
+  { label: `我是几号位: ${cfg.meSeat === "auto" ? `自动识别(${meShown || "还没认出"})` : `手动 ${cfg.meSeat[0] === "L" ? "左" : "右"}${cfg.meSeat[1]}`}`, submenu: [
+    { label: "自动识别(推荐:看游戏给自己面板画的绿框)", type: "radio", checked: cfg.meSeat === "auto", click: () => { cfg.meSeat = "auto"; sync(); } },
+    { label: "手动指定只对当前这一局有效, 新的一局自动恢复", enabled: false },
+    ...["L1", "L2", "L3", "L4", "L5", "R1", "R2", "R3", "R4", "R5"].map(q => ({ label: `${q[0] === "L" ? "左" : "右"}${q[1]}`, type: "radio", checked: cfg.meSeat === q, click: () => { cfg.meSeat = q; sync(); } }))] },
   { label: "个人权重(只影响你自己的回合)" + kk("团队/个人优先"), enabled: false },
   ...PLN.map((n, i) => ({ label: n + ["  (现在的算法)", "  (每手最多让队伍少 1 个百分点)", "  (最多少 2.5 个百分点)", "  (最多少 5 个百分点)"][i], type: "radio", checked: cfg.plevel === i, click: () => { cfg.plevel = i; sync(); } })),
   { label: (cfg.paused ? "▶ 继续" : "⏸ 暂停") + kk("暂停/继续"), click: () => { cfg.paused = !cfg.paused; sync(); } },
@@ -161,8 +175,10 @@ function buildMenu() { return Menu.buildFromTemplate([
   { type: "separator" },
   { label: "保存当前截图(排障用)", click: () => { snapOnce = true; log("key", "菜单: 保存截图"); } },
   { label: "打开日志文件夹", click: () => shell.openPath(LOGDIR) },
+  { label: "打完一局自动上传日志(帮作者排查问题)", type: "checkbox", checked: settings.uploadLogs, click: () => { settings.uploadLogs = !settings.uploadLogs; saveSettings(); sync(); } },
+  { label: "立即上传本次日志", click: () => uploader.now() },
   { type: "separator" }, { label: "退出", click: () => app.quit() }]); }
-function sync() { tray.setContextMenu(buildMenu()); sendCfg(); log("cfg", `all=${cfg.all} paused=${cfg.paused} hidden=${cfg.hidden} showPlayerScores=${cfg.showPlayerScores} 个人权重=${PLN[cfg.plevel]} 模式=${cfg.test ? "测试" : "正式"} 内核=${cfg.core}`); }
+function sync() { tray.setContextMenu(buildMenu()); sendCfg(); log("cfg", `all=${cfg.all} paused=${cfg.paused} hidden=${cfg.hidden} showPlayerScores=${cfg.showPlayerScores} 个人权重=${PLN[cfg.plevel]} 模式=${cfg.test ? "测试" : "正式"} 内核=${cfg.core} 自动上传日志=${settings.uploadLogs ? "开" : "关"} 本人座位=${cfg.meSeat} 安装号=${settings.installId}`); }
 /* 一键隐藏:覆盖层什么都不画(切换那一下闪 2 秒提示, 确认按键生效), 截屏/识别/引擎照常跑 —— 再按一次立刻显示最新结果,
    可以反复开关确认插件一直在正常工作 */
 function toggleHidden() { cfg.hidden = !cfg.hidden; sync(); tray.setToolTip(`AD 选技助手 v${VERSION}${cfg.hidden ? " · 已隐藏" : ""} · ${lastStatus}`); }

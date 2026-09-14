@@ -18,7 +18,7 @@ const q1 = v => Math.round(v * 10) / 10;
 /* 重锁时 worker.js 从旧追踪器搬过来的字段(必须和 worker.js tryLock 里那张表一致) */
 const CARRY = ["owner", "heroOf", "suspect", "pend", "unknownBy", "orphan", "forced", "pc", "pcRaw", "pcRun", "pcInit",
   "surSince", "turn", "flaky", "flips", "hold", "nameHero", "nameRun", "stable", "darkRun", "brightRun", "bhist",
-  "firstT", "pickT", "frameNo", "meSeat", "curSeat", "nameSize"];
+  "firstT", "pickT", "frameNo", "meSeat", "meVotes", "meAuto", "curSeat", "nameSize"];
 /* 分数行用 int16(1e-4 精度)而不是 int8:阈值(0.3/0.45/0.6…)边上差 0.008 就可能翻判, 回放就不再是**同一件事**了。
    实测 int8 会让 8 条日志的分数差 0.01;换 int16 后逐字相同。 */
 const i8 = a => { const b = Buffer.allocUnsafe(a.length * 2);
@@ -48,7 +48,7 @@ class Frame {
         const r = this.match(slot, candKeys && candKeys.length ? candKeys : null);
         skills.push(r.s1 >= 0.3 ? { key: r.key, s: r.s1 } : { key: "?", s: r.s1 }); }
       out.push({ side: p.seat[0], idx: +p.seat.slice(1), skills, slotBoxes, filled: skills.filter(Boolean).length,
-        borderBright: (p.b[0] + p.b[1] + p.b[2]) / 3, borderRGB: p.b.slice(), faceSat: p.fs, faceTex: p.ft, hasFace: p.fs < 185 && p.ft > 2000 }); }
+        borderBright: (p.b[0] + p.b[1] + p.b[2]) / 3, borderRGB: p.b.slice(), faceSat: p.fs, faceTex: p.ft, hasFace: p.fs < 185 && p.ft > 2000, selfRim: p.r || 0 }); }
     return out; }
   /* 某个槽对一批候选的匹配。cands 全在池子里 → 查记录的分数行;cands=null(全库) → 查记录的全库前三。 */
   match(slot, cands) {
@@ -113,13 +113,13 @@ class Recorder {
   /* 在完整识别之前调用:算出这一帧的全部观测, 返回一个"观测源"。之后 tracker.update(img) 走的就是它。 */
   capture(img, tracker) {
     R.setSource(null); this.fresh = new Set();
-    const boxes = {}; { const al = R.alignBoard(img, false), A = tracker.boxAdj || {};
+    const boxes = {}; { const pa = tracker.pool.align, al = R.boxesFor({}, pa.ox, pa.oy, pa.G), A = tracker.boxAdj || {};   // 和 Tracker 每帧用的框一致:锁池时冻结的位置
       for (const c in al.boxes) { const b = al.boxes[c]; boxes[c] = A[c] ? [b[0] + A[c][0], b[1] + A[c][1], b[2] + A[c][2], b[3] + A[c][3]] : b.slice(); } }
     const nC = Object.keys(boxes).length, cells = new Array(nC * 3);
     for (const c in boxes) { const st = R.cellStats(img, boxes[c]); cells[c * 3] = q1(st.mean); cells[c * 3 + 1] = q1(st.max); cells[c * 3 + 2] = Math.round(st.sat * 1000) / 1000; }
     const raw = R.readPanels(img, false), panels = [], slots = {}, boxes4 = {};
     for (const p of raw) { const seat = p.side + p.idx;
-      panels.push({ seat, b: p.borderRGB.map(q1), fs: q1(p.faceSat), ft: Math.round(p.faceTex) });
+      panels.push({ seat, b: p.borderRGB.map(q1), fs: q1(p.faceSat), ft: Math.round(p.faceTex), r: Math.round((p.selfRim || 0) * 1000) / 1000 });   // r = 本人绿框分数(v1.22), 老轨迹没有 → 回放当 0
       for (let j = 0; j < 4; j++) { const b = p.slotBoxes[j], k = seat + ":" + j; boxes4[k] = [b[0], b[1], b[2], b[3]];
         const g = R.slotSignal(img, b); slots[k] = g.tiny ? [q1(g.mean), 0, 1] : [q1(g.mean), q1(g.lap), 0]; } }
     const rec = { t: "f", f: tracker.frameNo + 1, ms: Date.now() - this.t0, cells, panels, slots, boxes4, scores: {}, names: {},

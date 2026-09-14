@@ -77,7 +77,8 @@ function st(){const hk=(cfg.hotkey||{}),k=n=>hk[n]?hk[n]:'托盘菜单';
  if(cfg.hidden||!lastState||(lastState.idle&&!(lastState.board&&lastState.near))){status.textContent='';return;}
  const s=[];s.push(`AD 助手 v${cfg.version||''} · `+(cfg.paused?`⏸ 已暂停(${k('暂停/继续')} 继续)`:(cfg.all?`团队模式:我方五人(${k('切换显示模式')} 切换)`:`单人模式:只看我(${k('切换显示模式')} 切换)`)+` · 个人权重 ${cfg.plname||'1 团队'}(${k('团队/个人优先')} 切换)`));
  if(lastState&&lastState.idle)s.push(lastState.waiting?'看到棋盘, 正在识别池子…':'看到棋盘, 等待完整画面…');
- else if(lastState)s.push(`识别 ${lastState.ms}ms${lastState.skipped?'(画面未变)':''} · 池子${lastState.poolOk?'OK':`未认全(${k('重新识别')})`} · 已选走 ${lastState.taken} · 当前 ${lastState.current.side}${lastState.current.idx+1}${lastState.pre?'(已选)':''} 我 ${lastState.me.side}${lastState.me.idx+1}${lastState.nextIsMe?' · 下一个是我':''}`);
+ else if(lastState)s.push(`识别 ${lastState.ms}ms${lastState.skipped?'(画面未变)':''} · 池子${lastState.poolOk?'OK':`未认全(${k('重新识别')})`} · 已选走 ${lastState.taken} · 当前 ${lastState.current.side}${lastState.current.idx+1}${lastState.pre?'(已选)':''} 我 ${lastState.me?`${lastState.me.side}${lastState.me.idx+1}${lastState.meSource==='manual'?'(手动)':''}`:'未确定'}${lastState.nextIsMe?' · 下一个是我':''}`);
+ if(lastState&&!lastState.idle&&!lastState.me)s.push('⚠ 还没认出你是几号位, 先不给推荐(游戏给你自己的面板画了一圈绿框, 插件要连续看到几次才认定;也可以在托盘「我是几号位」手动指定)');
  /* 非默认状态必须在屏幕上看得见 —— 测试模式会狂存截图、2.0 内核是试验品, 忘了自己开着是很容易的事 */
  if(cfg.test||cfg.core==='v2'){const t=[];
   if(cfg.test)t.push(`🔬 测试模式:关心的点位自动截图 + 两版并行对照(${k('正式/测试模式')} 切回正式)`);

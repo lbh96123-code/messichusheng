@@ -9,9 +9,9 @@
    "lock": {
     "nd": 52,
     "heroes": 12,
-    "margin": 0.18,
+    "margin": 0.22,
     "dark": 9,
-    "ratio": 1.4,
+    "ratio": 1.38,
     "ok": true
    },
    "heroes": [
@@ -32,68 +32,68 @@
     {
      "c": 0,
      "k": "mars_arena_of_blood",
-     "s": 0.76,
+     "s": 0.75,
      "f": "大"
     },
     {
      "c": 1,
      "k": "centaur_stampede",
-     "s": 0.89,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 2,
      "k": "juggernaut_omni_slash",
-     "s": 0.88,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 3,
      "k": "disruptor_static_storm",
-     "s": 0.95,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 4,
      "k": "phoenix_supernova",
-     "s": 0.9,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 5,
      "k": "earth_spirit_magnetize",
-     "s": 0.78,
+     "s": 0.85,
      "f": "大"
     },
     {
      "c": 6,
      "k": "slark_shadow_dance",
-     "s": 0.79,
+     "s": 0.77,
      "f": "大+排除法"
     },
     {
      "c": 7,
      "k": "warlock_rain_of_chaos",
-     "s": 0.86,
+     "s": 0.85,
      "f": "大"
     },
     {
      "c": 8,
      "k": "primal_beast_pulverize",
-     "s": 0.91,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 9,
      "k": "ember_spirit_fire_remnant",
-     "s": 0.84,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 10,
      "k": "tiny_grow",
-     "s": 0.89,
-     "f": "大+救回"
+     "s": 0.88,
+     "f": "大+补位"
     },
     {
      "c": 11,
@@ -104,7 +104,7 @@
     {
      "c": 13,
      "k": "mars_spear",
-     "s": 0.7,
+     "s": 0.88,
      "f": ""
     },
     {
@@ -122,13 +122,13 @@
     {
      "c": 16,
      "k": "earth_spirit_boulder_smash",
-     "s": 0.9,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 17,
      "k": "earth_spirit_rolling_boulder",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -140,31 +140,31 @@
     {
      "c": 21,
      "k": "centaur_hoof_stomp",
-     "s": 0.08,
+     "s": 0.17,
      "f": ""
     },
     {
      "c": 22,
      "k": "centaur_double_edge",
-     "s": 0.91,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 23,
      "k": "centaur_return",
-     "s": 0.88,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 24,
      "k": "phoenix_icarus_dive",
-     "s": 0.94,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 25,
      "k": "phoenix_fire_spirits",
-     "s": 0.89,
+     "s": 0.87,
      "f": ""
     },
     {
@@ -182,13 +182,13 @@
     {
      "c": 30,
      "k": "juggernaut_healing_ward",
-     "s": 0.77,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 31,
      "k": "juggernaut_blade_dance",
-     "s": 0.9,
+     "s": 0.94,
      "f": ""
     },
     {
@@ -200,79 +200,79 @@
     {
      "c": 33,
      "k": "disruptor_glimpse",
-     "s": 0.91,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 34,
      "k": "disruptor_kinetic_field",
-     "s": 0.87,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 37,
      "k": "slark_dark_pact",
-     "s": 0.85,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 38,
      "k": "slark_pounce",
-     "s": 0.95,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 39,
      "k": "slark_saltwater_shiv",
-     "s": 0.87,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 40,
      "k": "antimage_mana_break",
-     "s": 0.91,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 41,
      "k": "antimage_blink",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 42,
      "k": "antimage_counterspell",
-     "s": 0.89,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 45,
      "k": "warlock_fatal_bonds",
-     "s": 0.73,
+     "s": 0.69,
      "f": ""
     },
     {
      "c": 46,
      "k": "warlock_shadow_word",
-     "s": 0.68,
+     "s": 0.63,
      "f": ""
     },
     {
      "c": 47,
      "k": "warlock_upheaval",
-     "s": 0.84,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 48,
      "k": "rubick_telekinesis",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 49,
      "k": "rubick_fade_bolt",
-     "s": 0.91,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -284,43 +284,56 @@
     {
      "c": 53,
      "k": "primal_beast_onslaught",
-     "s": 0.86,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 54,
      "k": "primal_beast_trample",
-     "s": 0.82,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 55,
      "k": "primal_beast_uproar",
-     "s": 0.86,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 56,
      "k": "ember_spirit_searing_chains",
-     "s": 0.89,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 57,
      "k": "ember_spirit_sleight_of_fist",
-     "s": 0.85,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 58,
      "k": "ember_spirit_flame_guard",
-     "s": 0.73,
+     "s": 0.78,
      "f": ""
     }
    ],
    "unknown": 0,
-   "rescued": 1,
-   "filler": 0,
+   "rescued": 0,
+   "filler": 1,
+   "me": "L2",
+   "meRim": [
+    0,
+    0,
+    0.76,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -520,9 +533,9 @@
    "lock": {
     "nd": 58,
     "heroes": 12,
-    "margin": 0.13,
+    "margin": 0.27,
     "dark": 1,
-    "ratio": 1.36,
+    "ratio": 1.38,
     "ok": true
    },
    "heroes": [
@@ -543,7 +556,7 @@
     {
      "c": 0,
      "k": "slardar_amplify_damage",
-     "s": 0.89,
+     "s": 0.92,
      "f": "大"
     },
     {
@@ -555,55 +568,55 @@
     {
      "c": 2,
      "k": "dazzle_nothl_projection",
-     "s": 0.86,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 3,
      "k": "mirana_invis",
-     "s": 0.91,
+     "s": 0.97,
      "f": "大"
     },
     {
      "c": 4,
      "k": "pudge_dismember",
-     "s": 0.91,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 5,
      "k": "brewmaster_primal_split",
-     "s": 0.91,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 6,
      "k": "venomancer_noxious_plague",
-     "s": 0.9,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 7,
      "k": "beastmaster_primal_roar",
-     "s": 0.86,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 8,
      "k": "marci_unleash",
-     "s": 0.87,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 9,
      "k": "clinkz_wind_walk",
-     "s": 0.86,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 10,
      "k": "puck_dream_coil",
-     "s": 0.93,
+     "s": 0.9,
      "f": "大"
     },
     {
@@ -615,43 +628,43 @@
     {
      "c": 13,
      "k": "slardar_sprint",
-     "s": 0.51,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 14,
      "k": "slardar_slithereen_crush",
-     "s": 0.9,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 15,
      "k": "slardar_bash",
-     "s": 0.92,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 16,
      "k": "brewmaster_thunder_clap",
-     "s": 0.92,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 17,
      "k": "brewmaster_cinder_brew",
-     "s": 0.91,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 18,
      "k": "brewmaster_drunken_brawler",
-     "s": 0.3,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 21,
      "k": "ogre_magi_fireblast",
-     "s": 0.92,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -663,7 +676,7 @@
     {
      "c": 23,
      "k": "ogre_magi_bloodlust",
-     "s": 0.92,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -675,31 +688,31 @@
     {
      "c": 25,
      "k": "pudge_rot",
-     "s": 0.89,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 26,
      "k": "pudge_flesh_heap",
-     "s": 0.88,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 29,
      "k": "dazzle_poison_touch",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 30,
      "k": "dazzle_shallow_grave",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 31,
      "k": "dazzle_shadow_wave",
-     "s": 0.94,
+     "s": 0.96,
      "f": ""
     },
     {
@@ -711,73 +724,73 @@
     {
      "c": 33,
      "k": "mirana_arrow",
-     "s": 0.85,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 34,
      "k": "mirana_leap",
-     "s": 0.88,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 37,
      "k": "venomancer_venomous_gale",
-     "s": 0.89,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 38,
      "k": "venomancer_snakebite",
-     "s": 0.83,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 39,
      "k": "venomancer_plague_ward",
-     "s": 0.91,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 40,
      "k": "sniper_shrapnel",
-     "s": 0.87,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 41,
      "k": "sniper_headshot",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 42,
      "k": "sniper_take_aim",
-     "s": 0.69,
+     "s": 0.75,
      "f": ""
     },
     {
      "c": 45,
      "k": "beastmaster_wild_axes",
-     "s": 0.9,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 46,
      "k": "beastmaster_summon_razorback",
-     "s": 0.83,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 47,
      "k": "beastmaster_summon_raptor",
-     "s": 0.86,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 48,
      "k": "puck_illusory_orb",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
@@ -789,13 +802,13 @@
     {
      "c": 50,
      "k": "puck_phase_shift",
-     "s": 0.9,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 53,
      "k": "marci_grapple",
-     "s": 0.69,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -807,31 +820,44 @@
     {
      "c": 55,
      "k": "marci_bodyguard",
-     "s": 0.89,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 56,
      "k": "clinkz_strafe",
-     "s": 0.57,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 57,
      "k": "clinkz_searing_arrows",
-     "s": 0.91,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 58,
      "k": "clinkz_death_pact",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 1,
+   "me": "L3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -1016,9 +1042,9 @@
    "lock": {
     "nd": 57,
     "heroes": 12,
-    "margin": 0.26,
+    "margin": 0.36,
     "dark": 4,
-    "ratio": 1.32,
+    "ratio": 1.31,
     "ok": true
    },
    "heroes": [
@@ -1039,85 +1065,85 @@
     {
      "c": 0,
      "k": "slark_shadow_dance",
-     "s": 0.79,
+     "s": 0.84,
      "f": "大"
     },
     {
      "c": 1,
      "k": "marci_unleash",
-     "s": 0.94,
+     "s": 0.96,
      "f": "大"
     },
     {
      "c": 2,
      "k": "spirit_breaker_nether_strike",
-     "s": 0.93,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 3,
      "k": "disruptor_static_storm",
-     "s": 0.93,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 4,
      "k": "shadow_shaman_mass_serpent_ward",
-     "s": 0.96,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 5,
      "k": "winter_wyvern_winters_curse",
-     "s": 0.93,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 6,
      "k": "storm_spirit_ball_lightning",
-     "s": 0.9,
+     "s": 0.85,
      "f": "大"
     },
     {
      "c": 7,
      "k": "phoenix_supernova",
-     "s": 0.87,
+     "s": 0.83,
      "f": "大"
     },
     {
      "c": 8,
      "k": "bounty_hunter_track",
-     "s": 0.91,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 9,
      "k": "drow_ranger_marksmanship",
-     "s": 0.86,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 10,
      "k": "sven_gods_strength",
-     "s": 0.98,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 11,
      "k": "treant_overgrowth",
-     "s": 0.71,
+     "s": 0.69,
      "f": "大"
     },
     {
      "c": 13,
      "k": "slark_dark_pact",
-     "s": 0.56,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 14,
      "k": "slark_pounce",
-     "s": 0.89,
+     "s": 0.88,
      "f": ""
     },
     {
@@ -1129,97 +1155,97 @@
     {
      "c": 16,
      "k": "winter_wyvern_arctic_burn",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 17,
      "k": "winter_wyvern_splinter_blast",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 18,
      "k": "winter_wyvern_cold_embrace",
-     "s": 0.38,
+     "s": 0.81,
      "f": ""
     },
     {
      "c": 21,
      "k": "marci_grapple",
-     "s": 0.84,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 22,
      "k": "marci_companion_run",
-     "s": 0.91,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 23,
      "k": "marci_bodyguard",
-     "s": 0.86,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 24,
      "k": "shadow_shaman_ether_shock",
-     "s": 0.88,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 25,
      "k": "shadow_shaman_voodoo",
-     "s": 0.9,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 26,
      "k": "shadow_shaman_shackles",
-     "s": 0.85,
+     "s": 0.81,
      "f": ""
     },
     {
      "c": 29,
      "k": "spirit_breaker_charge_of_darkness",
-     "s": 0.91,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 30,
      "k": "spirit_breaker_bulldoze",
-     "s": 0.86,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 31,
      "k": "spirit_breaker_greater_bash",
-     "s": 0.82,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 32,
      "k": "disruptor_thunder_strike",
-     "s": 0.92,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 33,
      "k": "disruptor_glimpse",
-     "s": 0.89,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 34,
      "k": "disruptor_kinetic_field",
-     "s": 0.91,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 37,
      "k": "storm_spirit_static_remnant",
-     "s": 0.78,
+     "s": 0.8,
      "f": ""
     },
     {
@@ -1231,67 +1257,67 @@
     {
      "c": 39,
      "k": "storm_spirit_overload",
-     "s": 0.83,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 40,
      "k": "treant_natures_grasp",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 41,
      "k": "treant_leech_seed",
-     "s": 0.88,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 42,
      "k": "treant_living_armor",
-     "s": 0.69,
+     "s": 0.75,
      "f": ""
     },
     {
      "c": 45,
      "k": "phoenix_icarus_dive",
-     "s": 0.84,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 46,
      "k": "phoenix_fire_spirits",
-     "s": 0.86,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 47,
      "k": "phoenix_sun_ray",
-     "s": 0.91,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 48,
      "k": "sven_storm_bolt",
-     "s": 0.93,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 49,
      "k": "sven_great_cleave",
-     "s": 0.9,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 50,
      "k": "sven_warcry",
-     "s": 0.87,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 53,
      "k": "bounty_hunter_shuriken_toss",
-     "s": 0.76,
+     "s": 0.82,
      "f": ""
     },
     {
@@ -1303,31 +1329,44 @@
     {
      "c": 55,
      "k": "bounty_hunter_wind_walk",
-     "s": 0.82,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 56,
      "k": "drow_ranger_frost_arrows",
-     "s": 0.9,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 57,
      "k": "drow_ranger_wave_of_silence",
-     "s": 0.85,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 58,
      "k": "drow_ranger_multishot",
-     "s": 0.77,
+     "s": 0.79,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 0,
+   "me": "L2",
+   "meRim": [
+    0,
+    0,
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -1512,9 +1551,9 @@
    "lock": {
     "nd": 55,
     "heroes": 12,
-    "margin": 0.19,
+    "margin": 0.3,
     "dark": 1,
-    "ratio": 1.38,
+    "ratio": 1.36,
     "ok": true
    },
    "heroes": [
@@ -1535,25 +1574,25 @@
     {
      "c": 0,
      "k": "oracle_false_promise",
-     "s": 0.8,
+     "s": 0.84,
      "f": "大"
     },
     {
      "c": 1,
      "k": "grimstroke_soul_chain",
-     "s": 0.92,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 2,
      "k": "viper_viper_strike",
-     "s": 0.9,
+     "s": 0.97,
      "f": "大"
     },
     {
      "c": 3,
      "k": "antimage_mana_void",
-     "s": 0.91,
+     "s": 0.96,
      "f": "大"
     },
     {
@@ -1565,85 +1604,85 @@
     {
      "c": 5,
      "k": "shadow_demon_demonic_purge",
-     "s": 0.94,
+     "s": 0.86,
      "f": "大+补位"
     },
     {
      "c": 6,
      "k": "doom_bringer_doom",
-     "s": 0.91,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 7,
      "k": "bounty_hunter_track",
-     "s": 0.82,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 8,
      "k": "phantom_assassin_coup_de_grace",
-     "s": 0.94,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 9,
      "k": "magnataur_reverse_polarity",
-     "s": 0.91,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 10,
      "k": "nevermore_requiem",
-     "s": 0.95,
+     "s": 0.86,
      "f": "大+补位"
     },
     {
      "c": 11,
      "k": "spirit_breaker_nether_strike",
-     "s": 0.93,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 13,
      "k": "oracle_fortunes_end",
-     "s": 0.59,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 14,
      "k": "oracle_fates_edict",
-     "s": 0.83,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 15,
      "k": "oracle_purifying_flames",
-     "s": 0.93,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 16,
      "k": "meepo_earthbind",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 17,
      "k": "meepo_poof",
-     "s": 0.92,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 18,
      "k": "meepo_ransack",
-     "s": 0.72,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 21,
      "k": "grimstroke_dark_artistry",
-     "s": 0.88,
+     "s": 0.87,
      "f": ""
     },
     {
@@ -1655,7 +1694,7 @@
     {
      "c": 23,
      "k": "grimstroke_spirit_walk",
-     "s": 0.92,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -1679,7 +1718,7 @@
     {
      "c": 29,
      "k": "viper_poison_attack",
-     "s": 0.87,
+     "s": 0.95,
      "f": ""
     },
     {
@@ -1691,19 +1730,19 @@
     {
      "c": 31,
      "k": "viper_corrosive_skin",
-     "s": 0.93,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 32,
      "k": "antimage_mana_break",
-     "s": 0.89,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 33,
      "k": "antimage_blink",
-     "s": 0.93,
+     "s": 0.92,
      "f": ""
     },
     {
@@ -1715,73 +1754,73 @@
     {
      "c": 37,
      "k": "doom_bringer_devour",
-     "s": 0.84,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 38,
      "k": "doom_bringer_scorched_earth",
-     "s": 0.87,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 39,
      "k": "doom_bringer_infernal_blade",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 40,
      "k": "spirit_breaker_charge_of_darkness",
-     "s": 0.91,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 41,
      "k": "spirit_breaker_bulldoze",
-     "s": 0.83,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 42,
      "k": "spirit_breaker_greater_bash",
-     "s": 0.82,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 45,
      "k": "bounty_hunter_shuriken_toss",
-     "s": 0.82,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 46,
      "k": "bounty_hunter_jinada",
-     "s": 0.88,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 47,
      "k": "bounty_hunter_wind_walk",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 48,
      "k": "arc_warden_flux",
-     "s": 0.9,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 49,
      "k": "arc_warden_magnetic_field",
-     "s": 0.85,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 50,
      "k": "arc_warden_spark_wraith",
-     "s": 0.92,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -1793,37 +1832,50 @@
     {
      "c": 54,
      "k": "phantom_assassin_phantom_strike",
-     "s": 0.86,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 55,
      "k": "phantom_assassin_immaterial",
-     "s": 0.94,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 56,
      "k": "magnataur_shockwave",
-     "s": 0.94,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 57,
      "k": "magnataur_empower",
-     "s": 0.83,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 58,
      "k": "magnataur_skewer",
-     "s": 0.82,
+     "s": 0.84,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 2,
+   "me": "L3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -2008,9 +2060,9 @@
    "lock": {
     "nd": 57,
     "heroes": 12,
-    "margin": 0.18,
+    "margin": 0.22,
     "dark": 6,
-    "ratio": 1.41,
+    "ratio": 1.44,
     "ok": true
    },
    "heroes": [
@@ -2037,25 +2089,25 @@
     {
      "c": 1,
      "k": "crystal_maiden_freezing_field",
-     "s": 0.94,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 2,
      "k": "pudge_dismember",
-     "s": 0.95,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 3,
      "k": "clinkz_wind_walk",
-     "s": 0.97,
+     "s": 0.92,
      "f": "大+补位"
     },
     {
      "c": 4,
      "k": "muerta_pierce_the_veil",
-     "s": 0.89,
+     "s": 0.91,
      "f": "大"
     },
     {
@@ -2067,25 +2119,25 @@
     {
      "c": 6,
      "k": "centaur_stampede",
-     "s": 0.81,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 7,
      "k": "antimage_mana_void",
-     "s": 0.93,
+     "s": 0.95,
      "f": "大+补位"
     },
     {
      "c": 8,
      "k": "dark_willow_terrorize",
-     "s": 0.95,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 9,
      "k": "tidehunter_ravage",
-     "s": 0.93,
+     "s": 0.86,
      "f": "大"
     },
     {
@@ -2103,19 +2155,19 @@
     {
      "c": 13,
      "k": "medusa_split_shot",
-     "s": 0.58,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 14,
      "k": "medusa_mystic_snake",
-     "s": 0.93,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 15,
      "k": "medusa_gorgon_grasp",
-     "s": 0.88,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -2133,61 +2185,61 @@
     {
      "c": 18,
      "k": "oracle_purifying_flames",
-     "s": 0.7,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 21,
      "k": "crystal_maiden_crystal_nova",
-     "s": 0.9,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 22,
      "k": "crystal_maiden_frostbite",
-     "s": 0.9,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 23,
      "k": "arc_warden_magnetic_field",
-     "s": 0.93,
+     "s": 0.87,
      "f": "补位"
     },
     {
      "c": 24,
      "k": "muerta_dead_shot",
-     "s": 0.95,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 25,
      "k": "muerta_the_calling",
-     "s": 0.88,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 26,
      "k": "muerta_gunslinger",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 29,
      "k": "pudge_meat_hook",
-     "s": 0.77,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 30,
      "k": "pudge_rot",
-     "s": 0.89,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 31,
      "k": "pudge_flesh_heap",
-     "s": 0.9,
+     "s": 0.92,
      "f": ""
     },
     {
@@ -2205,19 +2257,19 @@
     {
      "c": 34,
      "k": "meepo_ransack",
-     "s": 0.87,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 37,
      "k": "centaur_hoof_stomp",
-     "s": 0.83,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 38,
      "k": "centaur_double_edge",
-     "s": 0.88,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -2229,13 +2281,13 @@
     {
      "c": 40,
      "k": "weaver_the_swarm",
-     "s": 0.85,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 41,
      "k": "weaver_shukuchi",
-     "s": 0.81,
+     "s": 0.85,
      "f": ""
     },
     {
@@ -2253,25 +2305,25 @@
     {
      "c": 46,
      "k": "ogre_magi_ignite",
-     "s": 0.82,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 47,
      "k": "ogre_magi_bloodlust",
-     "s": 0.89,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 48,
      "k": "marci_grapple",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 49,
      "k": "marci_companion_run",
-     "s": 0.88,
+     "s": 0.87,
      "f": ""
     },
     {
@@ -2283,43 +2335,56 @@
     {
      "c": 53,
      "k": "dark_willow_bramble_maze",
-     "s": 0.83,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 54,
      "k": "dark_willow_shadow_realm",
-     "s": 0.88,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 55,
      "k": "dark_willow_cursed_crown",
-     "s": 0.84,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 56,
      "k": "tidehunter_gush",
-     "s": 0.86,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 57,
      "k": "tidehunter_kraken_shell",
-     "s": 0.79,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 58,
      "k": "tidehunter_anchor_smash",
-     "s": 0.79,
+     "s": 0.84,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 3,
+   "me": "L3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -2504,9 +2569,9 @@
    "lock": {
     "nd": 53,
     "heroes": 12,
-    "margin": 0.22,
+    "margin": 0.28,
     "dark": 4,
-    "ratio": 1.37,
+    "ratio": 1.36,
     "ok": true
    },
    "heroes": [
@@ -2527,55 +2592,55 @@
     {
      "c": 0,
      "k": "enigma_black_hole",
-     "s": 0.86,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 1,
      "k": "mars_arena_of_blood",
-     "s": 0.89,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 2,
      "k": "dark_seer_wall_of_replica",
-     "s": 0.88,
+     "s": 0.96,
      "f": "大+补位"
     },
     {
      "c": 3,
      "k": "queenofpain_sonic_wave",
-     "s": 0.9,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 4,
      "k": "monkey_king_wukongs_command",
-     "s": 0.86,
-     "f": "大+补位"
+     "s": 0.88,
+     "f": "大+救回"
     },
     {
      "c": 5,
      "k": "night_stalker_darkness",
-     "s": 0.87,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 6,
      "k": "tiny_grow",
-     "s": 0.82,
+     "s": 0.83,
      "f": "大"
     },
     {
      "c": 7,
      "k": "broodmother_spawn_spiderlings",
-     "s": 0.92,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 8,
      "k": "hoodwink_sharpshooter",
-     "s": 0.88,
+     "s": 0.95,
      "f": "大"
     },
     {
@@ -2587,55 +2652,55 @@
     {
      "c": 10,
      "k": "beastmaster_primal_roar",
-     "s": 0.92,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 11,
      "k": "riki_backstab",
-     "s": 0.71,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 13,
      "k": "enigma_malefice",
-     "s": 0.62,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 14,
      "k": "enigma_demonic_conversion",
-     "s": 0.85,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 15,
      "k": "enigma_midnight_pulse",
-     "s": 0.93,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 16,
      "k": "night_stalker_void",
-     "s": 0.92,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 17,
      "k": "night_stalker_crippling_fear",
-     "s": 0.92,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 18,
      "k": "night_stalker_midnight_feast",
-     "s": 0.87,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 21,
      "k": "mars_spear",
-     "s": 0.89,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -2647,19 +2712,19 @@
     {
      "c": 23,
      "k": "mars_bulwark",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 24,
      "k": "meepo_earthbind",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 25,
      "k": "meepo_poof",
-     "s": 0.92,
+     "s": 0.87,
      "f": ""
     },
     {
@@ -2671,31 +2736,31 @@
     {
      "c": 29,
      "k": "ogre_magi_fireblast",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 30,
      "k": "ogre_magi_ignite",
-     "s": 0.87,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 31,
      "k": "ogre_magi_bloodlust",
-     "s": 0.94,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 32,
      "k": "queenofpain_shadow_strike",
-     "s": 0.94,
+     "s": 0.96,
      "f": ""
     },
     {
      "c": 33,
      "k": "queenofpain_blink",
-     "s": 0.81,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -2707,115 +2772,128 @@
     {
      "c": 37,
      "k": "tiny_avalanche",
-     "s": 0.79,
+     "s": 0.72,
      "f": ""
     },
     {
      "c": 38,
      "k": "tiny_toss",
-     "s": 0.78,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 39,
      "k": "tiny_tree_grab",
-     "s": 0.92,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 40,
      "k": "riki_smoke_screen",
-     "s": 0.93,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 41,
      "k": "riki_blink_strike",
-     "s": 0.85,
+     "s": 0.81,
      "f": ""
     },
     {
      "c": 42,
      "k": "riki_tricks_of_the_trade",
-     "s": 0.65,
+     "s": 0.79,
      "f": ""
     },
     {
      "c": 45,
      "k": "broodmother_insatiable_hunger",
-     "s": 0.81,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 46,
      "k": "broodmother_spin_web",
-     "s": 0.78,
+     "s": 0.76,
      "f": ""
     },
     {
      "c": 47,
      "k": "broodmother_incapacitating_bite",
-     "s": 0.83,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 48,
      "k": "beastmaster_wild_axes",
-     "s": 0.93,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 49,
      "k": "beastmaster_summon_razorback",
-     "s": 0.87,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 50,
      "k": "beastmaster_summon_raptor",
-     "s": 0.75,
+     "s": 0.69,
      "f": ""
     },
     {
      "c": 53,
      "k": "hoodwink_acorn_shot",
-     "s": 0.79,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 54,
      "k": "hoodwink_bushwhack",
-     "s": 0.82,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 55,
      "k": "hoodwink_scurry",
-     "s": 0.81,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 56,
      "k": "terrorblade_reflection",
-     "s": 0.84,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 57,
      "k": "terrorblade_conjure_image",
-     "s": 0.86,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 58,
      "k": "terrorblade_metamorphosis",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     }
    ],
    "unknown": 0,
-   "rescued": 0,
-   "filler": 2,
+   "rescued": 1,
+   "filler": 1,
+   "me": "L3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -3050,7 +3128,7 @@
    "lock": {
     "nd": 60,
     "heroes": 12,
-    "margin": 0.26,
+    "margin": 0.36,
     "dark": 3,
     "ratio": 1.34,
     "ok": true
@@ -3073,61 +3151,61 @@
     {
      "c": 0,
      "k": "witch_doctor_death_ward",
-     "s": 0.93,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 1,
      "k": "muerta_pierce_the_veil",
-     "s": 0.89,
+     "s": 0.9,
      "f": "大+补位"
     },
     {
      "c": 2,
      "k": "razor_eye_of_the_storm",
-     "s": 0.97,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 3,
      "k": "naga_siren_song_of_the_siren",
-     "s": 0.96,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 4,
      "k": "shadow_demon_demonic_purge",
-     "s": 0.96,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 5,
      "k": "monkey_king_wukongs_command",
-     "s": 0.79,
+     "s": 0.82,
      "f": "大"
     },
     {
      "c": 6,
      "k": "primal_beast_pulverize",
-     "s": 0.9,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 7,
      "k": "brewmaster_primal_split",
-     "s": 0.87,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 8,
      "k": "slardar_amplify_damage",
-     "s": 0.9,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 9,
      "k": "silencer_global_silence",
-     "s": 0.95,
+     "s": 0.86,
      "f": "大"
     },
     {
@@ -3145,37 +3223,37 @@
     {
      "c": 13,
      "k": "witch_doctor_paralyzing_cask",
-     "s": 0.72,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 14,
      "k": "witch_doctor_voodoo_restoration",
-     "s": 0.87,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 15,
      "k": "witch_doctor_maledict",
-     "s": 0.9,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 16,
      "k": "monkey_king_boundless_strike",
-     "s": 0.86,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 17,
      "k": "monkey_king_tree_dance",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 18,
      "k": "monkey_king_jingu_mastery",
-     "s": 0.58,
+     "s": 0.84,
      "f": ""
     },
     {
@@ -3187,55 +3265,55 @@
     {
      "c": 22,
      "k": "meepo_poof",
-     "s": 0.86,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 23,
      "k": "meepo_ransack",
-     "s": 0.63,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 24,
      "k": "shadow_demon_disruption",
-     "s": 0.94,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 25,
      "k": "shadow_demon_disseminate",
-     "s": 0.87,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 26,
      "k": "shadow_demon_shadow_poison",
-     "s": 0.76,
+     "s": 0.75,
      "f": ""
     },
     {
      "c": 29,
      "k": "razor_plasma_field",
-     "s": 0.89,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 30,
      "k": "razor_static_link",
-     "s": 0.91,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 31,
      "k": "razor_storm_surge",
-     "s": 0.84,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 32,
      "k": "naga_siren_mirror_image",
-     "s": 0.9,
+     "s": 0.94,
      "f": ""
     },
     {
@@ -3247,121 +3325,134 @@
     {
      "c": 34,
      "k": "naga_siren_rip_tide",
-     "s": 0.83,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 37,
      "k": "primal_beast_onslaught",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 38,
      "k": "primal_beast_trample",
-     "s": 0.84,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 39,
      "k": "primal_beast_uproar",
-     "s": 0.89,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 40,
      "k": "wisp_tether",
-     "s": 0.92,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 41,
      "k": "wisp_spirits",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 42,
      "k": "wisp_overcharge",
-     "s": 0.88,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 45,
      "k": "brewmaster_thunder_clap",
-     "s": 0.89,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 46,
      "k": "brewmaster_cinder_brew",
-     "s": 0.89,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 47,
      "k": "brewmaster_drunken_brawler",
-     "s": 0.91,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 48,
      "k": "enchantress_impetus",
-     "s": 0.91,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 49,
      "k": "enchantress_enchant",
-     "s": 0.84,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 50,
      "k": "enchantress_natures_attendants",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 53,
      "k": "slardar_sprint",
-     "s": 0.77,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 54,
      "k": "slardar_slithereen_crush",
-     "s": 0.87,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 55,
      "k": "slardar_bash",
-     "s": 0.86,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 56,
      "k": "silencer_curse_of_the_silent",
-     "s": 0.81,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 57,
      "k": "silencer_glaives_of_wisdom",
-     "s": 0.85,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 58,
      "k": "silencer_last_word",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 1,
+   "me": "R3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.79,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -3546,7 +3637,7 @@
    "lock": {
     "nd": 51,
     "heroes": 12,
-    "margin": 0,
+    "margin": 0.01,
     "dark": 11,
     "ratio": 1.32,
     "ok": false
@@ -3556,7 +3647,7 @@
     "npc_dota_hero_dark_willow",
     "npc_dota_hero_gyrocopter",
     "npc_dota_hero_invoker",
-    "npc_dota_hero_keeper_of_the_light",
+    "npc_dota_hero_juggernaut",
     "npc_dota_hero_leshrac",
     "npc_dota_hero_muerta",
     "npc_dota_hero_primal_beast",
@@ -3569,49 +3660,49 @@
     {
      "c": 0,
      "k": "primal_beast_pulverize",
-     "s": 0.91,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 1,
      "k": "void_spirit_astral_step",
-     "s": 0.91,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 2,
      "k": "dark_willow_terrorize",
-     "s": 0.97,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 3,
      "k": "bloodseeker_rupture",
-     "s": 0.94,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 4,
      "k": "leshrac_pulse_nova",
-     "s": 0.92,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 5,
      "k": "pugna_life_drain",
-     "s": 0.89,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 6,
      "k": "gyrocopter_call_down",
-     "s": 0.93,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 7,
      "k": "vengefulspirit_nether_swap",
-     "s": 0.96,
+     "s": 0.88,
      "f": "大"
     },
     {
@@ -3623,49 +3714,49 @@
     {
      "c": 9,
      "k": "ember_spirit_fire_remnant",
-     "s": 0.9,
+     "s": 0.93,
      "f": "大+补位"
     },
     {
      "c": 10,
      "k": "life_stealer_infest",
-     "s": 0.96,
+     "s": 0.95,
      "f": "大+补位"
     },
     {
      "c": 11,
-     "k": "invoker_alacrity_ad",
-     "s": 0.4,
+     "k": "juggernaut_omni_slash",
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 13,
      "k": "primal_beast_onslaught",
-     "s": 0.86,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 14,
      "k": "primal_beast_trample",
-     "s": 0.84,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 15,
      "k": "primal_beast_uproar",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 16,
      "k": "pugna_nether_blast",
-     "s": 0.87,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 17,
      "k": "pugna_decrepify",
-     "s": 0.83,
+     "s": 0.81,
      "f": ""
     },
     {
@@ -3677,25 +3768,25 @@
     {
      "c": 21,
      "k": "void_spirit_aether_remnant",
-     "s": 0.84,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 22,
      "k": "void_spirit_dissimilate",
-     "s": 0.85,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 23,
      "k": "void_spirit_resonant_pulse",
-     "s": 0.84,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 24,
      "k": "leshrac_split_earth",
-     "s": 0.89,
+     "s": 0.92,
      "f": ""
     },
     {
@@ -3707,31 +3798,31 @@
     {
      "c": 26,
      "k": "leshrac_lightning_storm",
-     "s": 0.85,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 29,
      "k": "dark_willow_bramble_maze",
-     "s": 0.86,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 30,
      "k": "dark_willow_shadow_realm",
-     "s": 0.89,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 31,
      "k": "dark_willow_cursed_crown",
-     "s": 0.81,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 32,
      "k": "bloodseeker_bloodrage",
-     "s": 0.92,
+     "s": 0.88,
      "f": ""
     },
     {
@@ -3743,49 +3834,49 @@
     {
      "c": 34,
      "k": "bloodseeker_thirst",
-     "s": 0.24,
+     "s": 0.33,
      "f": ""
     },
     {
      "c": 37,
      "k": "gyrocopter_rocket_barrage",
-     "s": 0.8,
+     "s": 0.78,
      "f": ""
     },
     {
      "c": 38,
      "k": "gyrocopter_homing_missile",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 39,
      "k": "gyrocopter_flak_cannon",
-     "s": 0.8,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 40,
-     "k": "invoker_tornado_ad",
-     "s": 0.48,
+     "k": "juggernaut_blade_fury",
+     "s": 0.77,
      "f": ""
     },
     {
      "c": 41,
-     "k": "invoker_sun_strike_ad",
-     "s": 0.35,
+     "k": "juggernaut_healing_ward",
+     "s": 0.43,
      "f": ""
     },
     {
      "c": 42,
-     "k": "invoker_emp_ad",
-     "s": 0.47,
+     "k": "juggernaut_blade_dance",
+     "s": 0.6,
      "f": ""
     },
     {
      "c": 45,
      "k": "vengefulspirit_magic_missile",
-     "s": 0.92,
+     "s": 0.91,
      "f": ""
     },
     {
@@ -3797,25 +3888,25 @@
     {
      "c": 47,
      "k": "vengefulspirit_command_aura",
-     "s": 0.84,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 48,
-     "k": "keeper_of_the_light_chakra_magic",
-     "s": 0.33,
+     "k": "invoker_ice_wall_ad",
+     "s": 0.25,
      "f": ""
     },
     {
      "c": 49,
-     "k": "keeper_of_the_light_illuminate",
-     "s": 0.48,
+     "k": "invoker_sun_strike_ad",
+     "s": 0.45,
      "f": ""
     },
     {
      "c": 50,
-     "k": "keeper_of_the_light_blinding_light",
-     "s": 0.39,
+     "k": "invoker_emp_ad",
+     "s": 0.41,
      "f": ""
     },
     {
@@ -3827,19 +3918,19 @@
     {
      "c": 54,
      "k": "muerta_the_calling",
-     "s": 0.76,
+     "s": 0.77,
      "f": ""
     },
     {
      "c": 55,
      "k": "muerta_gunslinger",
-     "s": 0.56,
+     "s": 0.57,
      "f": ""
     },
     {
      "c": 56,
      "k": "viper_corrosive_skin",
-     "s": 0.6,
+     "s": 0.59,
      "f": ""
     },
     {
@@ -3851,13 +3942,26 @@
     {
      "c": 58,
      "k": "viper_nethertoxin",
-     "s": 0.33,
+     "s": 0.32,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 2,
+   "me": null,
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -3974,9 +4078,9 @@
    "names": [
     {
      "seat": "L1",
-     "h": "npc_dota_hero_dark_willow",
-     "s": 0.1,
-     "lead": 0.02
+     "h": "npc_dota_hero_juggernaut",
+     "s": 0.13,
+     "lead": 0.03
     },
     {
      "seat": "L2",
@@ -4012,7 +4116,7 @@
      "seat": "R2",
      "h": "npc_dota_hero_primal_beast",
      "s": 0.19,
-     "lead": 0.1
+     "lead": 0.08
     },
     {
      "seat": "R3",
@@ -4028,9 +4132,9 @@
     },
     {
      "seat": "R5",
-     "h": "npc_dota_hero_keeper_of_the_light",
-     "s": 0.1,
-     "lead": 0.07
+     "h": "npc_dota_hero_viper",
+     "s": 0.02,
+     "lead": 0.01
     }
    ]
   },
@@ -4042,7 +4146,7 @@
    "lock": {
     "nd": 58,
     "heroes": 12,
-    "margin": 0.24,
+    "margin": 0.37,
     "dark": 7,
     "ratio": 1.34,
     "ok": true
@@ -4065,19 +4169,19 @@
     {
      "c": 0,
      "k": "primal_beast_pulverize",
-     "s": 0.88,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 1,
      "k": "void_spirit_astral_step",
-     "s": 0.9,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 2,
      "k": "dark_willow_terrorize",
-     "s": 0.97,
+     "s": 0.9,
      "f": "大"
     },
     {
@@ -4089,217 +4193,217 @@
     {
      "c": 4,
      "k": "leshrac_pulse_nova",
-     "s": 0.93,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 5,
      "k": "pugna_life_drain",
-     "s": 0.89,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 6,
      "k": "gyrocopter_call_down",
-     "s": 0.92,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 7,
      "k": "vengefulspirit_nether_swap",
-     "s": 0.96,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 8,
      "k": "muerta_pierce_the_veil",
-     "s": 0.9,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 9,
      "k": "ember_spirit_fire_remnant",
-     "s": 0.9,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 10,
      "k": "life_stealer_infest",
-     "s": 0.96,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 11,
      "k": "juggernaut_omni_slash",
-     "s": 0.92,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 13,
      "k": "primal_beast_onslaught",
-     "s": 0.39,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 14,
      "k": "primal_beast_trample",
-     "s": 0.83,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 15,
      "k": "primal_beast_uproar",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 16,
      "k": "pugna_nether_blast",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 17,
      "k": "pugna_decrepify",
-     "s": 0.7,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 18,
      "k": "pugna_nether_ward",
-     "s": 0.68,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 21,
      "k": "void_spirit_aether_remnant",
-     "s": 0.84,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 22,
      "k": "void_spirit_dissimilate",
-     "s": 0.87,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 23,
      "k": "void_spirit_resonant_pulse",
-     "s": 0.86,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 24,
      "k": "leshrac_split_earth",
-     "s": 0.9,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 25,
      "k": "leshrac_diabolic_edict",
-     "s": 0.96,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 26,
      "k": "leshrac_lightning_storm",
-     "s": 0.91,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 29,
      "k": "dark_willow_bramble_maze",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 30,
      "k": "dark_willow_shadow_realm",
-     "s": 0.77,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 31,
      "k": "dark_willow_cursed_crown",
-     "s": 0.82,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 32,
      "k": "bloodseeker_bloodrage",
-     "s": 0.9,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 33,
      "k": "bloodseeker_blood_bath",
-     "s": 0.84,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 34,
      "k": "bloodseeker_thirst",
-     "s": 0.81,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 37,
      "k": "gyrocopter_rocket_barrage",
-     "s": 0.78,
+     "s": 0.77,
      "f": ""
     },
     {
      "c": 38,
      "k": "gyrocopter_homing_missile",
-     "s": 0.91,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 39,
      "k": "gyrocopter_flak_cannon",
-     "s": 0.93,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 40,
      "k": "juggernaut_blade_fury",
-     "s": 0.88,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 41,
      "k": "juggernaut_healing_ward",
-     "s": 0.75,
+     "s": 0.81,
      "f": ""
     },
     {
      "c": 42,
      "k": "juggernaut_blade_dance",
-     "s": 0.91,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 45,
      "k": "vengefulspirit_magic_missile",
-     "s": 0.92,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 46,
      "k": "vengefulspirit_wave_of_terror",
-     "s": 0.91,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 47,
      "k": "vengefulspirit_command_aura",
-     "s": 0.86,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 48,
      "k": "life_stealer_rage",
-     "s": 0.86,
+     "s": 0.88,
      "f": ""
     },
     {
@@ -4311,31 +4415,31 @@
     {
      "c": 50,
      "k": "life_stealer_feast",
-     "s": 0.83,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 53,
      "k": "muerta_dead_shot",
-     "s": 0.88,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 54,
      "k": "muerta_the_calling",
-     "s": 0.79,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 55,
      "k": "muerta_gunslinger",
-     "s": 0.89,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 56,
      "k": "ember_spirit_searing_chains",
-     "s": 0.9,
+     "s": 0.91,
      "f": ""
     },
     {
@@ -4347,13 +4451,26 @@
     {
      "c": 58,
      "k": "ember_spirit_flame_guard",
-     "s": 0.8,
+     "s": 0.79,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 0,
+   "me": "L2",
+   "meRim": [
+    0,
+    0,
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -4538,9 +4655,9 @@
    "lock": {
     "nd": 57,
     "heroes": 12,
-    "margin": 0.18,
-    "dark": 5,
-    "ratio": 1.36,
+    "margin": 0.29,
+    "dark": 6,
+    "ratio": 1.35,
     "ok": true
    },
    "heroes": [
@@ -4561,25 +4678,25 @@
     {
      "c": 0,
      "k": "death_prophet_exorcism",
-     "s": 0.88,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 1,
      "k": "phantom_assassin_coup_de_grace",
-     "s": 0.87,
+     "s": 0.82,
      "f": "大"
     },
     {
      "c": 2,
      "k": "weaver_time_lapse",
-     "s": 0.97,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 3,
      "k": "medusa_stone_gaze",
-     "s": 0.93,
+     "s": 0.91,
      "f": "大"
     },
     {
@@ -4591,7 +4708,7 @@
     {
      "c": 5,
      "k": "witch_doctor_death_ward",
-     "s": 0.92,
+     "s": 0.91,
      "f": "大"
     },
     {
@@ -4603,73 +4720,73 @@
     {
      "c": 7,
      "k": "tidehunter_ravage",
-     "s": 0.88,
+     "s": 0.68,
      "f": "大"
     },
     {
      "c": 8,
      "k": "undying_flesh_golem",
-     "s": 0.93,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 9,
      "k": "snapfire_mortimer_kisses",
-     "s": 0.9,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 10,
      "k": "marci_unleash",
-     "s": 0.95,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 11,
      "k": "elder_titan_earth_splitter",
-     "s": 0.9,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 13,
      "k": "death_prophet_carrion_swarm",
-     "s": 0.39,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 14,
      "k": "death_prophet_silence",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 15,
      "k": "death_prophet_spirit_siphon",
-     "s": 0.87,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 16,
      "k": "witch_doctor_paralyzing_cask",
-     "s": 0.91,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 17,
      "k": "witch_doctor_voodoo_restoration",
-     "s": 0.87,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 18,
      "k": "witch_doctor_maledict",
-     "s": 0.49,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 21,
      "k": "phantom_assassin_stifling_dagger",
-     "s": 0.89,
+     "s": 0.88,
      "f": ""
     },
     {
@@ -4681,55 +4798,55 @@
     {
      "c": 23,
      "k": "phantom_assassin_immaterial",
-     "s": 0.92,
+     "s": 0.98,
      "f": ""
     },
     {
      "c": 24,
      "k": "warlock_fatal_bonds",
-     "s": 0.9,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 25,
      "k": "warlock_shadow_word",
-     "s": 0.76,
+     "s": 0.67,
      "f": ""
     },
     {
      "c": 26,
      "k": "warlock_upheaval",
-     "s": 0.88,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 29,
      "k": "weaver_the_swarm",
-     "s": 0.81,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 30,
      "k": "weaver_shukuchi",
-     "s": 0.85,
+     "s": 0.81,
      "f": ""
     },
     {
      "c": 31,
      "k": "weaver_geminate_attack",
-     "s": 0.81,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 32,
      "k": "medusa_split_shot",
-     "s": 0.9,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 33,
      "k": "medusa_mystic_snake",
-     "s": 0.87,
+     "s": 0.9,
      "f": ""
     },
     {
@@ -4741,25 +4858,25 @@
     {
      "c": 37,
      "k": "nyx_assassin_impale",
-     "s": 0.83,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 38,
      "k": "nyx_assassin_jolt",
-     "s": 0.76,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 39,
      "k": "nyx_assassin_spiked_carapace",
-     "s": 0.83,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 40,
      "k": "elder_titan_echo_stomp",
-     "s": 0.93,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -4771,37 +4888,37 @@
     {
      "c": 42,
      "k": "elder_titan_natural_order",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 45,
      "k": "tidehunter_gush",
-     "s": 0.89,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 46,
      "k": "tidehunter_kraken_shell",
-     "s": 0.83,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 47,
      "k": "tidehunter_anchor_smash",
-     "s": 0.85,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 48,
      "k": "marci_grapple",
-     "s": 0.88,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 49,
      "k": "marci_companion_run",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
@@ -4813,13 +4930,13 @@
     {
      "c": 53,
      "k": "undying_decay",
-     "s": 0.83,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 54,
      "k": "undying_soul_rip",
-     "s": 0.86,
+     "s": 0.82,
      "f": ""
     },
     {
@@ -4831,25 +4948,38 @@
     {
      "c": 56,
      "k": "snapfire_scatterblast",
-     "s": 0.82,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 57,
      "k": "snapfire_firesnap_cookie",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 58,
      "k": "snapfire_lil_shredder",
-     "s": 0.84,
+     "s": 0.83,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 0,
+   "me": "L1",
+   "meRim": [
+    0,
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -5034,7 +5164,7 @@
    "lock": {
     "nd": 56,
     "heroes": 12,
-    "margin": 0.2,
+    "margin": 0.23,
     "dark": 3,
     "ratio": 1.41,
     "ok": true
@@ -5057,67 +5187,67 @@
     {
      "c": 0,
      "k": "windrunner_focusfire",
-     "s": 0.91,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 1,
      "k": "skywrath_mage_mystic_flare",
-     "s": 0.94,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 2,
      "k": "lion_finger_of_death",
-     "s": 0.86,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 3,
      "k": "doom_bringer_doom",
-     "s": 0.92,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 4,
      "k": "phantom_assassin_coup_de_grace",
-     "s": 0.92,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 5,
      "k": "earth_spirit_magnetize",
-     "s": 0.87,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 6,
      "k": "lich_chain_frost",
-     "s": 0.92,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 7,
      "k": "spectre_haunt",
-     "s": 0.91,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 8,
      "k": "chaos_knight_phantasm",
-     "s": 0.85,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 9,
      "k": "tidehunter_ravage",
-     "s": 0.93,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 10,
      "k": "clinkz_wind_walk",
-     "s": 0.93,
+     "s": 0.95,
      "f": "大"
     },
     {
@@ -5129,19 +5259,19 @@
     {
      "c": 13,
      "k": "windrunner_shackleshot",
-     "s": 0.58,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 14,
      "k": "windrunner_powershot",
-     "s": 0.9,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 15,
      "k": "windrunner_windrun",
-     "s": 0.89,
+     "s": 0.91,
      "f": ""
     },
     {
@@ -5153,151 +5283,151 @@
     {
      "c": 17,
      "k": "earth_spirit_rolling_boulder",
-     "s": 0.92,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 18,
      "k": "earth_spirit_geomagnetic_grip",
-     "s": 0.94,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 21,
      "k": "skywrath_mage_arcane_bolt",
-     "s": 0.92,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 22,
      "k": "skywrath_mage_concussive_shot",
-     "s": 0.92,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 23,
      "k": "skywrath_mage_ancient_seal",
-     "s": 0.94,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 24,
      "k": "phantom_assassin_stifling_dagger",
-     "s": 0.91,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 25,
      "k": "phantom_assassin_phantom_strike",
-     "s": 0.88,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 26,
      "k": "phantom_assassin_immaterial",
-     "s": 0.89,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 29,
      "k": "lion_impale",
-     "s": 0.76,
+     "s": 0.75,
      "f": ""
     },
     {
      "c": 30,
      "k": "lion_voodoo",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 31,
      "k": "lion_mana_drain",
-     "s": 0.9,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 32,
      "k": "doom_bringer_devour",
-     "s": 0.9,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 33,
      "k": "doom_bringer_scorched_earth",
-     "s": 0.78,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 34,
      "k": "doom_bringer_infernal_blade",
-     "s": 0.92,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 37,
      "k": "lich_frost_nova",
-     "s": 0.89,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 38,
      "k": "lich_frost_shield",
-     "s": 0.87,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 39,
      "k": "lich_sinister_gaze",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 40,
      "k": "riki_smoke_screen",
-     "s": 0.93,
+     "s": 0.96,
      "f": ""
     },
     {
      "c": 41,
      "k": "riki_blink_strike",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 42,
      "k": "riki_tricks_of_the_trade",
-     "s": 0.76,
+     "s": 0.75,
      "f": ""
     },
     {
      "c": 45,
      "k": "spectre_spectral_dagger",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 46,
      "k": "spectre_shadow_step",
-     "s": 0.81,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 47,
      "k": "spectre_dispersion",
-     "s": 0.85,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 48,
      "k": "clinkz_strafe",
-     "s": 0.72,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 49,
      "k": "clinkz_searing_arrows",
-     "s": 0.9,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -5309,13 +5439,13 @@
     {
      "c": 53,
      "k": "chaos_knight_chaos_bolt",
-     "s": 0.89,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 54,
      "k": "chaos_knight_reality_rift",
-     "s": 0.89,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -5327,25 +5457,38 @@
     {
      "c": 56,
      "k": "tidehunter_gush",
-     "s": 0.86,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 57,
      "k": "tidehunter_kraken_shell",
-     "s": 0.79,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 58,
      "k": "tidehunter_anchor_smash",
-     "s": 0.79,
+     "s": 0.84,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 0,
+   "me": "R4",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.79
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -5530,7 +5673,7 @@
    "lock": {
     "nd": 56,
     "heroes": 12,
-    "margin": 0.2,
+    "margin": 0.23,
     "dark": 3,
     "ratio": 1.41,
     "ok": true
@@ -5553,67 +5696,67 @@
     {
      "c": 0,
      "k": "windrunner_focusfire",
-     "s": 0.91,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 1,
      "k": "skywrath_mage_mystic_flare",
-     "s": 0.94,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 2,
      "k": "lion_finger_of_death",
-     "s": 0.86,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 3,
      "k": "doom_bringer_doom",
-     "s": 0.92,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 4,
      "k": "phantom_assassin_coup_de_grace",
-     "s": 0.92,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 5,
      "k": "earth_spirit_magnetize",
-     "s": 0.87,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 6,
      "k": "lich_chain_frost",
-     "s": 0.92,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 7,
      "k": "spectre_haunt",
-     "s": 0.91,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 8,
      "k": "chaos_knight_phantasm",
-     "s": 0.85,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 9,
      "k": "tidehunter_ravage",
-     "s": 0.93,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 10,
      "k": "clinkz_wind_walk",
-     "s": 0.93,
+     "s": 0.95,
      "f": "大"
     },
     {
@@ -5625,19 +5768,19 @@
     {
      "c": 13,
      "k": "windrunner_shackleshot",
-     "s": 0.58,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 14,
      "k": "windrunner_powershot",
-     "s": 0.9,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 15,
      "k": "windrunner_windrun",
-     "s": 0.89,
+     "s": 0.91,
      "f": ""
     },
     {
@@ -5649,151 +5792,151 @@
     {
      "c": 17,
      "k": "earth_spirit_rolling_boulder",
-     "s": 0.92,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 18,
      "k": "earth_spirit_geomagnetic_grip",
-     "s": 0.94,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 21,
      "k": "skywrath_mage_arcane_bolt",
-     "s": 0.92,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 22,
      "k": "skywrath_mage_concussive_shot",
-     "s": 0.92,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 23,
      "k": "skywrath_mage_ancient_seal",
-     "s": 0.94,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 24,
      "k": "phantom_assassin_stifling_dagger",
-     "s": 0.91,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 25,
      "k": "phantom_assassin_phantom_strike",
-     "s": 0.88,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 26,
      "k": "phantom_assassin_immaterial",
-     "s": 0.89,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 29,
      "k": "lion_impale",
-     "s": 0.76,
+     "s": 0.75,
      "f": ""
     },
     {
      "c": 30,
      "k": "lion_voodoo",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 31,
      "k": "lion_mana_drain",
-     "s": 0.9,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 32,
      "k": "doom_bringer_devour",
-     "s": 0.9,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 33,
      "k": "doom_bringer_scorched_earth",
-     "s": 0.78,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 34,
      "k": "doom_bringer_infernal_blade",
-     "s": 0.92,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 37,
      "k": "lich_frost_nova",
-     "s": 0.89,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 38,
      "k": "lich_frost_shield",
-     "s": 0.87,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 39,
      "k": "lich_sinister_gaze",
-     "s": 0.85,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 40,
      "k": "riki_smoke_screen",
-     "s": 0.93,
+     "s": 0.96,
      "f": ""
     },
     {
      "c": 41,
      "k": "riki_blink_strike",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 42,
      "k": "riki_tricks_of_the_trade",
-     "s": 0.76,
+     "s": 0.75,
      "f": ""
     },
     {
      "c": 45,
      "k": "spectre_spectral_dagger",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 46,
      "k": "spectre_shadow_step",
-     "s": 0.81,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 47,
      "k": "spectre_dispersion",
-     "s": 0.85,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 48,
      "k": "clinkz_strafe",
-     "s": 0.72,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 49,
      "k": "clinkz_searing_arrows",
-     "s": 0.9,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -5805,13 +5948,13 @@
     {
      "c": 53,
      "k": "chaos_knight_chaos_bolt",
-     "s": 0.89,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 54,
      "k": "chaos_knight_reality_rift",
-     "s": 0.89,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -5823,25 +5966,38 @@
     {
      "c": 56,
      "k": "tidehunter_gush",
-     "s": 0.86,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 57,
      "k": "tidehunter_kraken_shell",
-     "s": 0.79,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 58,
      "k": "tidehunter_anchor_smash",
-     "s": 0.79,
+     "s": 0.84,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 0,
+   "me": "R4",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.79
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -6026,9 +6182,9 @@
    "lock": {
     "nd": 60,
     "heroes": 12,
-    "margin": 0.15,
+    "margin": 0.28,
     "dark": 1,
-    "ratio": 1.31,
+    "ratio": 1.32,
     "ok": true
    },
    "heroes": [
@@ -6049,7 +6205,7 @@
     {
      "c": 0,
      "k": "faceless_void_chronosphere",
-     "s": 0.93,
+     "s": 0.92,
      "f": "大"
     },
     {
@@ -6061,13 +6217,13 @@
     {
      "c": 2,
      "k": "windrunner_focusfire",
-     "s": 0.88,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 3,
      "k": "juggernaut_omni_slash",
-     "s": 0.93,
+     "s": 0.92,
      "f": "大"
     },
     {
@@ -6079,37 +6235,37 @@
     {
      "c": 5,
      "k": "vengefulspirit_nether_swap",
-     "s": 0.87,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 6,
      "k": "necrolyte_reapers_scythe",
-     "s": 0.89,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 7,
      "k": "pudge_dismember",
-     "s": 0.89,
+     "s": 0.81,
      "f": "大+补位"
     },
     {
      "c": 8,
      "k": "life_stealer_infest",
-     "s": 0.86,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 9,
      "k": "nyx_assassin_vendetta",
-     "s": 0.88,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 10,
      "k": "clinkz_wind_walk",
-     "s": 0.93,
+     "s": 0.86,
      "f": "大"
     },
     {
@@ -6121,7 +6277,7 @@
     {
      "c": 13,
      "k": "faceless_void_time_walk",
-     "s": 0.57,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -6133,49 +6289,49 @@
     {
      "c": 15,
      "k": "faceless_void_time_lock",
-     "s": 0.9,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 16,
      "k": "vengefulspirit_magic_missile",
-     "s": 0.96,
+     "s": 0.97,
      "f": ""
     },
     {
      "c": 17,
      "k": "vengefulspirit_wave_of_terror",
-     "s": 0.89,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 18,
      "k": "vengefulspirit_command_aura",
-     "s": 0.77,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 21,
      "k": "slark_dark_pact",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 22,
      "k": "slark_pounce",
-     "s": 0.92,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 23,
      "k": "slark_saltwater_shiv",
-     "s": 0.89,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 24,
      "k": "abyssal_underlord_firestorm",
-     "s": 0.93,
+     "s": 0.92,
      "f": ""
     },
     {
@@ -6193,31 +6349,31 @@
     {
      "c": 29,
      "k": "windrunner_shackleshot",
-     "s": 0.77,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 30,
      "k": "windrunner_powershot",
-     "s": 0.91,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 31,
      "k": "windrunner_windrun",
-     "s": 0.86,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 32,
      "k": "juggernaut_blade_fury",
-     "s": 0.93,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 33,
      "k": "juggernaut_healing_ward",
-     "s": 0.78,
+     "s": 0.83,
      "f": ""
     },
     {
@@ -6229,91 +6385,91 @@
     {
      "c": 37,
      "k": "necrolyte_death_pulse",
-     "s": 0.87,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 38,
      "k": "necrolyte_ghost_shroud",
-     "s": 0.92,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 39,
      "k": "necrolyte_heartstopper_aura",
-     "s": 0.94,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 40,
      "k": "chen_penitence",
-     "s": 0.87,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 41,
      "k": "chen_divine_favor",
-     "s": 0.88,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 42,
      "k": "chen_holy_persuasion",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 45,
      "k": "meepo_earthbind",
-     "s": 0.79,
+     "s": 0.76,
      "f": ""
     },
     {
      "c": 46,
      "k": "meepo_poof",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 47,
      "k": "meepo_ransack",
-     "s": 0.89,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 48,
      "k": "clinkz_strafe",
-     "s": 0.72,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 49,
      "k": "clinkz_searing_arrows",
-     "s": 0.9,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 50,
      "k": "clinkz_death_pact",
-     "s": 0.86,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 53,
      "k": "life_stealer_rage",
-     "s": 0.78,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 54,
      "k": "life_stealer_open_wounds",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 55,
      "k": "life_stealer_feast",
-     "s": 0.88,
+     "s": 0.81,
      "f": ""
     },
     {
@@ -6325,19 +6481,32 @@
     {
      "c": 57,
      "k": "nyx_assassin_jolt",
-     "s": 0.83,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 58,
      "k": "nyx_assassin_spiked_carapace",
-     "s": 0.77,
+     "s": 0.81,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 1,
+   "me": "L0",
+   "meRim": [
+    0.82,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -6522,7 +6691,7 @@
    "lock": {
     "nd": 60,
     "heroes": 12,
-    "margin": 0.15,
+    "margin": 0.28,
     "dark": 2,
     "ratio": 1.31,
     "ok": true
@@ -6545,37 +6714,37 @@
     {
      "c": 0,
      "k": "faceless_void_chronosphere",
-     "s": 0.93,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 1,
      "k": "slark_shadow_dance",
-     "s": 0.88,
+     "s": 0.85,
      "f": "大"
     },
     {
      "c": 2,
      "k": "windrunner_focusfire",
-     "s": 0.88,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 3,
      "k": "juggernaut_omni_slash",
-     "s": 0.93,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 4,
      "k": "abyssal_underlord_dark_portal",
-     "s": 0.89,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 5,
      "k": "vengefulspirit_nether_swap",
-     "s": 0.87,
+     "s": 0.92,
      "f": "大"
     },
     {
@@ -6587,25 +6756,25 @@
     {
      "c": 7,
      "k": "pudge_dismember",
-     "s": 0.89,
+     "s": 0.86,
      "f": "大+补位"
     },
     {
      "c": 8,
      "k": "life_stealer_infest",
-     "s": 0.86,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 9,
      "k": "nyx_assassin_vendetta",
-     "s": 0.88,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 10,
      "k": "clinkz_wind_walk",
-     "s": 0.93,
+     "s": 0.87,
      "f": "大"
     },
     {
@@ -6617,7 +6786,7 @@
     {
      "c": 13,
      "k": "faceless_void_time_walk",
-     "s": 0.57,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -6629,25 +6798,25 @@
     {
      "c": 15,
      "k": "faceless_void_time_lock",
-     "s": 0.9,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 16,
      "k": "vengefulspirit_magic_missile",
-     "s": 0.96,
+     "s": 0.97,
      "f": ""
     },
     {
      "c": 17,
      "k": "vengefulspirit_wave_of_terror",
-     "s": 0.89,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 18,
      "k": "vengefulspirit_command_aura",
-     "s": 0.77,
+     "s": 0.87,
      "f": ""
     },
     {
@@ -6659,61 +6828,61 @@
     {
      "c": 22,
      "k": "slark_pounce",
-     "s": 0.92,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 23,
      "k": "slark_saltwater_shiv",
-     "s": 0.89,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 24,
      "k": "abyssal_underlord_firestorm",
-     "s": 0.93,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 25,
      "k": "abyssal_underlord_pit_of_malice",
-     "s": 0.9,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 26,
      "k": "abyssal_underlord_atrophy_aura",
-     "s": 0.84,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 29,
      "k": "windrunner_shackleshot",
-     "s": 0.77,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 30,
      "k": "windrunner_powershot",
-     "s": 0.91,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 31,
      "k": "windrunner_windrun",
-     "s": 0.86,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 32,
      "k": "juggernaut_blade_fury",
-     "s": 0.93,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 33,
      "k": "juggernaut_healing_ward",
-     "s": 0.78,
+     "s": 0.83,
      "f": ""
     },
     {
@@ -6725,13 +6894,13 @@
     {
      "c": 37,
      "k": "necrolyte_death_pulse",
-     "s": 0.87,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 38,
      "k": "necrolyte_ghost_shroud",
-     "s": 0.92,
+     "s": 0.9,
      "f": ""
     },
     {
@@ -6743,73 +6912,73 @@
     {
      "c": 40,
      "k": "chen_penitence",
-     "s": 0.87,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 41,
      "k": "chen_divine_favor",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 42,
      "k": "chen_holy_persuasion",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 45,
      "k": "meepo_earthbind",
-     "s": 0.79,
+     "s": 0.76,
      "f": ""
     },
     {
      "c": 46,
      "k": "meepo_poof",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 47,
      "k": "meepo_ransack",
-     "s": 0.89,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 48,
      "k": "clinkz_strafe",
-     "s": 0.72,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 49,
      "k": "clinkz_searing_arrows",
-     "s": 0.9,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 50,
      "k": "clinkz_death_pact",
-     "s": 0.86,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 53,
      "k": "life_stealer_rage",
-     "s": 0.78,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 54,
      "k": "life_stealer_open_wounds",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 55,
      "k": "life_stealer_feast",
-     "s": 0.88,
+     "s": 0.81,
      "f": ""
     },
     {
@@ -6821,19 +6990,32 @@
     {
      "c": 57,
      "k": "nyx_assassin_jolt",
-     "s": 0.83,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 58,
      "k": "nyx_assassin_spiked_carapace",
-     "s": 0.77,
+     "s": 0.81,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 1,
+   "me": "L0",
+   "meRim": [
+    0.75,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -7018,9 +7200,9 @@
    "lock": {
     "nd": 53,
     "heroes": 12,
-    "margin": 0.1,
-    "dark": 5,
-    "ratio": 1.38,
+    "margin": 0.31,
+    "dark": 6,
+    "ratio": 1.37,
     "ok": true
    },
    "heroes": [
@@ -7041,25 +7223,25 @@
     {
      "c": 0,
      "k": "ancient_apparition_ice_blast",
-     "s": 0.83,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 1,
      "k": "undying_flesh_golem",
-     "s": 0.93,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 2,
      "k": "muerta_pierce_the_veil",
-     "s": 0.95,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 3,
      "k": "night_stalker_darkness",
-     "s": 0.96,
+     "s": 0.93,
      "f": "大"
     },
     {
@@ -7070,80 +7252,80 @@
     },
     {
      "c": 5,
-     "k": "keeper_of_the_light_spirit_form",
-     "s": 0.71,
-     "f": "大+救回"
+     "k": "?unk:5",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 6,
      "k": "bloodseeker_rupture",
-     "s": 0.9,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 7,
      "k": "juggernaut_omni_slash",
-     "s": 0.9,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 8,
      "k": "lion_finger_of_death",
-     "s": 0.97,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 9,
      "k": "enchantress_untouchable",
-     "s": 0.94,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 10,
      "k": "bane_fiends_grip",
-     "s": 0.94,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 11,
      "k": "luna_eclipse",
-     "s": 0.85,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 13,
      "k": "ancient_apparition_cold_feet",
-     "s": 0.65,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 14,
      "k": "ancient_apparition_ice_vortex",
-     "s": 0.92,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 15,
      "k": "ancient_apparition_chilling_touch",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 16,
      "k": "rubick_telekinesis",
-     "s": 0.85,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 17,
      "k": "rubick_fade_bolt",
-     "s": 0.9,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 18,
      "k": "rubick_arcane_supremacy",
-     "s": 0.47,
+     "s": 0.78,
      "f": ""
     },
     {
@@ -7161,97 +7343,97 @@
     {
      "c": 23,
      "k": "undying_tombstone",
-     "s": 0.95,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 24,
      "k": "dawnbreaker_fire_wreath",
-     "s": 0.82,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 25,
      "k": "dawnbreaker_celestial_hammer",
-     "s": 0.84,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 26,
      "k": "dawnbreaker_luminosity",
-     "s": 0.83,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 29,
      "k": "muerta_dead_shot",
-     "s": 0.87,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 30,
      "k": "muerta_the_calling",
-     "s": 0.86,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 31,
      "k": "muerta_gunslinger",
-     "s": 0.92,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 32,
      "k": "night_stalker_void",
-     "s": 0.93,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 33,
      "k": "night_stalker_crippling_fear",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 34,
      "k": "night_stalker_midnight_feast",
-     "s": 0.95,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 37,
      "k": "bloodseeker_bloodrage",
-     "s": 0.86,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 38,
      "k": "bloodseeker_blood_bath",
-     "s": 0.81,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 39,
      "k": "bloodseeker_thirst",
-     "s": 0.82,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 40,
      "k": "luna_lucent_beam",
-     "s": 0.88,
+     "s": 0.96,
      "f": ""
     },
     {
      "c": 41,
      "k": "luna_moon_glaive",
-     "s": 0.88,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 42,
      "k": "luna_lunar_orbit",
-     "s": 0.93,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -7263,19 +7445,19 @@
     {
      "c": 46,
      "k": "juggernaut_healing_ward",
-     "s": 0.76,
+     "s": 0.77,
      "f": ""
     },
     {
      "c": 47,
      "k": "juggernaut_blade_dance",
-     "s": 0.93,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 48,
      "k": "bane_enfeeble",
-     "s": 0.85,
+     "s": 0.86,
      "f": ""
     },
     {
@@ -7287,49 +7469,62 @@
     {
      "c": 50,
      "k": "bane_nightmare",
-     "s": 0.69,
+     "s": 0.7,
      "f": ""
     },
     {
      "c": 53,
      "k": "lion_impale",
-     "s": 0.65,
+     "s": 0.74,
      "f": ""
     },
     {
      "c": 54,
      "k": "lion_voodoo",
-     "s": 0.84,
+     "s": 0.79,
      "f": ""
     },
     {
      "c": 55,
      "k": "lion_mana_drain",
-     "s": 0.86,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 56,
      "k": "enchantress_impetus",
-     "s": 0.92,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 57,
      "k": "enchantress_enchant",
-     "s": 0.82,
+     "s": 0.84,
      "f": ""
     },
     {
      "c": 58,
      "k": "enchantress_natures_attendants",
-     "s": 0.79,
+     "s": 0.9,
      "f": ""
     }
    ],
-   "unknown": 0,
-   "rescued": 1,
+   "unknown": 1,
+   "rescued": 0,
    "filler": 0,
+   "me": "L0",
+   "meRim": [
+    0.82,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -7513,42 +7708,41 @@
    ],
    "lock": {
     "nd": 28,
-    "heroes": 11,
-    "margin": 0.01,
-    "dark": 42,
-    "ratio": 1.33,
+    "heroes": 10,
+    "margin": 0,
+    "dark": 41,
+    "ratio": 1.3,
     "ok": false
    },
    "heroes": [
-    "npc_dota_hero_bane",
-    "npc_dota_hero_bloodseeker",
-    "npc_dota_hero_enchantress",
+    "npc_dota_hero_brewmaster",
     "npc_dota_hero_invoker",
     "npc_dota_hero_juggernaut",
-    "npc_dota_hero_lion",
-    "npc_dota_hero_luna",
     "npc_dota_hero_morphling",
     "npc_dota_hero_muerta",
-    "npc_dota_hero_night_stalker",
-    "npc_dota_hero_rubick"
+    "npc_dota_hero_omniknight",
+    "npc_dota_hero_primal_beast",
+    "npc_dota_hero_rubick",
+    "npc_dota_hero_skeleton_king",
+    "npc_dota_hero_tidehunter"
    ],
    "cells": [
     {
      "c": 0,
      "k": "ancient_apparition_ice_blast",
-     "s": 0.83,
+     "s": 0.81,
      "f": "大+补位"
     },
     {
      "c": 1,
-     "k": "invoker_emp_ad",
-     "s": 0.59,
-     "f": "大"
+     "k": "?unk:1",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 2,
      "k": "muerta_pierce_the_veil",
-     "s": 0.95,
+     "s": 0.89,
      "f": "大"
     },
     {
@@ -7571,164 +7765,164 @@
     },
     {
      "c": 6,
-     "k": "bloodseeker_rupture",
-     "s": 0.63,
-     "f": "大"
+     "k": "?unk:6",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 7,
      "k": "juggernaut_omni_slash",
-     "s": 0.96,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 8,
-     "k": "lion_finger_of_death",
-     "s": 0.64,
-     "f": "大+排除法"
+     "k": "?unk:8",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 9,
-     "k": "enchantress_untouchable",
-     "s": 0.62,
-     "f": "大+排除法"
+     "k": "?unk:9",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 10,
-     "k": "bane_fiends_grip",
-     "s": 0.76,
+     "k": "invoker_ice_wall_ad",
+     "s": 0.57,
      "f": "大"
     },
     {
      "c": 11,
      "k": "luna_eclipse",
-     "s": 0.91,
-     "f": "大"
+     "s": 0.92,
+     "f": "大+补位"
     },
     {
      "c": 13,
-     "k": "invoker_ice_wall_ad",
-     "s": 0.31,
+     "k": "tidehunter_anchor_smash",
+     "s": 0.06,
      "f": ""
     },
     {
      "c": 14,
-     "k": "invoker_sun_strike_ad",
-     "s": 0.32,
+     "k": "tidehunter_kraken_shell",
+     "s": 0.15,
      "f": ""
     },
     {
      "c": 15,
-     "k": "invoker_ghost_walk_ad",
-     "s": 0.45,
+     "k": "tidehunter_gush",
+     "s": 0.54,
      "f": ""
     },
     {
      "c": 16,
      "k": "rubick_telekinesis",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 17,
      "k": "rubick_fade_bolt",
-     "s": 0.77,
+     "s": 0.57,
      "f": ""
     },
     {
      "c": 18,
      "k": "rubick_arcane_supremacy",
-     "s": 0.57,
+     "s": 0.21,
      "f": ""
     },
     {
      "c": 24,
-     "k": "morphling_adaptive_strike_agi",
-     "s": 0.13,
+     "k": "skeleton_king_mortal_strike",
+     "s": 0.14,
      "f": ""
     },
     {
      "c": 25,
-     "k": "morphling_waveform",
-     "s": 0.37,
+     "k": "skeleton_king_bone_guard",
+     "s": 0.4,
      "f": ""
     },
     {
      "c": 26,
-     "k": "?unk:26",
-     "s": 0.35,
-     "f": "未知"
+     "k": "skeleton_king_hellfire_blast",
+     "s": 0.22,
+     "f": ""
     },
     {
      "c": 29,
      "k": "muerta_dead_shot",
-     "s": 0.47,
+     "s": 0.55,
      "f": ""
     },
     {
      "c": 30,
      "k": "muerta_the_calling",
-     "s": 0.86,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 31,
      "k": "muerta_gunslinger",
-     "s": 0.3,
+     "s": 0.49,
      "f": ""
     },
     {
      "c": 32,
-     "k": "night_stalker_void",
-     "s": 0.87,
+     "k": "primal_beast_uproar",
+     "s": 0.45,
      "f": ""
     },
     {
      "c": 33,
-     "k": "night_stalker_crippling_fear",
-     "s": 0.65,
+     "k": "primal_beast_trample",
+     "s": 0.45,
      "f": ""
     },
     {
      "c": 34,
-     "k": "night_stalker_midnight_feast",
-     "s": 0.9,
+     "k": "primal_beast_onslaught",
+     "s": 0.28,
      "f": ""
     },
     {
      "c": 37,
-     "k": "bloodseeker_bloodrage",
-     "s": 0.86,
+     "k": "invoker_chaos_meteor_ad",
+     "s": 0.65,
      "f": ""
     },
     {
      "c": 38,
-     "k": "bloodseeker_blood_bath",
-     "s": 0.15,
+     "k": "invoker_ghost_walk_ad",
+     "s": 0.45,
      "f": ""
     },
     {
      "c": 39,
-     "k": "bloodseeker_thirst",
-     "s": 0.27,
+     "k": "invoker_tornado_ad",
+     "s": 0.19,
      "f": ""
     },
     {
      "c": 40,
-     "k": "luna_lucent_beam",
-     "s": 0.6,
+     "k": "brewmaster_cinder_brew",
+     "s": 0.1,
      "f": ""
     },
     {
      "c": 41,
-     "k": "luna_moon_glaive",
-     "s": 0.93,
+     "k": "brewmaster_thunder_clap",
+     "s": 0.55,
      "f": ""
     },
     {
      "c": 42,
-     "k": "luna_lunar_orbit",
-     "s": 0.82,
+     "k": "brewmaster_drunken_brawler",
+     "s": 0.11,
      "f": ""
     },
     {
@@ -7740,81 +7934,76 @@
     {
      "c": 46,
      "k": "juggernaut_healing_ward",
-     "s": 0.8,
+     "s": 0.66,
      "f": ""
     },
     {
      "c": 47,
      "k": "juggernaut_blade_dance",
-     "s": 0.34,
+     "s": 0.38,
      "f": ""
     },
     {
      "c": 48,
-     "k": "bane_enfeeble",
-     "s": 0.36,
+     "k": "morphling_waveform",
+     "s": 0.05,
      "f": ""
     },
     {
      "c": 49,
-     "k": "bane_brain_sap",
-     "s": 0.61,
+     "k": "morphling_adaptive_strike_agi",
+     "s": 0.31,
      "f": ""
     },
     {
      "c": 50,
-     "k": "bane_nightmare",
-     "s": 0.71,
-     "f": ""
-    },
-    {
-     "c": 53,
-     "k": "lion_impale",
-     "s": 0.28,
-     "f": ""
-    },
-    {
-     "c": 54,
-     "k": "lion_voodoo",
-     "s": 0.1,
-     "f": ""
-    },
-    {
-     "c": 55,
-     "k": "lion_mana_drain",
-     "s": 0.87,
-     "f": ""
+     "k": "?unk:50",
+     "s": 0.35,
+     "f": "未知"
     },
     {
      "c": 56,
-     "k": "enchantress_impetus",
-     "s": 0.7,
+     "k": "omniknight_purification",
+     "s": 0.07,
      "f": ""
     },
     {
      "c": 57,
-     "k": "enchantress_enchant",
-     "s": 0.55,
+     "k": "omniknight_martyr",
+     "s": 0.46,
      "f": ""
     },
     {
      "c": 58,
-     "k": "enchantress_natures_attendants",
-     "s": 0.9,
+     "k": "omniknight_hammer_of_purity",
+     "s": 0.55,
      "f": ""
     }
    ],
-   "unknown": 4,
+   "unknown": 8,
    "rescued": 0,
-   "filler": 1,
+   "filler": 2,
+   "me": "L0",
+   "meRim": [
+    0.82,
+    0,
+    0,
+    0,
+    0,
+    0.29,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
      "filled": 4,
      "slots": [
       {
-       "k": "luna_lucent_beam",
-       "s": 0.33,
+       "k": "omniknight_purification",
+       "s": 0.31,
        "g": "undying_soul_rip",
        "gs": 0.8
       },
@@ -7825,8 +8014,8 @@
        "gs": 0.97
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.52,
+       "k": "rubick_fade_bolt",
+       "s": 0.4,
        "g": "undying_decay",
        "gs": 0.95
       },
@@ -7849,20 +8038,20 @@
        "gs": 0.63
       },
       {
-       "k": "bane_brain_sap",
-       "s": 0.61,
+       "k": "brewmaster_thunder_clap",
+       "s": 0.57,
        "g": "ancient_apparition_ice_vortex",
        "gs": 0.97
       },
       {
-       "k": "night_stalker_midnight_feast",
-       "s": 0.99,
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.48,
        "g": "night_stalker_midnight_feast",
        "gs": 0.99
       },
       {
-       "k": "enchantress_untouchable",
-       "s": 0.72,
+       "k": "muerta_gunslinger",
+       "s": 0.2,
        "g": "enchantress_untouchable",
        "gs": 0.72
       }
@@ -7873,26 +8062,26 @@
      "filled": 4,
      "slots": [
       {
-       "k": "night_stalker_midnight_feast",
-       "s": 0.38,
+       "k": "luna_eclipse",
+       "s": 0.36,
        "g": "dawnbreaker_fire_wreath",
        "gs": 0.89
       },
       {
-       "k": "luna_lucent_beam",
-       "s": 0.99,
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.59,
        "g": "luna_lucent_beam",
        "gs": 0.99
       },
       {
-       "k": "bane_enfeeble",
-       "s": 0.89,
+       "k": "luna_eclipse",
+       "s": 0.26,
        "g": "bane_enfeeble",
        "gs": 0.89
       },
       {
-       "k": "invoker_ice_wall_ad",
-       "s": 0.32,
+       "k": "tidehunter_gush",
+       "s": 0.34,
        "g": "dawnbreaker_solar_guardian",
        "gs": 0.77
       }
@@ -7903,26 +8092,26 @@
      "filled": 4,
      "slots": [
       {
-       "k": "night_stalker_crippling_fear",
-       "s": 0.91,
+       "k": "invoker_chaos_meteor_ad",
+       "s": 0.47,
        "g": "night_stalker_crippling_fear",
        "gs": 0.91
       },
       {
-       "k": "bane_brain_sap",
-       "s": 0.95,
+       "k": "brewmaster_thunder_clap",
+       "s": 0.62,
        "g": "bane_brain_sap",
        "gs": 0.95
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.56,
+       "k": "rubick_fade_bolt",
+       "s": 0.41,
        "g": "undying_tombstone",
        "gs": 0.92
       },
       {
-       "k": "bloodseeker_rupture",
-       "s": 0.05,
+       "k": "omniknight_hammer_of_purity",
+       "s": 0.1,
        "g": "keeper_of_the_light_spirit_form",
        "gs": 0.76
       }
@@ -7933,20 +8122,20 @@
      "filled": 3,
      "slots": [
       {
-       "k": "lion_impale",
-       "s": 0.66,
+       "k": "invoker_chaos_meteor_ad",
+       "s": 0.43,
        "g": "lion_impale",
        "gs": 0.66
       },
       {
-       "k": "luna_lunar_orbit",
-       "s": 0.93,
+       "k": "brewmaster_thunder_clap",
+       "s": 0.46,
        "g": "luna_lunar_orbit",
        "gs": 0.93
       },
       null,
       {
-       "k": "luna_lunar_orbit",
+       "k": "brewmaster_thunder_clap",
        "s": 0.28,
        "g": "night_stalker_darkness",
        "gs": 0.81
@@ -7959,27 +8148,27 @@
      "slots": [
       {
        "k": "juggernaut_blade_dance",
-       "s": 0.95,
+       "s": 0.99,
        "g": "juggernaut_blade_dance",
-       "gs": 0.95
+       "gs": 0.99
       },
       {
-       "k": "enchantress_enchant",
-       "s": 0.84,
+       "k": "brewmaster_thunder_clap",
+       "s": 0.47,
        "g": "enchantress_enchant",
-       "gs": 0.84
+       "gs": 0.85
       },
       {
-       "k": "enchantress_impetus",
-       "s": 0.45,
+       "k": "brewmaster_thunder_clap",
+       "s": 0.43,
        "g": "ancient_apparition_cold_feet",
-       "gs": 0.95
+       "gs": 0.93
       },
       {
        "k": "ancient_apparition_ice_blast",
-       "s": 0.93,
+       "s": 0.91,
        "g": "ancient_apparition_ice_blast",
-       "gs": 0.93
+       "gs": 0.91
       }
      ]
     },
@@ -7988,26 +8177,26 @@
      "filled": 4,
      "slots": [
       {
-       "k": "enchantress_impetus",
-       "s": 0.23,
+       "k": "skeleton_king_bone_guard",
+       "s": 0.31,
        "g": "dawnbreaker_celestial_hammer",
-       "gs": 0.95
+       "gs": 0.9
       },
       {
        "k": "juggernaut_blade_fury",
-       "s": 0.88,
+       "s": 0.87,
        "g": "juggernaut_blade_fury",
-       "gs": 0.88
+       "gs": 0.87
       },
       {
        "k": "muerta_dead_shot",
-       "s": 0.98,
+       "s": 0.97,
        "g": "muerta_dead_shot",
-       "gs": 0.98
+       "gs": 0.97
       },
       {
-       "k": "bane_brain_sap",
-       "s": 0.64,
+       "k": "brewmaster_thunder_clap",
+       "s": 0.44,
        "g": "undying_flesh_golem",
        "gs": 0.92
       }
@@ -8018,10 +8207,10 @@
      "filled": 3,
      "slots": [
       {
-       "k": "night_stalker_void",
-       "s": 0.97,
+       "k": "invoker_chaos_meteor_ad",
+       "s": 0.36,
        "g": "night_stalker_void",
-       "gs": 0.97
+       "gs": 0.95
       },
       {
        "k": "muerta_gunslinger",
@@ -8030,10 +8219,10 @@
        "gs": 0.87
       },
       {
-       "k": "enchantress_impetus",
-       "s": 0.42,
+       "k": "brewmaster_thunder_clap",
+       "s": 0.48,
        "g": "dawnbreaker_luminosity",
-       "gs": 0.94
+       "gs": 0.92
       },
       null
      ]
@@ -8043,23 +8232,23 @@
      "filled": 3,
      "slots": [
       {
-       "k": "lion_voodoo",
-       "s": 0.93,
+       "k": "omniknight_martyr",
+       "s": 0.34,
        "g": "lion_voodoo",
-       "gs": 0.93
+       "gs": 0.9
       },
       {
-       "k": "bloodseeker_thirst",
-       "s": 0.8,
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.1,
        "g": "bloodseeker_thirst",
-       "gs": 0.8
+       "gs": 0.81
       },
       null,
       {
-       "k": "lion_finger_of_death",
-       "s": 0.96,
+       "k": "invoker_ice_wall_ad",
+       "s": 0.41,
        "g": "lion_finger_of_death",
-       "gs": 0.96
+       "gs": 0.93
       }
      ]
     },
@@ -8068,23 +8257,23 @@
      "filled": 3,
      "slots": [
       {
-       "k": "bloodseeker_blood_bath",
-       "s": 0.94,
+       "k": "invoker_tornado_ad",
+       "s": 0.37,
        "g": "bloodseeker_blood_bath",
        "gs": 0.94
       },
       {
-       "k": "enchantress_impetus",
-       "s": 0.93,
+       "k": "juggernaut_blade_dance",
+       "s": 0.45,
        "g": "enchantress_impetus",
        "gs": 0.93
       },
       null,
       {
-       "k": "bloodseeker_rupture",
-       "s": 0.93,
+       "k": "invoker_tornado_ad",
+       "s": 0.38,
        "g": "bloodseeker_rupture",
-       "gs": 0.93
+       "gs": 0.95
       }
      ]
     }
@@ -8095,102 +8284,230 @@
      "j": 0,
      "g": "undying_soul_rip",
      "gs": 0.8,
-     "p": "luna_lucent_beam",
-     "ps": 0.33
+     "p": "omniknight_purification",
+     "ps": 0.31
     },
     {
      "seat": "L1",
      "j": 2,
      "g": "undying_decay",
      "gs": 0.95,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.52
+     "p": "rubick_fade_bolt",
+     "ps": 0.4
     },
     {
      "seat": "L2",
      "j": 1,
      "g": "ancient_apparition_ice_vortex",
      "gs": 0.97,
-     "p": "bane_brain_sap",
-     "ps": 0.61
+     "p": "brewmaster_thunder_clap",
+     "ps": 0.57
+    },
+    {
+     "seat": "L2",
+     "j": 2,
+     "g": "night_stalker_midnight_feast",
+     "gs": 0.99,
+     "p": "morphling_adaptive_strike_agi",
+     "ps": 0.48
+    },
+    {
+     "seat": "L2",
+     "j": 3,
+     "g": "enchantress_untouchable",
+     "gs": 0.72,
+     "p": "muerta_gunslinger",
+     "ps": 0.2
     },
     {
      "seat": "L3",
      "j": 0,
      "g": "dawnbreaker_fire_wreath",
      "gs": 0.89,
-     "p": "night_stalker_midnight_feast",
-     "ps": 0.38
+     "p": "luna_eclipse",
+     "ps": 0.36
+    },
+    {
+     "seat": "L3",
+     "j": 1,
+     "g": "luna_lucent_beam",
+     "gs": 0.99,
+     "p": "morphling_adaptive_strike_agi",
+     "ps": 0.59
+    },
+    {
+     "seat": "L3",
+     "j": 2,
+     "g": "bane_enfeeble",
+     "gs": 0.89,
+     "p": "luna_eclipse",
+     "ps": 0.26
     },
     {
      "seat": "L3",
      "j": 3,
      "g": "dawnbreaker_solar_guardian",
      "gs": 0.77,
-     "p": "invoker_ice_wall_ad",
-     "ps": 0.32
+     "p": "tidehunter_gush",
+     "ps": 0.34
+    },
+    {
+     "seat": "L4",
+     "j": 0,
+     "g": "night_stalker_crippling_fear",
+     "gs": 0.91,
+     "p": "invoker_chaos_meteor_ad",
+     "ps": 0.47
+    },
+    {
+     "seat": "L4",
+     "j": 1,
+     "g": "bane_brain_sap",
+     "gs": 0.95,
+     "p": "brewmaster_thunder_clap",
+     "ps": 0.62
     },
     {
      "seat": "L4",
      "j": 2,
      "g": "undying_tombstone",
      "gs": 0.92,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.56
+     "p": "rubick_fade_bolt",
+     "ps": 0.41
     },
     {
      "seat": "L4",
      "j": 3,
      "g": "keeper_of_the_light_spirit_form",
      "gs": 0.76,
-     "p": "bloodseeker_rupture",
-     "ps": 0.05
+     "p": "omniknight_hammer_of_purity",
+     "ps": 0.1
+    },
+    {
+     "seat": "L5",
+     "j": 0,
+     "g": "lion_impale",
+     "gs": 0.66,
+     "p": "invoker_chaos_meteor_ad",
+     "ps": 0.43
+    },
+    {
+     "seat": "L5",
+     "j": 1,
+     "g": "luna_lunar_orbit",
+     "gs": 0.93,
+     "p": "brewmaster_thunder_clap",
+     "ps": 0.46
     },
     {
      "seat": "L5",
      "j": 3,
      "g": "night_stalker_darkness",
      "gs": 0.81,
-     "p": "luna_lunar_orbit",
+     "p": "brewmaster_thunder_clap",
      "ps": 0.28
+    },
+    {
+     "seat": "R1",
+     "j": 1,
+     "g": "enchantress_enchant",
+     "gs": 0.85,
+     "p": "brewmaster_thunder_clap",
+     "ps": 0.47
     },
     {
      "seat": "R1",
      "j": 2,
      "g": "ancient_apparition_cold_feet",
-     "gs": 0.95,
-     "p": "enchantress_impetus",
-     "ps": 0.45
+     "gs": 0.93,
+     "p": "brewmaster_thunder_clap",
+     "ps": 0.43
     },
     {
      "seat": "R2",
      "j": 0,
      "g": "dawnbreaker_celestial_hammer",
-     "gs": 0.95,
-     "p": "enchantress_impetus",
-     "ps": 0.23
+     "gs": 0.9,
+     "p": "skeleton_king_bone_guard",
+     "ps": 0.31
     },
     {
      "seat": "R2",
      "j": 3,
      "g": "undying_flesh_golem",
      "gs": 0.92,
-     "p": "bane_brain_sap",
-     "ps": 0.64
+     "p": "brewmaster_thunder_clap",
+     "ps": 0.44
+    },
+    {
+     "seat": "R3",
+     "j": 0,
+     "g": "night_stalker_void",
+     "gs": 0.95,
+     "p": "invoker_chaos_meteor_ad",
+     "ps": 0.36
     },
     {
      "seat": "R3",
      "j": 2,
      "g": "dawnbreaker_luminosity",
+     "gs": 0.92,
+     "p": "brewmaster_thunder_clap",
+     "ps": 0.48
+    },
+    {
+     "seat": "R4",
+     "j": 0,
+     "g": "lion_voodoo",
+     "gs": 0.9,
+     "p": "omniknight_martyr",
+     "ps": 0.34
+    },
+    {
+     "seat": "R4",
+     "j": 1,
+     "g": "bloodseeker_thirst",
+     "gs": 0.81,
+     "p": "morphling_adaptive_strike_agi",
+     "ps": 0.1
+    },
+    {
+     "seat": "R4",
+     "j": 3,
+     "g": "lion_finger_of_death",
+     "gs": 0.93,
+     "p": "invoker_ice_wall_ad",
+     "ps": 0.41
+    },
+    {
+     "seat": "R5",
+     "j": 0,
+     "g": "bloodseeker_blood_bath",
      "gs": 0.94,
-     "p": "enchantress_impetus",
-     "ps": 0.42
+     "p": "invoker_tornado_ad",
+     "ps": 0.37
+    },
+    {
+     "seat": "R5",
+     "j": 1,
+     "g": "enchantress_impetus",
+     "gs": 0.93,
+     "p": "juggernaut_blade_dance",
+     "ps": 0.45
+    },
+    {
+     "seat": "R5",
+     "j": 3,
+     "g": "bloodseeker_rupture",
+     "gs": 0.95,
+     "p": "invoker_tornado_ad",
+     "ps": 0.38
     }
    ],
    "slotScore": {
     "n": 36,
-    "med": 0.88,
-    "lo": 0.05
+    "med": 0.44,
+    "lo": 0.1
    },
    "count": {
     "slots": 36,
@@ -8200,21 +8517,21 @@
    "names": [
     {
      "seat": "L1",
-     "h": "npc_dota_hero_lion",
-     "s": 0.59,
-     "lead": 0.26
+     "h": "npc_dota_hero_primal_beast",
+     "s": 0.34,
+     "lead": 0.03
     },
     {
      "seat": "L2",
-     "h": "npc_dota_hero_enchantress",
-     "s": 0.59,
-     "lead": 0.18
+     "h": "npc_dota_hero_primal_beast",
+     "s": 0.34,
+     "lead": 0.02
     },
     {
      "seat": "L3",
-     "h": "npc_dota_hero_luna",
-     "s": 0.58,
-     "lead": 0.23
+     "h": "npc_dota_hero_primal_beast",
+     "s": 0.36,
+     "lead": 0.01
     },
     {
      "seat": "L4",
@@ -8224,39 +8541,39 @@
     },
     {
      "seat": "L5",
-     "h": "npc_dota_hero_night_stalker",
-     "s": 0.57,
-     "lead": 0.16
+     "h": "npc_dota_hero_invoker",
+     "s": 0.41,
+     "lead": 0.01
     },
     {
      "seat": "R1",
      "h": "npc_dota_hero_muerta",
      "s": 0.35,
-     "lead": 0.07
+     "lead": 0.05
     },
     {
      "seat": "R2",
      "h": "npc_dota_hero_juggernaut",
      "s": 0.35,
-     "lead": 0.13
+     "lead": 0.15
     },
     {
      "seat": "R3",
-     "h": "npc_dota_hero_bloodseeker",
-     "s": 0.27,
-     "lead": 0.12
+     "h": "npc_dota_hero_primal_beast",
+     "s": 0.26,
+     "lead": 0.11
     },
     {
      "seat": "R4",
-     "h": "npc_dota_hero_bane",
-     "s": 0.56,
-     "lead": 0.17
+     "h": "npc_dota_hero_juggernaut",
+     "s": 0.36,
+     "lead": 0.03
     },
     {
      "seat": "R5",
      "h": "npc_dota_hero_invoker",
      "s": 0.34,
-     "lead": 0
+     "lead": 0.05
     }
    ]
   },
@@ -8268,9 +8585,9 @@
    "lock": {
     "nd": 51,
     "heroes": 12,
-    "margin": 0.16,
-    "dark": 13,
-    "ratio": 1.42,
+    "margin": 0.2,
+    "dark": 12,
+    "ratio": 1.41,
     "ok": true
    },
    "heroes": [
@@ -8291,31 +8608,31 @@
     {
      "c": 0,
      "k": "ancient_apparition_ice_blast",
-     "s": 0.83,
+     "s": 0.8,
      "f": "大"
     },
     {
      "c": 1,
      "k": "undying_flesh_golem",
-     "s": 0.91,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 2,
      "k": "muerta_pierce_the_veil",
-     "s": 0.91,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 3,
      "k": "night_stalker_darkness",
-     "s": 0.88,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 4,
      "k": "dawnbreaker_solar_guardian",
-     "s": 0.89,
+     "s": 0.9,
      "f": "大"
     },
     {
@@ -8327,25 +8644,25 @@
     {
      "c": 6,
      "k": "bloodseeker_rupture",
-     "s": 0.89,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 7,
      "k": "juggernaut_omni_slash",
-     "s": 0.91,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 8,
      "k": "lion_finger_of_death",
-     "s": 0.9,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 9,
      "k": "enchantress_untouchable",
-     "s": 0.87,
+     "s": 0.9,
      "f": "大"
     },
     {
@@ -8363,37 +8680,37 @@
     {
      "c": 13,
      "k": "ancient_apparition_cold_feet",
-     "s": 0.59,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 14,
      "k": "ancient_apparition_ice_vortex",
-     "s": 0.86,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 15,
      "k": "ancient_apparition_chilling_touch",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 16,
      "k": "rubick_telekinesis",
-     "s": 0.92,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 17,
      "k": "rubick_fade_bolt",
-     "s": 0.94,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 18,
      "k": "rubick_arcane_supremacy",
-     "s": 0.32,
+     "s": 0.34,
      "f": ""
     },
     {
@@ -8411,7 +8728,7 @@
     {
      "c": 23,
      "k": "undying_tombstone",
-     "s": 0.92,
+     "s": 0.95,
      "f": ""
     },
     {
@@ -8423,7 +8740,7 @@
     {
      "c": 25,
      "k": "dawnbreaker_celestial_hammer",
-     "s": 0.25,
+     "s": 0.21,
      "f": ""
     },
     {
@@ -8435,13 +8752,13 @@
     {
      "c": 29,
      "k": "muerta_dead_shot",
-     "s": 0.9,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 30,
      "k": "muerta_the_calling",
-     "s": 0.86,
+     "s": 0.87,
      "f": ""
     },
     {
@@ -8453,109 +8770,109 @@
     {
      "c": 32,
      "k": "night_stalker_void",
-     "s": 0.93,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 33,
      "k": "night_stalker_crippling_fear",
-     "s": 0.86,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 34,
      "k": "night_stalker_midnight_feast",
-     "s": 0.89,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 37,
      "k": "bloodseeker_bloodrage",
-     "s": 0.86,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 38,
      "k": "bloodseeker_blood_bath",
-     "s": 0.88,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 39,
      "k": "bloodseeker_thirst",
-     "s": 0.91,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 40,
      "k": "luna_lucent_beam",
-     "s": 0.96,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 41,
      "k": "luna_moon_glaive",
-     "s": 0.93,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 42,
      "k": "luna_lunar_orbit",
-     "s": 0.93,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 45,
      "k": "juggernaut_blade_fury",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 46,
      "k": "juggernaut_healing_ward",
-     "s": 0.8,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 47,
      "k": "juggernaut_blade_dance",
-     "s": 0.93,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 48,
      "k": "bane_enfeeble",
-     "s": 0.81,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 49,
      "k": "bane_brain_sap",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 50,
      "k": "bane_nightmare",
-     "s": 0.7,
+     "s": 0.72,
      "f": ""
     },
     {
      "c": 53,
      "k": "lion_impale",
-     "s": 0.68,
+     "s": 0.76,
      "f": ""
     },
     {
      "c": 54,
      "k": "lion_voodoo",
-     "s": 0.79,
+     "s": 0.78,
      "f": ""
     },
     {
      "c": 55,
      "k": "lion_mana_drain",
-     "s": 0.85,
+     "s": 0.94,
      "f": ""
     },
     {
@@ -8567,19 +8884,32 @@
     {
      "c": 57,
      "k": "enchantress_enchant",
-     "s": 0.84,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 58,
      "k": "enchantress_natures_attendants",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     }
    ],
    "unknown": 1,
    "rescued": 0,
    "filler": 0,
+   "me": "L0",
+   "meRim": [
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -8778,155 +9108,156 @@
    ],
    "lock": {
     "nd": 25,
-    "heroes": 10,
-    "margin": 0.01,
-    "dark": 36,
+    "heroes": 11,
+    "margin": 0,
+    "dark": 39,
     "ratio": 1.33,
     "ok": false
    },
    "heroes": [
     "npc_dota_hero_ancient_apparition",
+    "npc_dota_hero_bloodseeker",
     "npc_dota_hero_enchantress",
     "npc_dota_hero_juggernaut",
     "npc_dota_hero_lion",
     "npc_dota_hero_luna",
     "npc_dota_hero_morphling",
     "npc_dota_hero_muerta",
-    "npc_dota_hero_night_stalker",
     "npc_dota_hero_primal_beast",
-    "npc_dota_hero_rubick"
+    "npc_dota_hero_rubick",
+    "npc_dota_hero_skeleton_king"
    ],
    "cells": [
     {
      "c": 0,
      "k": "ancient_apparition_ice_blast",
-     "s": 0.79,
+     "s": 0.83,
      "f": "大"
     },
     {
      "c": 1,
      "k": "undying_flesh_golem",
-     "s": 0.85,
+     "s": 0.89,
      "f": "大+补位"
     },
     {
      "c": 2,
      "k": "muerta_pierce_the_veil",
-     "s": 0.85,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 3,
      "k": "night_stalker_darkness",
-     "s": 0.88,
-     "f": "大"
+     "s": 0.8,
+     "f": "大+补位"
     },
     {
      "c": 4,
      "k": "dawnbreaker_solar_guardian",
-     "s": 0.9,
+     "s": 0.91,
      "f": "大+补位"
     },
     {
      "c": 5,
-     "k": "?unk:5",
-     "s": 0,
-     "f": "大+未知"
+     "k": "keeper_of_the_light_spirit_form",
+     "s": 0.79,
+     "f": "大+补位"
     },
     {
      "c": 6,
-     "k": "?unk:6",
-     "s": 0,
-     "f": "大+未知"
+     "k": "bloodseeker_rupture",
+     "s": 0.64,
+     "f": "大+排除法"
     },
     {
      "c": 7,
      "k": "juggernaut_omni_slash",
-     "s": 0.92,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 8,
      "k": "lion_finger_of_death",
-     "s": 0.76,
+     "s": 0.75,
      "f": "大"
     },
     {
      "c": 9,
      "k": "enchantress_untouchable",
-     "s": 0.89,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 10,
      "k": "bane_fiends_grip",
-     "s": 0.72,
+     "s": 0.94,
      "f": "大+补位"
     },
     {
      "c": 11,
      "k": "luna_eclipse",
-     "s": 0.93,
+     "s": 0.94,
      "f": "大"
     },
     {
      "c": 13,
-     "k": "ancient_apparition_ice_vortex",
-     "s": 0.48,
+     "k": "ancient_apparition_cold_feet",
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 14,
-     "k": "ancient_apparition_cold_feet",
-     "s": 0.2,
+     "k": "ancient_apparition_ice_vortex",
+     "s": 0.28,
      "f": ""
     },
     {
      "c": 15,
      "k": "ancient_apparition_chilling_touch",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 16,
      "k": "rubick_telekinesis",
-     "s": 0.91,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 17,
      "k": "rubick_arcane_supremacy",
-     "s": 0.28,
+     "s": 0.27,
      "f": ""
     },
     {
      "c": 18,
      "k": "rubick_fade_bolt",
-     "s": 0.21,
+     "s": 0.2,
      "f": ""
     },
     {
-     "c": 24,
-     "k": "morphling_adaptive_strike_agi",
-     "s": 0.13,
-     "f": ""
-    },
-    {
-     "c": 25,
-     "k": "morphling_waveform",
-     "s": 0.36,
-     "f": ""
-    },
-    {
-     "c": 26,
-     "k": "?unk:26",
+     "c": 21,
+     "k": "primal_beast_uproar",
      "s": 0.35,
-     "f": "未知"
+     "f": ""
+    },
+    {
+     "c": 22,
+     "k": "primal_beast_onslaught",
+     "s": 0.34,
+     "f": ""
+    },
+    {
+     "c": 23,
+     "k": "primal_beast_trample",
+     "s": 0.35,
+     "f": ""
     },
     {
      "c": 29,
      "k": "muerta_dead_shot",
-     "s": 0.9,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -8938,61 +9269,61 @@
     {
      "c": 31,
      "k": "muerta_gunslinger",
-     "s": 0.72,
+     "s": 0.18,
      "f": ""
     },
     {
      "c": 32,
-     "k": "night_stalker_void",
-     "s": 0.84,
+     "k": "skeleton_king_hellfire_blast",
+     "s": 0.42,
      "f": ""
     },
     {
      "c": 33,
-     "k": "night_stalker_crippling_fear",
-     "s": 0.72,
+     "k": "skeleton_king_bone_guard",
+     "s": 0.56,
      "f": ""
     },
     {
      "c": 34,
-     "k": "night_stalker_midnight_feast",
-     "s": 0.61,
+     "k": "skeleton_king_mortal_strike",
+     "s": 0.21,
      "f": ""
     },
     {
      "c": 37,
      "k": "bloodseeker_bloodrage",
-     "s": 0.9,
-     "f": "补位"
+     "s": 0.89,
+     "f": ""
     },
     {
      "c": 38,
-     "k": "primal_beast_trample",
-     "s": 0.34,
+     "k": "bloodseeker_blood_bath",
+     "s": 0.2,
      "f": ""
     },
     {
      "c": 39,
-     "k": "primal_beast_onslaught",
-     "s": 0.36,
+     "k": "bloodseeker_thirst",
+     "s": 0.21,
      "f": ""
     },
     {
      "c": 40,
      "k": "luna_lucent_beam",
-     "s": 0.44,
+     "s": 0.78,
      "f": ""
     },
     {
      "c": 41,
      "k": "luna_moon_glaive",
-     "s": 0.92,
+     "s": 0.97,
      "f": ""
     },
     {
      "c": 42,
      "k": "luna_lunar_orbit",
-     "s": 0.46,
+     "s": 0.45,
      "f": ""
     },
     {
@@ -9004,55 +9335,86 @@
     {
      "c": 46,
      "k": "juggernaut_healing_ward",
-     "s": 0.77,
+     "s": 0.79,
      "f": ""
     },
     {
      "c": 47,
      "k": "juggernaut_blade_dance",
-     "s": 0.32,
+     "s": 0.38,
      "f": ""
     },
     {
+     "c": 48,
+     "k": "morphling_waveform",
+     "s": 0.16,
+     "f": ""
+    },
+    {
+     "c": 49,
+     "k": "morphling_adaptive_strike_agi",
+     "s": 0.34,
+     "f": ""
+    },
+    {
+     "c": 50,
+     "k": "bane_nightmare",
+     "s": 0.73,
+     "f": "救回"
+    },
+    {
      "c": 53,
-     "k": "lion_voodoo",
-     "s": 0.06,
+     "k": "lion_impale",
+     "s": 0.3,
      "f": ""
     },
     {
      "c": 54,
-     "k": "lion_impale",
-     "s": 0.16,
+     "k": "lion_voodoo",
+     "s": 0.08,
      "f": ""
     },
     {
      "c": 55,
      "k": "lion_mana_drain",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 56,
      "k": "enchantress_impetus",
-     "s": 0.4,
+     "s": 0.73,
      "f": ""
     },
     {
      "c": 57,
      "k": "enchantress_enchant",
-     "s": 0.48,
+     "s": 0.65,
      "f": ""
     },
     {
      "c": 58,
      "k": "enchantress_natures_attendants",
-     "s": 0.82,
+     "s": 0.85,
      "f": ""
     }
    ],
-   "unknown": 3,
-   "rescued": 0,
-   "filler": 4,
+   "unknown": 0,
+   "rescued": 1,
+   "filler": 5,
+   "me": "L0",
+   "meRim": [
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0.03,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -9101,8 +9463,8 @@
        "gs": 0.95
       },
       {
-       "k": "night_stalker_midnight_feast",
-       "s": 0.97,
+       "k": "undying_flesh_golem",
+       "s": 0.46,
        "g": "night_stalker_midnight_feast",
        "gs": 0.97
       },
@@ -9144,8 +9506,8 @@
      "filled": 4,
      "slots": [
       {
-       "k": "night_stalker_crippling_fear",
-       "s": 0.96,
+       "k": "skeleton_king_bone_guard",
+       "s": 0.39,
        "g": "night_stalker_crippling_fear",
        "gs": 0.96
       },
@@ -9162,8 +9524,8 @@
        "gs": 0.93
       },
       {
-       "k": "muerta_pierce_the_veil",
-       "s": 0.08,
+       "k": "keeper_of_the_light_spirit_form",
+       "s": 0.88,
        "g": "keeper_of_the_light_spirit_form",
        "gs": 0.88
       }
@@ -9249,8 +9611,8 @@
      "filled": 3,
      "slots": [
       {
-       "k": "night_stalker_void",
-       "s": 0.97,
+       "k": "enchantress_impetus",
+       "s": 0.36,
        "g": "night_stalker_void",
        "gs": 0.97
       },
@@ -9280,8 +9642,8 @@
        "gs": 0.93
       },
       {
-       "k": "night_stalker_midnight_feast",
-       "s": 0.14,
+       "k": "bloodseeker_thirst",
+       "s": 0.77,
        "g": "bloodseeker_thirst",
        "gs": 0.77
       },
@@ -9299,8 +9661,8 @@
      "filled": 3,
      "slots": [
       {
-       "k": "luna_eclipse",
-       "s": 0.34,
+       "k": "bloodseeker_blood_bath",
+       "s": 0.94,
        "g": "bloodseeker_blood_bath",
        "gs": 0.94
       },
@@ -9312,8 +9674,8 @@
       },
       null,
       {
-       "k": "morphling_adaptive_strike_agi",
-       "s": 0.36,
+       "k": "bloodseeker_rupture",
+       "s": 0.94,
        "g": "bloodseeker_rupture",
        "gs": 0.94
       }
@@ -9338,6 +9700,14 @@
      "ps": 0.55
     },
     {
+     "seat": "L2",
+     "j": 2,
+     "g": "night_stalker_midnight_feast",
+     "gs": 0.97,
+     "p": "undying_flesh_golem",
+     "ps": 0.46
+    },
+    {
      "seat": "L3",
      "j": 0,
      "g": "dawnbreaker_fire_wreath",
@@ -9352,6 +9722,14 @@
      "gs": 0.9,
      "p": "luna_eclipse",
      "ps": 0.22
+    },
+    {
+     "seat": "L4",
+     "j": 0,
+     "g": "night_stalker_crippling_fear",
+     "gs": 0.96,
+     "p": "skeleton_king_bone_guard",
+     "ps": 0.39
     },
     {
      "seat": "L4",
@@ -9370,14 +9748,6 @@
      "ps": 0.5
     },
     {
-     "seat": "L4",
-     "j": 3,
-     "g": "keeper_of_the_light_spirit_form",
-     "gs": 0.88,
-     "p": "muerta_pierce_the_veil",
-     "ps": 0.08
-    },
-    {
      "seat": "R2",
      "j": 0,
      "g": "dawnbreaker_celestial_hammer",
@@ -9387,41 +9757,25 @@
     },
     {
      "seat": "R3",
+     "j": 0,
+     "g": "night_stalker_void",
+     "gs": 0.97,
+     "p": "enchantress_impetus",
+     "ps": 0.36
+    },
+    {
+     "seat": "R3",
      "j": 2,
      "g": "dawnbreaker_luminosity",
      "gs": 0.94,
      "p": "ancient_apparition_ice_vortex",
      "ps": 0.47
-    },
-    {
-     "seat": "R4",
-     "j": 1,
-     "g": "bloodseeker_thirst",
-     "gs": 0.77,
-     "p": "night_stalker_midnight_feast",
-     "ps": 0.14
-    },
-    {
-     "seat": "R5",
-     "j": 0,
-     "g": "bloodseeker_blood_bath",
-     "gs": 0.94,
-     "p": "luna_eclipse",
-     "ps": 0.34
-    },
-    {
-     "seat": "R5",
-     "j": 3,
-     "g": "bloodseeker_rupture",
-     "gs": 0.94,
-     "p": "morphling_adaptive_strike_agi",
-     "ps": 0.36
     }
    ],
    "slotScore": {
     "n": 33,
     "med": 0.88,
-    "lo": 0.08
+    "lo": 0.22
    },
    "count": {
     "slots": 33,
@@ -9455,9 +9809,9 @@
     },
     {
      "seat": "L5",
-     "h": "npc_dota_hero_night_stalker",
-     "s": 0.55,
-     "lead": 0.16
+     "h": "npc_dota_hero_enchantress",
+     "s": 0.38,
+     "lead": 0.01
     },
     {
      "seat": "R1",
@@ -9469,25 +9823,25 @@
      "seat": "R2",
      "h": "npc_dota_hero_juggernaut",
      "s": 0.36,
-     "lead": 0.2
+     "lead": 0.14
     },
     {
      "seat": "R3",
-     "h": "npc_dota_hero_primal_beast",
-     "s": 0.42,
-     "lead": 0.07
+     "h": "npc_dota_hero_bloodseeker",
+     "s": 0.58,
+     "lead": 0.16
     },
     {
      "seat": "R4",
-     "h": "npc_dota_hero_juggernaut",
-     "s": 0.3,
-     "lead": 0.05
+     "h": "npc_dota_hero_bloodseeker",
+     "s": 0.33,
+     "lead": 0.03
     },
     {
      "seat": "R5",
-     "h": "npc_dota_hero_night_stalker",
+     "h": "npc_dota_hero_bloodseeker",
      "s": 0.31,
-     "lead": 0.04
+     "lead": 0.03
     }
    ]
   },
@@ -9498,18 +9852,16 @@
    ],
    "lock": {
     "nd": 0,
-    "heroes": 5,
-    "margin": 0,
-    "dark": 37,
-    "ratio": 0.6,
+    "heroes": 3,
+    "margin": 0.01,
+    "dark": 31,
+    "ratio": 0.56,
     "ok": false
    },
    "heroes": [
-    "npc_dota_hero_broodmother",
-    "npc_dota_hero_crystal_maiden",
-    "npc_dota_hero_dazzle",
     "npc_dota_hero_invoker",
-    "npc_dota_hero_morphling"
+    "npc_dota_hero_morphling",
+    "npc_dota_hero_skeleton_king"
    ],
    "cells": [
     {
@@ -9526,9 +9878,9 @@
     },
     {
      "c": 2,
-     "k": "invoker_cold_snap_ad",
-     "s": 0.46,
-     "f": "大"
+     "k": "?unk:2",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 3,
@@ -9562,15 +9914,15 @@
     },
     {
      "c": 8,
-     "k": "dazzle_nothl_projection",
-     "s": 0.24,
-     "f": "大+排除法"
+     "k": "invoker_deafening_blast_ad",
+     "s": 0.45,
+     "f": "大"
     },
     {
      "c": 9,
-     "k": "crystal_maiden_freezing_field",
-     "s": 0.24,
-     "f": "大+排除法"
+     "k": "?unk:9",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 10,
@@ -9580,14 +9932,14 @@
     },
     {
      "c": 11,
-     "k": "broodmother_spawn_spiderlings",
-     "s": 0.55,
+     "k": "skeleton_king_reincarnation",
+     "s": 0.37,
      "f": "大"
     },
     {
      "c": 16,
-     "k": "invoker_sun_strike_ad",
-     "s": 0.23,
+     "k": "invoker_cold_snap_ad",
+     "s": 0.29,
      "f": ""
     },
     {
@@ -9599,85 +9951,62 @@
     {
      "c": 18,
      "k": "invoker_ice_wall_ad",
-     "s": 0.65,
+     "s": 0.69,
      "f": ""
     },
     {
      "c": 24,
-     "k": "broodmother_insatiable_hunger",
-     "s": 0.57,
-     "f": ""
-    },
-    {
-     "c": 25,
-     "k": "broodmother_spin_web",
-     "s": 0.31,
-     "f": ""
-    },
-    {
-     "c": 26,
-     "k": "broodmother_incapacitating_bite",
+     "k": "skeleton_king_hellfire_blast",
      "s": 0.33,
      "f": ""
     },
     {
-     "c": 37,
-     "k": "morphling_adaptive_strike_agi",
-     "s": 0.15,
+     "c": 25,
+     "k": "skeleton_king_bone_guard",
+     "s": 0.66,
      "f": ""
     },
     {
-     "c": 38,
-     "k": "?unk:38",
-     "s": 0.35,
-     "f": "未知"
-    },
-    {
-     "c": 39,
-     "k": "morphling_waveform",
-     "s": 0.15,
+     "c": 26,
+     "k": "skeleton_king_mortal_strike",
+     "s": 0.22,
      "f": ""
-    },
-    {
-     "c": 45,
-     "k": "crystal_maiden_crystal_nova",
-     "s": 0.32,
-     "f": ""
-    },
-    {
-     "c": 46,
-     "k": "crystal_maiden_frostbite",
-     "s": 0.14,
-     "f": ""
-    },
-    {
-     "c": 47,
-     "k": "?unk:47",
-     "s": 0.35,
-     "f": "未知"
     },
     {
      "c": 56,
-     "k": "dazzle_poison_touch",
-     "s": 0.23,
+     "k": "morphling_adaptive_strike_agi",
+     "s": 0.26,
      "f": ""
     },
     {
      "c": 57,
-     "k": "dazzle_shadow_wave",
-     "s": 0.44,
+     "k": "morphling_waveform",
+     "s": 0.16,
      "f": ""
     },
     {
      "c": 58,
-     "k": "dazzle_shallow_grave",
-     "s": 0.19,
-     "f": ""
+     "k": "?unk:58",
+     "s": 0.35,
+     "f": "未知"
     }
    ],
-   "unknown": 9,
+   "unknown": 10,
    "rescued": 0,
    "filler": 1,
+   "me": "L0",
+   "meRim": [
+    0.81,
+    0,
+    0,
+    0,
+    0,
+    0.27,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -9685,27 +10014,27 @@
      "slots": [
       {
        "k": "morphling_adaptive_strike_agi",
-       "s": 0.33,
-       "g": "undying_soul_rip",
+       "s": 0.34,
+       "g": "omniknight_purification",
+       "gs": 0.42
+      },
+      {
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.28,
+       "g": "rubick_fade_bolt",
+       "gs": 0.48
+      },
+      {
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.49,
+       "g": "jakiro_liquid_ice",
        "gs": 0.66
       },
       {
-       "k": "crystal_maiden_crystal_nova",
-       "s": 0.41,
-       "g": "rubick_fade_bolt",
-       "gs": 0.88
-      },
-      {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.51,
-       "g": "undying_decay",
-       "gs": 0.83
-      },
-      {
-       "k": "dazzle_nothl_projection",
-       "s": 0.41,
-       "g": "luna_eclipse",
-       "gs": 0.83
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.27,
+       "g": "invoker_ghost_walk_ad",
+       "gs": 0.53
       }
      ]
     },
@@ -9714,28 +10043,28 @@
      "filled": 4,
      "slots": [
       {
-       "k": "crystal_maiden_crystal_nova",
-       "s": 0.35,
-       "g": "rubick_arcane_supremacy",
-       "gs": 0.44
-      },
-      {
-       "k": "crystal_maiden_crystal_nova",
-       "s": 0.61,
-       "g": "ancient_apparition_ice_vortex",
-       "gs": 0.9
+       "k": "invoker_cold_snap_ad",
+       "s": 0.19,
+       "g": "abaddon_death_coil",
+       "gs": 0.36
       },
       {
        "k": "invoker_cold_snap_ad",
-       "s": 0.56,
-       "g": "night_stalker_midnight_feast",
-       "gs": 0.93
+       "s": 0.37,
+       "g": "ancient_apparition_ice_vortex",
+       "gs": 0.7
       },
       {
-       "k": "crystal_maiden_crystal_nova",
-       "s": 0.21,
-       "g": "enchantress_untouchable",
-       "gs": 0.55
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.6,
+       "g": "dark_seer_vacuum",
+       "gs": 0.75
+      },
+      {
+       "k": "invoker_cold_snap_ad",
+       "s": 0.19,
+       "g": "wisp_relocate",
+       "gs": 0.32
       }
      ]
     },
@@ -9745,27 +10074,27 @@
      "slots": [
       {
        "k": "morphling_adaptive_strike_agi",
-       "s": 0.35,
-       "g": "dawnbreaker_fire_wreath",
-       "gs": 0.73
+       "s": 0.54,
+       "g": "morphling_adaptive_strike_agi",
+       "gs": 0.54
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.64,
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.61,
        "g": "luna_lucent_beam",
-       "gs": 0.97
+       "gs": 0.89
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.16,
-       "g": "bane_enfeeble",
-       "gs": 0.53
+       "k": "invoker_cold_snap_ad",
+       "s": 0.13,
+       "g": "visage_summon_familiars",
+       "gs": 0.29
       },
       {
-       "k": "broodmother_insatiable_hunger",
-       "s": 0.35,
-       "g": "dawnbreaker_solar_guardian",
-       "gs": 0.58
+       "k": "invoker_ice_wall_ad",
+       "s": 0.34,
+       "g": "necrolyte_death_pulse",
+       "gs": 0.35
       }
      ]
     },
@@ -9775,27 +10104,27 @@
      "slots": [
       {
        "k": "invoker_chaos_meteor_ad",
-       "s": 0.47,
+       "s": 0.52,
        "g": "night_stalker_crippling_fear",
+       "gs": 0.57
+      },
+      {
+       "k": "invoker_cold_snap_ad",
+       "s": 0.49,
+       "g": "dark_seer_vacuum",
        "gs": 0.74
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.62,
-       "g": "bane_brain_sap",
-       "gs": 0.87
-      },
-      {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.57,
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.35,
        "g": "undying_tombstone",
-       "gs": 0.7
+       "gs": 0.54
       },
       {
-       "k": "dazzle_nothl_projection",
-       "s": 0.14,
-       "g": "keeper_of_the_light_spirit_form",
-       "gs": 0.42
+       "k": "skeleton_king_hellfire_blast",
+       "s": 0.06,
+       "g": "warlock_rain_of_chaos",
+       "gs": 0.22
       }
      ]
     },
@@ -9805,27 +10134,27 @@
      "slots": [
       {
        "k": "invoker_chaos_meteor_ad",
-       "s": 0.38,
+       "s": 0.41,
        "g": "lion_impale",
-       "gs": 0.5
+       "gs": 0.48
       },
       {
-       "k": "dazzle_nothl_projection",
-       "s": 0.32,
-       "g": "luna_lunar_orbit",
-       "gs": 0.73
+       "k": "morphling_adaptive_strike_agi",
+       "s": 0.22,
+       "g": "legion_commander_moment_of_courage",
+       "gs": 0.37
       },
       {
        "k": "riki_smoke_screen",
-       "s": 0.21,
+       "s": 0.27,
        "g": "bane_nightmare",
-       "gs": 0.42
+       "gs": 0.38
       },
       {
-       "k": "crystal_maiden_crystal_nova",
+       "k": "morphling_adaptive_strike_agi",
        "s": 0.24,
-       "g": "night_stalker_darkness",
-       "gs": 0.58
+       "g": "leshrac_diabolic_edict",
+       "gs": 0.33
       }
      ]
     },
@@ -9834,28 +10163,28 @@
      "filled": 4,
      "slots": [
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.38,
-       "g": "juggernaut_blade_dance",
-       "gs": 0.66
-      },
-      {
-       "k": "invoker_sun_strike_ad",
+       "k": "invoker_cold_snap_ad",
        "s": 0.33,
-       "g": "huskar_burning_spear",
-       "gs": 0.42
+       "g": "juggernaut_blade_dance",
+       "gs": 0.58
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.4,
-       "g": "slardar_amplify_damage",
-       "gs": 0.43
+       "k": "skeleton_king_mortal_strike",
+       "s": 0.25,
+       "g": "huskar_burning_spear",
+       "gs": 0.45
+      },
+      {
+       "k": "invoker_cold_snap_ad",
+       "s": 0.3,
+       "g": "rattletrap_power_cogs",
+       "gs": 0.46
       },
       {
        "k": "morphling_adaptive_strike_agi",
-       "s": 0.4,
+       "s": 0.41,
        "g": "lich_frost_nova",
-       "gs": 0.53
+       "gs": 0.54
       }
      ]
     },
@@ -9864,26 +10193,26 @@
      "filled": 4,
      "slots": [
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.28,
+       "k": "invoker_cold_snap_ad",
+       "s": 0.23,
        "g": "viper_nethertoxin",
-       "gs": 0.42
+       "gs": 0.38
       },
       {
-       "k": "dazzle_nothl_projection",
-       "s": 0.32,
-       "g": "puck_phase_shift",
-       "gs": 0.42
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.44,
+       "g": "legion_commander_moment_of_courage",
+       "gs": 0.47
       },
       {
-       "k": "dazzle_shadow_wave",
-       "s": 0.56,
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.53,
        "g": "mirana_invis",
-       "gs": 0.61
+       "gs": 0.65
       },
       {
        "k": "invoker_cold_snap_ad",
-       "s": 0.65,
+       "s": 0.61,
        "g": "jakiro_liquid_ice",
        "gs": 0.69
       }
@@ -9894,28 +10223,28 @@
      "filled": 4,
      "slots": [
       {
-       "k": "broodmother_spin_web",
-       "s": 0.18,
-       "g": "obsidian_destroyer_astral_imprisonment",
-       "gs": 0.46
+       "k": "invoker_cold_snap_ad",
+       "s": 0.24,
+       "g": "phantom_lancer_phantom_edge",
+       "gs": 0.43
       },
       {
-       "k": "broodmother_spin_web",
+       "k": "invoker_ice_wall_ad",
+       "s": 0.16,
+       "g": "sven_storm_bolt",
+       "gs": 0.41
+      },
+      {
+       "k": "invoker_cold_snap_ad",
+       "s": 0.36,
+       "g": "keeper_of_the_light_illuminate",
+       "gs": 0.48
+      },
+      {
+       "k": "invoker_ice_wall_ad",
        "s": 0.33,
-       "g": "lich_frost_shield",
-       "gs": 0.4
-      },
-      {
-       "k": "crystal_maiden_crystal_nova",
-       "s": 0.41,
-       "g": "hoodwink_bushwhack",
-       "gs": 0.47
-      },
-      {
-       "k": "broodmother_spawn_spiderlings",
-       "s": 0.37,
        "g": "vengefulspirit_wave_of_terror",
-       "gs": 0.58
+       "gs": 0.57
       }
      ]
     },
@@ -9924,28 +10253,28 @@
      "filled": 4,
      "slots": [
       {
-       "k": "dazzle_shadow_wave",
-       "s": 0.28,
-       "g": "faceless_void_chronosphere",
-       "gs": 0.38
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.3,
+       "g": "vengefulspirit_wave_of_terror",
+       "gs": 0.39
       },
       {
-       "k": "crystal_maiden_freezing_field",
+       "k": "invoker_deafening_blast_ad",
        "s": 0.13,
        "g": "enchantress_impetus",
-       "gs": 0.3
+       "gs": 0.25
       },
       {
-       "k": "crystal_maiden_crystal_nova",
+       "k": "invoker_cold_snap_ad",
        "s": 0.24,
-       "g": "spectre_dispersion",
-       "gs": 0.34
+       "g": "tinker_laser",
+       "gs": 0.32
       },
       {
-       "k": "broodmother_spawn_spiderlings",
-       "s": 0.28,
+       "k": "invoker_ice_wall_ad",
+       "s": 0.25,
        "g": "lion_finger_of_death",
-       "gs": 0.47
+       "gs": 0.5
       }
      ]
     },
@@ -9954,27 +10283,27 @@
      "filled": 4,
      "slots": [
       {
-       "k": "morphling_adaptive_strike_agi",
-       "s": 0.27,
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.32,
        "g": "earthshaker_fissure",
-       "gs": 0.49
+       "gs": 0.53
       },
       {
        "k": "invoker_cold_snap_ad",
        "s": 0.47,
        "g": "enchantress_impetus",
-       "gs": 0.69
+       "gs": 0.68
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.25,
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.26,
        "g": "legion_commander_overwhelming_odds",
-       "gs": 0.42
+       "gs": 0.47
       },
       {
-       "k": "morphling_adaptive_strike_agi",
-       "s": 0.32,
-       "g": "earthshaker_fissure",
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.35,
+       "g": "bloodseeker_blood_bath",
        "gs": 0.51
       }
      ]
@@ -9983,121 +10312,65 @@
    "outOfPool": [
     {
      "seat": "L1",
-     "j": 0,
-     "g": "undying_soul_rip",
-     "gs": 0.66,
-     "p": "morphling_adaptive_strike_agi",
-     "ps": 0.33
-    },
-    {
-     "seat": "L1",
-     "j": 1,
-     "g": "rubick_fade_bolt",
-     "gs": 0.88,
-     "p": "crystal_maiden_crystal_nova",
-     "ps": 0.41
-    },
-    {
-     "seat": "L1",
      "j": 2,
-     "g": "undying_decay",
-     "gs": 0.83,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.51
-    },
-    {
-     "seat": "L1",
-     "j": 3,
-     "g": "luna_eclipse",
-     "gs": 0.83,
-     "p": "dazzle_nothl_projection",
-     "ps": 0.41
+     "g": "jakiro_liquid_ice",
+     "gs": 0.66,
+     "p": "invoker_deafening_blast_ad",
+     "ps": 0.49
     },
     {
      "seat": "L2",
      "j": 1,
      "g": "ancient_apparition_ice_vortex",
-     "gs": 0.9,
-     "p": "crystal_maiden_crystal_nova",
-     "ps": 0.61
+     "gs": 0.7,
+     "p": "invoker_cold_snap_ad",
+     "ps": 0.37
     },
     {
      "seat": "L2",
      "j": 2,
-     "g": "night_stalker_midnight_feast",
-     "gs": 0.93,
-     "p": "invoker_cold_snap_ad",
-     "ps": 0.56
-    },
-    {
-     "seat": "L3",
-     "j": 0,
-     "g": "dawnbreaker_fire_wreath",
-     "gs": 0.73,
+     "g": "dark_seer_vacuum",
+     "gs": 0.75,
      "p": "morphling_adaptive_strike_agi",
-     "ps": 0.35
+     "ps": 0.6
     },
     {
      "seat": "L3",
      "j": 1,
      "g": "luna_lucent_beam",
-     "gs": 0.97,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.64
+     "gs": 0.89,
+     "p": "morphling_adaptive_strike_agi",
+     "ps": 0.61
     },
     {
      "seat": "L4",
-     "j": 0,
-     "g": "night_stalker_crippling_fear",
+     "j": 1,
+     "g": "dark_seer_vacuum",
      "gs": 0.74,
-     "p": "invoker_chaos_meteor_ad",
-     "ps": 0.47
+     "p": "invoker_cold_snap_ad",
+     "ps": 0.49
     },
     {
-     "seat": "L4",
-     "j": 1,
-     "g": "bane_brain_sap",
-     "gs": 0.87,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.62
-    },
-    {
-     "seat": "L4",
+     "seat": "R2",
      "j": 2,
-     "g": "undying_tombstone",
-     "gs": 0.7,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.57
-    },
-    {
-     "seat": "L5",
-     "j": 1,
-     "g": "luna_lunar_orbit",
-     "gs": 0.73,
-     "p": "dazzle_nothl_projection",
-     "ps": 0.32
-    },
-    {
-     "seat": "R1",
-     "j": 0,
-     "g": "juggernaut_blade_dance",
-     "gs": 0.66,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.38
+     "g": "mirana_invis",
+     "gs": 0.65,
+     "p": "invoker_deafening_blast_ad",
+     "ps": 0.53
     },
     {
      "seat": "R5",
      "j": 1,
      "g": "enchantress_impetus",
-     "gs": 0.69,
+     "gs": 0.68,
      "p": "invoker_cold_snap_ad",
      "ps": 0.47
     }
    ],
    "slotScore": {
     "n": 40,
-    "med": 0.35,
-    "lo": 0.13
+    "med": 0.33,
+    "lo": 0.06
    },
    "count": {
     "slots": 40,
@@ -10107,27 +10380,27 @@
    "names": [
     {
      "seat": "L1",
-     "h": "npc_dota_hero_dazzle",
-     "s": 0.35,
-     "lead": 0.14
+     "h": "npc_dota_hero_skeleton_king",
+     "s": 0.24,
+     "lead": 0.05
     },
     {
      "seat": "L2",
-     "h": "npc_dota_hero_crystal_maiden",
-     "s": 0.41,
-     "lead": 0.1
+     "h": "npc_dota_hero_invoker",
+     "s": 0.31,
+     "lead": 0.03
     },
     {
      "seat": "L3",
-     "h": "npc_dota_hero_dazzle",
-     "s": 0.33,
-     "lead": 0.16
+     "h": "npc_dota_hero_skeleton_king",
+     "s": 0.22,
+     "lead": 0.04
     },
     {
      "seat": "L4",
-     "h": "npc_dota_hero_dazzle",
-     "s": 0.32,
-     "lead": 0.04
+     "h": "npc_dota_hero_invoker",
+     "s": 0.28,
+     "lead": 0.03
     },
     {
      "seat": "L5",
@@ -10137,9 +10410,9 @@
     },
     {
      "seat": "R1",
-     "h": "npc_dota_hero_dazzle",
-     "s": 0.37,
-     "lead": 0.02
+     "h": "npc_dota_hero_morphling",
+     "s": 0.35,
+     "lead": 0.04
     },
     {
      "seat": "R2",
@@ -10149,21 +10422,530 @@
     },
     {
      "seat": "R3",
-     "h": "npc_dota_hero_dazzle",
-     "s": 0.29,
+     "h": null,
+     "s": 0.28,
      "lead": 0.01
     },
     {
      "seat": "R4",
-     "h": "npc_dota_hero_dazzle",
-     "s": 0.27,
-     "lead": 0.04
+     "h": "npc_dota_hero_skeleton_king",
+     "s": 0.28,
+     "lead": 0.06
     },
     {
      "seat": "R5",
      "h": "npc_dota_hero_invoker",
      "s": 0.27,
      "lead": 0.02
+    }
+   ]
+  },
+  "bracket_2560_0912": {
+   "res": [
+    2560,
+    1440
+   ],
+   "lock": {
+    "nd": 56,
+    "heroes": 12,
+    "margin": 0.25,
+    "dark": 3,
+    "ratio": 1.41,
+    "ok": true
+   },
+   "heroes": [
+    "npc_dota_hero_abyssal_underlord",
+    "npc_dota_hero_chen",
+    "npc_dota_hero_disruptor",
+    "npc_dota_hero_drow_ranger",
+    "npc_dota_hero_enchantress",
+    "npc_dota_hero_gyrocopter",
+    "npc_dota_hero_legion_commander",
+    "npc_dota_hero_medusa",
+    "npc_dota_hero_sand_king",
+    "npc_dota_hero_slardar",
+    "npc_dota_hero_snapfire",
+    "npc_dota_hero_ursa"
+   ],
+   "cells": [
+    {
+     "c": 0,
+     "k": "sandking_epicenter",
+     "s": 0.92,
+     "f": "大"
+    },
+    {
+     "c": 1,
+     "k": "medusa_stone_gaze",
+     "s": 0.97,
+     "f": "大"
+    },
+    {
+     "c": 2,
+     "k": "ursa_enrage",
+     "s": 0.97,
+     "f": "大"
+    },
+    {
+     "c": 3,
+     "k": "legion_commander_duel",
+     "s": 0.93,
+     "f": "大"
+    },
+    {
+     "c": 4,
+     "k": "snapfire_mortimer_kisses",
+     "s": 0.9,
+     "f": "大"
+    },
+    {
+     "c": 5,
+     "k": "disruptor_static_storm",
+     "s": 0.93,
+     "f": "大"
+    },
+    {
+     "c": 6,
+     "k": "drow_ranger_marksmanship",
+     "s": 0.93,
+     "f": "大"
+    },
+    {
+     "c": 7,
+     "k": "abyssal_underlord_dark_portal",
+     "s": 0.9,
+     "f": "大"
+    },
+    {
+     "c": 8,
+     "k": "enchantress_untouchable",
+     "s": 0.88,
+     "f": "大"
+    },
+    {
+     "c": 9,
+     "k": "slardar_amplify_damage",
+     "s": 0.95,
+     "f": "大"
+    },
+    {
+     "c": 10,
+     "k": "gyrocopter_call_down",
+     "s": 0.94,
+     "f": "大"
+    },
+    {
+     "c": 11,
+     "k": "chen_hand_of_god",
+     "s": 0.93,
+     "f": "大"
+    },
+    {
+     "c": 13,
+     "k": "sandking_burrowstrike",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 14,
+     "k": "sandking_sand_storm",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 15,
+     "k": "sandking_scorpion_strike",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 16,
+     "k": "disruptor_thunder_strike",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 17,
+     "k": "disruptor_glimpse",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 18,
+     "k": "disruptor_kinetic_field",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 21,
+     "k": "medusa_split_shot",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 22,
+     "k": "medusa_mystic_snake",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 23,
+     "k": "medusa_gorgon_grasp",
+     "s": 0.86,
+     "f": ""
+    },
+    {
+     "c": 24,
+     "k": "snapfire_scatterblast",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 25,
+     "k": "snapfire_firesnap_cookie",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 26,
+     "k": "snapfire_lil_shredder",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 29,
+     "k": "ursa_earthshock",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 30,
+     "k": "ursa_overpower",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 31,
+     "k": "ursa_fury_swipes",
+     "s": 0.92,
+     "f": ""
+    },
+    {
+     "c": 32,
+     "k": "legion_commander_overwhelming_odds",
+     "s": 0.93,
+     "f": ""
+    },
+    {
+     "c": 33,
+     "k": "legion_commander_press_the_attack",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 34,
+     "k": "legion_commander_moment_of_courage",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 37,
+     "k": "drow_ranger_frost_arrows",
+     "s": 0.92,
+     "f": ""
+    },
+    {
+     "c": 38,
+     "k": "drow_ranger_wave_of_silence",
+     "s": 0.9,
+     "f": ""
+    },
+    {
+     "c": 39,
+     "k": "drow_ranger_multishot",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 40,
+     "k": "chen_penitence",
+     "s": 0.93,
+     "f": ""
+    },
+    {
+     "c": 41,
+     "k": "chen_divine_favor",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 42,
+     "k": "chen_holy_persuasion",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 45,
+     "k": "abyssal_underlord_firestorm",
+     "s": 0.83,
+     "f": ""
+    },
+    {
+     "c": 46,
+     "k": "abyssal_underlord_pit_of_malice",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 47,
+     "k": "abyssal_underlord_atrophy_aura",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 48,
+     "k": "gyrocopter_rocket_barrage",
+     "s": 0.84,
+     "f": ""
+    },
+    {
+     "c": 49,
+     "k": "gyrocopter_homing_missile",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 50,
+     "k": "gyrocopter_flak_cannon",
+     "s": 0.86,
+     "f": ""
+    },
+    {
+     "c": 53,
+     "k": "enchantress_impetus",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 54,
+     "k": "enchantress_enchant",
+     "s": 0.86,
+     "f": ""
+    },
+    {
+     "c": 55,
+     "k": "enchantress_natures_attendants",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 56,
+     "k": "slardar_sprint",
+     "s": 0.92,
+     "f": ""
+    },
+    {
+     "c": 57,
+     "k": "slardar_slithereen_crush",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 58,
+     "k": "slardar_bash",
+     "s": 0.86,
+     "f": ""
+    }
+   ],
+   "unknown": 0,
+   "rescued": 0,
+   "filler": 0,
+   "me": "R1",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.79,
+    0,
+    0,
+    0
+   ],
+   "panels": [
+    {
+     "seat": "L1",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L2",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L3",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L4",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L5",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R1",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R2",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R3",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R4",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R5",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ],
+   "outOfPool": [],
+   "slotScore": {
+    "n": 0,
+    "med": null,
+    "lo": null
+   },
+   "count": {
+    "slots": 0,
+    "boardTakenSkills": 0,
+    "heroCardsDark": 0
+   },
+   "names": [
+    {
+     "seat": "L1",
+     "h": null,
+     "s": 0.51,
+     "lead": 0.23
+    },
+    {
+     "seat": "L2",
+     "h": null,
+     "s": 0.61,
+     "lead": 0.28
+    },
+    {
+     "seat": "L3",
+     "h": null,
+     "s": 0.63,
+     "lead": 0.29
+    },
+    {
+     "seat": "L4",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.29
+    },
+    {
+     "seat": "L5",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.29
+    },
+    {
+     "seat": "R1",
+     "h": null,
+     "s": 0.6,
+     "lead": 0.24
+    },
+    {
+     "seat": "R2",
+     "h": null,
+     "s": 0.63,
+     "lead": 0.26
+    },
+    {
+     "seat": "R3",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.26
+    },
+    {
+     "seat": "R4",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.26
+    },
+    {
+     "seat": "R5",
+     "h": null,
+     "s": 0.63,
+     "lead": 0.26
     }
    ]
   },
@@ -10175,19 +10957,19 @@
    "lock": {
     "nd": 45,
     "heroes": 12,
-    "margin": 0.07,
+    "margin": 0.08,
     "dark": 18,
-    "ratio": 1.42,
+    "ratio": 1.45,
     "ok": true
    },
    "heroes": [
     "npc_dota_hero_abyssal_underlord",
     "npc_dota_hero_alchemist",
     "npc_dota_hero_antimage",
+    "npc_dota_hero_chaos_knight",
     "npc_dota_hero_crystal_maiden",
     "npc_dota_hero_drow_ranger",
     "npc_dota_hero_elder_titan",
-    "npc_dota_hero_invoker",
     "npc_dota_hero_juggernaut",
     "npc_dota_hero_muerta",
     "npc_dota_hero_sven",
@@ -10198,85 +10980,85 @@
     {
      "c": 0,
      "k": "crystal_maiden_freezing_field",
-     "s": 0.91,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 1,
      "k": "alchemist_chemical_rage",
-     "s": 0.83,
+     "s": 0.87,
      "f": "大"
     },
     {
      "c": 2,
      "k": "juggernaut_omni_slash",
-     "s": 0.88,
+     "s": 0.93,
      "f": "大"
     },
     {
      "c": 3,
      "k": "antimage_mana_void",
-     "s": 0.87,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 4,
      "k": "chaos_knight_phantasm",
-     "s": 0.95,
-     "f": "大+补位"
+     "s": 0.97,
+     "f": "大"
     },
     {
      "c": 5,
      "k": "undying_flesh_golem",
-     "s": 0.9,
+     "s": 0.92,
      "f": "大"
     },
     {
      "c": 6,
      "k": "visage_summon_familiars",
-     "s": 0.85,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 7,
      "k": "drow_ranger_marksmanship",
-     "s": 0.22,
-     "f": "大+排除法"
+     "s": 0.91,
+     "f": "大"
     },
     {
      "c": 8,
      "k": "abyssal_underlord_dark_portal",
-     "s": 0.86,
+     "s": 0.85,
      "f": "大"
     },
     {
      "c": 9,
      "k": "elder_titan_earth_splitter",
-     "s": 0.9,
+     "s": 0.91,
      "f": "大"
     },
     {
      "c": 10,
      "k": "sven_gods_strength",
-     "s": 0.97,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 11,
      "k": "muerta_pierce_the_veil",
-     "s": 0.63,
+     "s": 0.65,
      "f": "大"
     },
     {
      "c": 13,
      "k": "crystal_maiden_crystal_nova",
-     "s": 0.81,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 14,
      "k": "crystal_maiden_frostbite",
-     "s": 0.81,
+     "s": 0.88,
      "f": ""
     },
     {
@@ -10288,67 +11070,67 @@
     {
      "c": 16,
      "k": "undying_decay",
-     "s": 0.96,
+     "s": 0.95,
      "f": ""
     },
     {
      "c": 17,
      "k": "undying_soul_rip",
-     "s": 0.64,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 18,
      "k": "undying_tombstone",
-     "s": 0.78,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 21,
      "k": "alchemist_acid_spray",
-     "s": 0.88,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 22,
      "k": "alchemist_unstable_concoction",
-     "s": 0.86,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 23,
      "k": "alchemist_corrosive_weaponry",
-     "s": 0.92,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 24,
      "k": "chaos_knight_chaos_bolt",
-     "s": 0.87,
-     "f": "补位"
+     "s": 0.88,
+     "f": ""
     },
     {
      "c": 25,
-     "k": "invoker_chaos_meteor_ad",
-     "s": 0.33,
+     "k": "chaos_knight_chaos_strike",
+     "s": 0.24,
      "f": ""
     },
     {
      "c": 26,
-     "k": "invoker_ice_wall_ad",
-     "s": 0.49,
+     "k": "chaos_knight_reality_rift",
+     "s": 0.12,
      "f": ""
     },
     {
      "c": 29,
      "k": "juggernaut_blade_fury",
-     "s": 0.92,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 30,
      "k": "juggernaut_healing_ward",
-     "s": 0.79,
+     "s": 0.78,
      "f": ""
     },
     {
@@ -10360,37 +11142,37 @@
     {
      "c": 32,
      "k": "antimage_mana_break",
-     "s": 0.92,
+     "s": 0.93,
      "f": ""
     },
     {
      "c": 33,
      "k": "antimage_blink",
-     "s": 0.87,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 34,
      "k": "antimage_counterspell",
-     "s": 0.86,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 37,
      "k": "visage_grave_chill",
-     "s": 0.89,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 38,
      "k": "visage_soul_assumption",
-     "s": 0.84,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 39,
      "k": "visage_gravekeepers_cloak",
-     "s": 0.87,
+     "s": 0.9,
      "f": ""
     },
     {
@@ -10402,19 +11184,19 @@
     {
      "c": 41,
      "k": "muerta_the_calling",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 42,
      "k": "muerta_gunslinger",
-     "s": 0.2,
+     "s": 0.14,
      "f": ""
     },
     {
      "c": 45,
      "k": "drow_ranger_frost_arrows",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
@@ -10426,25 +11208,25 @@
     {
      "c": 47,
      "k": "drow_ranger_multishot",
-     "s": 0.89,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 48,
      "k": "sven_storm_bolt",
-     "s": 0.49,
+     "s": 0.46,
      "f": ""
     },
     {
      "c": 49,
      "k": "sven_great_cleave",
-     "s": 0.87,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 50,
      "k": "sven_warcry",
-     "s": 0.8,
+     "s": 0.81,
      "f": ""
     },
     {
@@ -10456,37 +11238,50 @@
     {
      "c": 54,
      "k": "abyssal_underlord_pit_of_malice",
-     "s": 0.8,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 55,
      "k": "abyssal_underlord_atrophy_aura",
-     "s": 0.82,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 56,
      "k": "elder_titan_echo_stomp",
-     "s": 0.84,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 57,
      "k": "elder_titan_ancestral_spirit",
-     "s": 0.85,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 58,
      "k": "elder_titan_natural_order",
-     "s": 0.45,
+     "s": 0.41,
      "f": ""
     }
    ],
    "unknown": 1,
    "rescued": 0,
-   "filler": 2,
+   "filler": 0,
+   "me": "L3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0.81,
+    0.01,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -10553,8 +11348,8 @@
      "filled": 1,
      "slots": [
       {
-       "k": "drow_ranger_frost_arrows",
-       "s": 0.28,
+       "k": "chaos_knight_reality_rift",
+       "s": 0.94,
        "g": "chaos_knight_reality_rift",
        "gs": 0.94
       },
@@ -10583,8 +11378,8 @@
      "filled": 1,
      "slots": [
       {
-       "k": "sven_gods_strength",
-       "s": 0.46,
+       "k": "chaos_knight_chaos_strike",
+       "s": 0.95,
        "g": "chaos_knight_chaos_strike",
        "gs": 0.95
       },
@@ -10651,22 +11446,6 @@
    ],
    "outOfPool": [
     {
-     "seat": "L5",
-     "j": 0,
-     "g": "chaos_knight_reality_rift",
-     "gs": 0.94,
-     "p": "drow_ranger_frost_arrows",
-     "ps": 0.28
-    },
-    {
-     "seat": "R2",
-     "j": 0,
-     "g": "chaos_knight_chaos_strike",
-     "gs": 0.95,
-     "p": "sven_gods_strength",
-     "ps": 0.46
-    },
-    {
      "seat": "R3",
      "j": 0,
      "g": "invoker_deafening_blast_ad",
@@ -10677,8 +11456,8 @@
    ],
    "slotScore": {
     "n": 12,
-    "med": 0.94,
-    "lo": 0.28
+    "med": 0.95,
+    "lo": 0.38
    },
    "count": {
     "slots": 12,
@@ -10742,9 +11521,1077 @@
     },
     {
      "seat": "R5",
-     "h": "npc_dota_hero_abyssal_underlord",
-     "s": 0.38,
-     "lead": 0.07
+     "h": "npc_dota_hero_chaos_knight",
+     "s": 0.55,
+     "lead": 0.17
+    }
+   ]
+  },
+  "me_r5_1080_0914": {
+   "res": [
+    1920,
+    1080
+   ],
+   "lock": {
+    "nd": 55,
+    "heroes": 12,
+    "margin": 0.36,
+    "dark": 6,
+    "ratio": 1.34,
+    "ok": true
+   },
+   "heroes": [
+    "npc_dota_hero_bounty_hunter",
+    "npc_dota_hero_huskar",
+    "npc_dota_hero_magnataur",
+    "npc_dota_hero_medusa",
+    "npc_dota_hero_monkey_king",
+    "npc_dota_hero_nyx_assassin",
+    "npc_dota_hero_ogre_magi",
+    "npc_dota_hero_phoenix",
+    "npc_dota_hero_shadow_demon",
+    "npc_dota_hero_techies",
+    "npc_dota_hero_warlock",
+    "npc_dota_hero_weaver"
+   ],
+   "cells": [
+    {
+     "c": 0,
+     "k": "shadow_demon_demonic_purge",
+     "s": 0.9,
+     "f": "大"
+    },
+    {
+     "c": 1,
+     "k": "monkey_king_wukongs_command",
+     "s": 0.83,
+     "f": "大"
+    },
+    {
+     "c": 2,
+     "k": "magnataur_reverse_polarity",
+     "s": 0.87,
+     "f": "大"
+    },
+    {
+     "c": 3,
+     "k": "obsidian_destroyer_sanity_eclipse",
+     "s": 0.92,
+     "f": "大+补位"
+    },
+    {
+     "c": 4,
+     "k": "phoenix_supernova",
+     "s": 0.79,
+     "f": "大"
+    },
+    {
+     "c": 5,
+     "k": "medusa_stone_gaze",
+     "s": 0.95,
+     "f": "大"
+    },
+    {
+     "c": 6,
+     "k": "nyx_assassin_vendetta",
+     "s": 0.84,
+     "f": "大"
+    },
+    {
+     "c": 7,
+     "k": "techies_land_mines",
+     "s": 0.92,
+     "f": "大"
+    },
+    {
+     "c": 8,
+     "k": "huskar_life_break",
+     "s": 0.92,
+     "f": "大"
+    },
+    {
+     "c": 9,
+     "k": "weaver_time_lapse",
+     "s": 0.89,
+     "f": "大"
+    },
+    {
+     "c": 10,
+     "k": "bounty_hunter_track",
+     "s": 0.85,
+     "f": "大"
+    },
+    {
+     "c": 11,
+     "k": "warlock_rain_of_chaos",
+     "s": 0.87,
+     "f": "大"
+    },
+    {
+     "c": 13,
+     "k": "shadow_demon_disruption",
+     "s": 0.9,
+     "f": ""
+    },
+    {
+     "c": 14,
+     "k": "shadow_demon_disseminate",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 15,
+     "k": "shadow_demon_shadow_poison",
+     "s": 0.84,
+     "f": ""
+    },
+    {
+     "c": 16,
+     "k": "medusa_split_shot",
+     "s": 0.92,
+     "f": ""
+    },
+    {
+     "c": 17,
+     "k": "medusa_mystic_snake",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 18,
+     "k": "medusa_gorgon_grasp",
+     "s": 0.77,
+     "f": ""
+    },
+    {
+     "c": 21,
+     "k": "monkey_king_boundless_strike",
+     "s": 0.84,
+     "f": ""
+    },
+    {
+     "c": 22,
+     "k": "monkey_king_tree_dance",
+     "s": 0.86,
+     "f": ""
+    },
+    {
+     "c": 23,
+     "k": "monkey_king_jingu_mastery",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 24,
+     "k": "phoenix_icarus_dive",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 25,
+     "k": "phoenix_fire_spirits",
+     "s": 0.93,
+     "f": ""
+    },
+    {
+     "c": 26,
+     "k": "phoenix_sun_ray",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 29,
+     "k": "magnataur_shockwave",
+     "s": 0.95,
+     "f": ""
+    },
+    {
+     "c": 30,
+     "k": "magnataur_empower",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 31,
+     "k": "magnataur_skewer",
+     "s": 0.9,
+     "f": ""
+    },
+    {
+     "c": 32,
+     "k": "ogre_magi_fireblast",
+     "s": 0.95,
+     "f": ""
+    },
+    {
+     "c": 33,
+     "k": "ogre_magi_ignite",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 34,
+     "k": "ogre_magi_bloodlust",
+     "s": 0.93,
+     "f": ""
+    },
+    {
+     "c": 37,
+     "k": "nyx_assassin_impale",
+     "s": 0.83,
+     "f": ""
+    },
+    {
+     "c": 38,
+     "k": "nyx_assassin_jolt",
+     "s": 0.78,
+     "f": ""
+    },
+    {
+     "c": 39,
+     "k": "nyx_assassin_spiked_carapace",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 40,
+     "k": "warlock_fatal_bonds",
+     "s": 0.81,
+     "f": ""
+    },
+    {
+     "c": 41,
+     "k": "warlock_shadow_word",
+     "s": 0.64,
+     "f": ""
+    },
+    {
+     "c": 42,
+     "k": "warlock_upheaval",
+     "s": 0.84,
+     "f": ""
+    },
+    {
+     "c": 45,
+     "k": "techies_sticky_bomb",
+     "s": 0.79,
+     "f": ""
+    },
+    {
+     "c": 46,
+     "k": "techies_reactive_tazer",
+     "s": 0.83,
+     "f": ""
+    },
+    {
+     "c": 47,
+     "k": "techies_suicide",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 48,
+     "k": "bounty_hunter_shuriken_toss",
+     "s": 0.86,
+     "f": ""
+    },
+    {
+     "c": 49,
+     "k": "bounty_hunter_jinada",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 50,
+     "k": "bounty_hunter_wind_walk",
+     "s": 0.79,
+     "f": ""
+    },
+    {
+     "c": 53,
+     "k": "huskar_inner_fire",
+     "s": 0.8,
+     "f": ""
+    },
+    {
+     "c": 54,
+     "k": "huskar_burning_spear",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 55,
+     "k": "huskar_berserkers_blood",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 56,
+     "k": "weaver_the_swarm",
+     "s": 0.86,
+     "f": ""
+    },
+    {
+     "c": 57,
+     "k": "weaver_shukuchi",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 58,
+     "k": "weaver_geminate_attack",
+     "s": 0.83,
+     "f": ""
+    }
+   ],
+   "unknown": 0,
+   "rescued": 0,
+   "filler": 1,
+   "me": "R4",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.77
+   ],
+   "panels": [
+    {
+     "seat": "L1",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L2",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L3",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L4",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L5",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R1",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R2",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R3",
+     "filled": 1,
+     "slots": [
+      null,
+      null,
+      {
+       "k": "bounty_hunter_shuriken_toss",
+       "s": 0.32,
+       "g": "kez_raptor_dance",
+       "gs": 0.4
+      },
+      null
+     ]
+    },
+    {
+     "seat": "R4",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R5",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    }
+   ],
+   "outOfPool": [],
+   "slotScore": {
+    "n": 1,
+    "med": 0.32,
+    "lo": 0.32
+   },
+   "count": {
+    "slots": 1,
+    "boardTakenSkills": 0,
+    "heroCardsDark": 0
+   },
+   "names": [
+    {
+     "seat": "L1",
+     "h": null,
+     "s": 0.54,
+     "lead": 0.3
+    },
+    {
+     "seat": "L2",
+     "h": null,
+     "s": 0.61,
+     "lead": 0.32
+    },
+    {
+     "seat": "L3",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.33
+    },
+    {
+     "seat": "L4",
+     "h": null,
+     "s": 0.65,
+     "lead": 0.33
+    },
+    {
+     "seat": "L5",
+     "h": null,
+     "s": 0.65,
+     "lead": 0.33
+    },
+    {
+     "seat": "R1",
+     "h": null,
+     "s": 0.59,
+     "lead": 0.25
+    },
+    {
+     "seat": "R2",
+     "h": null,
+     "s": 0.63,
+     "lead": 0.28
+    },
+    {
+     "seat": "R3",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.28
+    },
+    {
+     "seat": "R4",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.28
+    },
+    {
+     "seat": "R5",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.29
+    }
+   ]
+  },
+  "reject_brood_2560_0913": {
+   "res": [
+    2560,
+    1440
+   ],
+   "lock": {
+    "nd": 48,
+    "heroes": 12,
+    "margin": 0.13,
+    "dark": 14,
+    "ratio": 1.31,
+    "ok": true
+   },
+   "heroes": [
+    "npc_dota_hero_abyssal_underlord",
+    "npc_dota_hero_antimage",
+    "npc_dota_hero_beastmaster",
+    "npc_dota_hero_broodmother",
+    "npc_dota_hero_dark_willow",
+    "npc_dota_hero_death_prophet",
+    "npc_dota_hero_faceless_void",
+    "npc_dota_hero_hoodwink",
+    "npc_dota_hero_silencer",
+    "npc_dota_hero_sven",
+    "npc_dota_hero_void_spirit",
+    "npc_dota_hero_warlock"
+   ],
+   "cells": [
+    {
+     "c": 0,
+     "k": "hoodwink_sharpshooter",
+     "s": 0.89,
+     "f": "大"
+    },
+    {
+     "c": 1,
+     "k": "beastmaster_primal_roar",
+     "s": 0.91,
+     "f": "大"
+    },
+    {
+     "c": 2,
+     "k": "abyssal_underlord_dark_portal",
+     "s": 0.94,
+     "f": "大"
+    },
+    {
+     "c": 3,
+     "k": "sven_gods_strength",
+     "s": 0.97,
+     "f": "大"
+    },
+    {
+     "c": 4,
+     "k": "faceless_void_chronosphere",
+     "s": 0.89,
+     "f": "大"
+    },
+    {
+     "c": 5,
+     "k": "broodmother_spawn_spiderlings",
+     "s": 0.91,
+     "f": "大"
+    },
+    {
+     "c": 6,
+     "k": "warlock_rain_of_chaos",
+     "s": 0.84,
+     "f": "大"
+    },
+    {
+     "c": 7,
+     "k": "antimage_mana_void",
+     "s": 0.95,
+     "f": "大"
+    },
+    {
+     "c": 8,
+     "k": "death_prophet_exorcism",
+     "s": 0.95,
+     "f": "大"
+    },
+    {
+     "c": 9,
+     "k": "void_spirit_astral_step",
+     "s": 0.89,
+     "f": "大"
+    },
+    {
+     "c": 10,
+     "k": "silencer_global_silence",
+     "s": 0.9,
+     "f": "大"
+    },
+    {
+     "c": 11,
+     "k": "dark_willow_terrorize",
+     "s": 0.89,
+     "f": "大"
+    },
+    {
+     "c": 13,
+     "k": "hoodwink_acorn_shot",
+     "s": 0.33,
+     "f": ""
+    },
+    {
+     "c": 14,
+     "k": "hoodwink_bushwhack",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 15,
+     "k": "hoodwink_scurry",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 16,
+     "k": "broodmother_insatiable_hunger",
+     "s": 0.92,
+     "f": ""
+    },
+    {
+     "c": 17,
+     "k": "broodmother_spin_web",
+     "s": 0.81,
+     "f": ""
+    },
+    {
+     "c": 18,
+     "k": "broodmother_incapacitating_bite",
+     "s": 0.84,
+     "f": ""
+    },
+    {
+     "c": 21,
+     "k": "beastmaster_wild_axes",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 22,
+     "k": "beastmaster_summon_razorback",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 23,
+     "k": "beastmaster_summon_raptor",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 24,
+     "k": "faceless_void_time_walk",
+     "s": 0.03,
+     "f": ""
+    },
+    {
+     "c": 25,
+     "k": "faceless_void_time_dilation",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 26,
+     "k": "faceless_void_time_lock",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 29,
+     "k": "abyssal_underlord_firestorm",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 30,
+     "k": "abyssal_underlord_pit_of_malice",
+     "s": 0.04,
+     "f": ""
+    },
+    {
+     "c": 31,
+     "k": "abyssal_underlord_atrophy_aura",
+     "s": 0.08,
+     "f": ""
+    },
+    {
+     "c": 32,
+     "k": "sven_storm_bolt",
+     "s": 0.41,
+     "f": ""
+    },
+    {
+     "c": 33,
+     "k": "sven_great_cleave",
+     "s": 0.93,
+     "f": ""
+    },
+    {
+     "c": 34,
+     "k": "sven_warcry",
+     "s": 0.88,
+     "f": ""
+    },
+    {
+     "c": 37,
+     "k": "warlock_fatal_bonds",
+     "s": 0.75,
+     "f": ""
+    },
+    {
+     "c": 38,
+     "k": "warlock_shadow_word",
+     "s": 0.68,
+     "f": ""
+    },
+    {
+     "c": 39,
+     "k": "warlock_upheaval",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 40,
+     "k": "dark_willow_bramble_maze",
+     "s": 0.92,
+     "f": ""
+    },
+    {
+     "c": 41,
+     "k": "dark_willow_shadow_realm",
+     "s": 0.42,
+     "f": ""
+    },
+    {
+     "c": 42,
+     "k": "dark_willow_cursed_crown",
+     "s": 0.79,
+     "f": ""
+    },
+    {
+     "c": 45,
+     "k": "antimage_mana_break",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 46,
+     "k": "antimage_blink",
+     "s": 0.25,
+     "f": ""
+    },
+    {
+     "c": 47,
+     "k": "antimage_counterspell",
+     "s": 0.92,
+     "f": ""
+    },
+    {
+     "c": 48,
+     "k": "silencer_curse_of_the_silent",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 49,
+     "k": "silencer_glaives_of_wisdom",
+     "s": 0.31,
+     "f": ""
+    },
+    {
+     "c": 50,
+     "k": "silencer_last_word",
+     "s": 0.89,
+     "f": ""
+    },
+    {
+     "c": 53,
+     "k": "death_prophet_carrion_swarm",
+     "s": 0.84,
+     "f": ""
+    },
+    {
+     "c": 54,
+     "k": "death_prophet_silence",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 55,
+     "k": "death_prophet_spirit_siphon",
+     "s": 0.91,
+     "f": ""
+    },
+    {
+     "c": 56,
+     "k": "void_spirit_aether_remnant",
+     "s": 0.85,
+     "f": ""
+    },
+    {
+     "c": 57,
+     "k": "void_spirit_dissimilate",
+     "s": 0.87,
+     "f": ""
+    },
+    {
+     "c": 58,
+     "k": "void_spirit_resonant_pulse",
+     "s": 0.89,
+     "f": ""
+    }
+   ],
+   "unknown": 0,
+   "rescued": 0,
+   "filler": 0,
+   "me": "R2",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.79,
+    0,
+    0
+   ],
+   "panels": [
+    {
+     "seat": "L1",
+     "filled": 1,
+     "slots": [
+      null,
+      null,
+      null,
+      {
+       "k": "void_spirit_astral_step",
+       "s": 0.93,
+       "g": "void_spirit_astral_step",
+       "gs": 0.93
+      }
+     ]
+    },
+    {
+     "seat": "L2",
+     "filled": 1,
+     "slots": [
+      null,
+      {
+       "k": "dark_willow_shadow_realm",
+       "s": 0.93,
+       "g": "dark_willow_shadow_realm",
+       "gs": 0.93
+      },
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L3",
+     "filled": 1,
+     "slots": [
+      null,
+      {
+       "k": "abyssal_underlord_pit_of_malice",
+       "s": 0.87,
+       "g": "abyssal_underlord_pit_of_malice",
+       "gs": 0.87
+      },
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L4",
+     "filled": 1,
+     "slots": [
+      null,
+      {
+       "k": "antimage_blink",
+       "s": 0.98,
+       "g": "antimage_blink",
+       "gs": 0.98
+      },
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "L5",
+     "filled": 1,
+     "slots": [
+      {
+       "k": "silencer_glaives_of_wisdom",
+       "s": 0.88,
+       "g": "silencer_glaives_of_wisdom",
+       "gs": 0.88
+      },
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R1",
+     "filled": 1,
+     "slots": [
+      {
+       "k": "abyssal_underlord_atrophy_aura",
+       "s": 0.89,
+       "g": "abyssal_underlord_atrophy_aura",
+       "gs": 0.89
+      },
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R2",
+     "filled": 1,
+     "slots": [
+      {
+       "k": "faceless_void_time_walk",
+       "s": 0.93,
+       "g": "faceless_void_time_walk",
+       "gs": 0.93
+      },
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R3",
+     "filled": 1,
+     "slots": [
+      {
+       "k": "sven_storm_bolt",
+       "s": 0.99,
+       "g": "sven_storm_bolt",
+       "gs": 0.99
+      },
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R4",
+     "filled": 0,
+     "slots": [
+      null,
+      null,
+      null,
+      null
+     ]
+    },
+    {
+     "seat": "R5",
+     "filled": 1,
+     "slots": [
+      {
+       "k": "hoodwink_acorn_shot",
+       "s": 0.94,
+       "g": "hoodwink_acorn_shot",
+       "gs": 0.94
+      },
+      null,
+      null,
+      null
+     ]
+    }
+   ],
+   "outOfPool": [],
+   "slotScore": {
+    "n": 9,
+    "med": 0.93,
+    "lo": 0.87
+   },
+   "count": {
+    "slots": 9,
+    "boardTakenSkills": 0,
+    "heroCardsDark": 0
+   },
+   "names": [
+    {
+     "seat": "L1",
+     "h": null,
+     "s": 0.51,
+     "lead": 0.26
+    },
+    {
+     "seat": "L2",
+     "h": null,
+     "s": 0.61,
+     "lead": 0.32
+    },
+    {
+     "seat": "L3",
+     "h": null,
+     "s": 0.63,
+     "lead": 0.34
+    },
+    {
+     "seat": "L4",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.34
+    },
+    {
+     "seat": "L5",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.34
+    },
+    {
+     "seat": "R1",
+     "h": null,
+     "s": 0.6,
+     "lead": 0.26
+    },
+    {
+     "seat": "R2",
+     "h": null,
+     "s": 0.63,
+     "lead": 0.27
+    },
+    {
+     "seat": "R3",
+     "h": null,
+     "s": 0.64,
+     "lead": 0.29
+    },
+    {
+     "seat": "R4",
+     "h": "npc_dota_hero_death_prophet",
+     "s": 0.65,
+     "lead": 0.31
+    },
+    {
+     "seat": "R5",
+     "h": null,
+     "s": 0.51,
+     "lead": 0.24
     }
    ]
   },
@@ -10755,39 +12602,36 @@
    ],
    "lock": {
     "nd": 20,
-    "heroes": 8,
-    "margin": 0,
-    "dark": 36,
-    "ratio": 1.28,
+    "heroes": 5,
+    "margin": 0.01,
+    "dark": 27,
+    "ratio": 1.04,
     "ok": false
    },
    "heroes": [
-    "npc_dota_hero_chaos_knight",
-    "npc_dota_hero_enchantress",
     "npc_dota_hero_invoker",
-    "npc_dota_hero_morphling",
-    "npc_dota_hero_nevermore",
-    "npc_dota_hero_primal_beast",
-    "npc_dota_hero_ringmaster",
-    "npc_dota_hero_tidehunter"
+    "npc_dota_hero_omniknight",
+    "npc_dota_hero_sniper",
+    "npc_dota_hero_sven",
+    "npc_dota_hero_vengefulspirit"
    ],
    "cells": [
     {
      "c": 0,
-     "k": "ringmaster_wheel",
-     "s": 0.33,
-     "f": "大+排除法"
+     "k": "?unk:0",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 1,
-     "k": "tidehunter_ravage",
-     "s": 0.68,
-     "f": "大+排除法"
+     "k": "?unk:1",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 2,
      "k": "invoker_deafening_blast_ad",
-     "s": 0.68,
+     "s": 0.67,
      "f": "大"
     },
     {
@@ -10804,15 +12648,15 @@
     },
     {
      "c": 5,
-     "k": "?unk:5",
-     "s": 0,
-     "f": "大+未知"
+     "k": "omniknight_guardian_angel",
+     "s": 0.27,
+     "f": "大+排除法"
     },
     {
      "c": 6,
-     "k": "chaos_knight_phantasm",
-     "s": 0.31,
-     "f": "大+排除法"
+     "k": "?unk:6",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 7,
@@ -10822,9 +12666,9 @@
     },
     {
      "c": 8,
-     "k": "nevermore_requiem",
-     "s": 0.94,
-     "f": "大+排除法"
+     "k": "?unk:8",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 9,
@@ -10834,190 +12678,149 @@
     },
     {
      "c": 10,
-     "k": "enchantress_untouchable",
-     "s": 0.12,
-     "f": "大+排除法"
+     "k": "?unk:10",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 11,
-     "k": "primal_beast_pulverize",
-     "s": 0.29,
-     "f": "大+排除法"
-    },
-    {
-     "c": 13,
-     "k": "chaos_knight_chaos_bolt",
-     "s": 0.47,
-     "f": ""
-    },
-    {
-     "c": 14,
-     "k": "chaos_knight_reality_rift",
-     "s": 0.66,
-     "f": ""
-    },
-    {
-     "c": 15,
-     "k": "chaos_knight_chaos_strike",
-     "s": 0.32,
-     "f": ""
-    },
-    {
-     "c": 21,
-     "k": "tidehunter_gush",
-     "s": 0.43,
-     "f": ""
-    },
-    {
-     "c": 22,
-     "k": "tidehunter_kraken_shell",
-     "s": 0.35,
-     "f": ""
-    },
-    {
-     "c": 23,
-     "k": "tidehunter_anchor_smash",
-     "s": 0.71,
-     "f": ""
+     "k": "?unk:11",
+     "s": 0,
+     "f": "大+未知"
     },
     {
      "c": 24,
-     "k": "ringmaster_tame_the_beasts",
-     "s": 0.61,
+     "k": "vengefulspirit_command_aura",
+     "s": 0.05,
      "f": ""
     },
     {
      "c": 25,
-     "k": "ringmaster_the_box",
-     "s": 0.57,
+     "k": "vengefulspirit_magic_missile",
+     "s": -0.03,
      "f": ""
     },
     {
      "c": 26,
-     "k": "ringmaster_impalement",
-     "s": 0.58,
-     "f": ""
-    },
-    {
-     "c": 29,
-     "k": "primal_beast_trample",
-     "s": 0.34,
-     "f": ""
-    },
-    {
-     "c": 30,
-     "k": "primal_beast_uproar",
-     "s": 0.41,
-     "f": ""
-    },
-    {
-     "c": 31,
-     "k": "primal_beast_onslaught",
-     "s": 0.23,
+     "k": "vengefulspirit_wave_of_terror",
+     "s": 0.53,
      "f": ""
     },
     {
      "c": 32,
-     "k": "enchantress_impetus",
-     "s": 0.49,
+     "k": "omniknight_purification",
+     "s": 0.09,
      "f": ""
     },
     {
      "c": 33,
-     "k": "enchantress_enchant",
-     "s": 0.75,
+     "k": "omniknight_martyr",
+     "s": 0.58,
      "f": ""
     },
     {
      "c": 34,
-     "k": "enchantress_natures_attendants",
-     "s": 0.81,
+     "k": "omniknight_hammer_of_purity",
+     "s": 0.57,
+     "f": ""
+    },
+    {
+     "c": 37,
+     "k": "sven_great_cleave",
+     "s": 0.42,
+     "f": ""
+    },
+    {
+     "c": 38,
+     "k": "sven_warcry",
+     "s": 0.1,
+     "f": ""
+    },
+    {
+     "c": 39,
+     "k": "sven_storm_bolt",
+     "s": 0.6,
      "f": ""
     },
     {
      "c": 40,
-     "k": "invoker_ice_wall_ad",
-     "s": 0.6,
+     "k": "invoker_alacrity_ad",
+     "s": 0.5,
      "f": ""
     },
     {
      "c": 41,
      "k": "invoker_sun_strike_ad",
-     "s": 0.77,
+     "s": 0.81,
      "f": ""
     },
     {
      "c": 42,
      "k": "invoker_ghost_walk_ad",
-     "s": 0.44,
-     "f": ""
-    },
-    {
-     "c": 53,
-     "k": "nevermore_dark_lord",
-     "s": 0.15,
-     "f": ""
-    },
-    {
-     "c": 54,
-     "k": "nevermore_frenzy",
-     "s": 0.88,
-     "f": ""
-    },
-    {
-     "c": 55,
-     "k": "nevermore_shadowraze2",
-     "s": 0.14,
+     "s": 0.4,
      "f": ""
     },
     {
      "c": 56,
-     "k": "ursa_earthshock",
-     "s": 0.65,
-     "f": "补位"
+     "k": "sniper_shrapnel",
+     "s": 0.56,
+     "f": ""
     },
     {
      "c": 57,
-     "k": "morphling_waveform",
-     "s": 0.07,
+     "k": "sniper_take_aim",
+     "s": 0.06,
      "f": ""
     },
     {
      "c": 58,
-     "k": "?unk:58",
-     "s": 0.35,
-     "f": "未知"
+     "k": "sniper_headshot",
+     "s": 0.17,
+     "f": ""
     }
    ],
-   "unknown": 5,
+   "unknown": 9,
    "rescued": 0,
-   "filler": 2,
+   "filler": 1,
+   "me": "R3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.05,
+    0,
+    0.74,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
      "filled": 4,
      "slots": [
       {
-       "k": "invoker_ghost_walk_ad",
-       "s": 0.24,
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.22,
        "g": "faceless_void_time_dilation",
-       "gs": 0.56
+       "gs": 0.44
       },
       {
-       "k": "tidehunter_gush",
-       "s": 0.34,
+       "k": "sven_storm_bolt",
+       "s": 0.47,
        "g": "phantom_lancer_doppelwalk",
-       "gs": 0.89
+       "gs": 0.9
       },
       {
-       "k": "tidehunter_anchor_smash",
-       "s": 0.89,
+       "k": "invoker_alacrity_ad",
+       "s": 0.38,
        "g": "tidehunter_anchor_smash",
        "gs": 0.89
       },
       {
-       "k": "enchantress_impetus",
-       "s": 0.26,
+       "k": "sven_storm_bolt",
+       "s": 0.22,
        "g": "vengefulspirit_nether_swap",
        "gs": 0.93
       }
@@ -11028,28 +12831,28 @@
      "filled": 4,
      "slots": [
       {
-       "k": "ringmaster_impalement",
-       "s": 0.34,
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.31,
        "g": "faceless_void_time_walk",
-       "gs": 0.66
+       "gs": 0.59
       },
       {
-       "k": "ringmaster_the_box",
-       "s": 0.87,
+       "k": "sven_warcry",
+       "s": 0.27,
        "g": "ringmaster_the_box",
-       "gs": 0.87
+       "gs": 0.9
       },
       {
-       "k": "tidehunter_gush",
-       "s": 0.89,
+       "k": "omniknight_martyr",
+       "s": 0.52,
        "g": "tidehunter_gush",
-       "gs": 0.89
+       "gs": 0.93
       },
       {
-       "k": "tidehunter_ravage",
-       "s": 0.79,
+       "k": "invoker_sun_strike_ad",
+       "s": 0.31,
        "g": "tidehunter_ravage",
-       "gs": 0.79
+       "gs": 0.82
       }
      ]
     },
@@ -11058,28 +12861,28 @@
      "filled": 4,
      "slots": [
       {
-       "k": "ringmaster_the_box",
+       "k": "sven_warcry",
        "s": 0.28,
        "g": "lina_fiery_soul",
-       "gs": 0.57
+       "gs": 0.45
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.51,
+       "k": "vengefulspirit_wave_of_terror",
+       "s": 0.96,
        "g": "vengefulspirit_wave_of_terror",
+       "gs": 0.96
+      },
+      {
+       "k": "omniknight_guardian_angel",
+       "s": 0.21,
+       "g": "chaos_knight_reality_rift",
        "gs": 0.94
       },
       {
-       "k": "chaos_knight_reality_rift",
-       "s": 0.93,
-       "g": "chaos_knight_reality_rift",
-       "gs": 0.93
-      },
-      {
        "k": "invoker_deafening_blast_ad",
-       "s": 0.65,
+       "s": 0.67,
        "g": "faceless_void_chronosphere",
-       "gs": 0.96
+       "gs": 0.97
       }
      ]
     },
@@ -11088,23 +12891,23 @@
      "filled": 3,
      "slots": [
       {
-       "k": "enchantress_impetus",
-       "s": 0.84,
+       "k": "vengefulspirit_magic_missile",
+       "s": 0.62,
        "g": "enchantress_impetus",
-       "gs": 0.84
+       "gs": 0.78
       },
       {
-       "k": "chaos_knight_chaos_bolt",
-       "s": 0.38,
+       "k": "omniknight_hammer_of_purity",
+       "s": 0.47,
        "g": "ursa_overpower",
-       "gs": 0.9
+       "gs": 0.95
       },
       null,
       {
-       "k": "enchantress_enchant",
-       "s": 0.39,
+       "k": "vengefulspirit_wave_of_terror",
+       "s": 0.46,
        "g": "ursa_enrage",
-       "gs": 0.91
+       "gs": 0.94
       }
      ]
     },
@@ -11113,28 +12916,28 @@
      "filled": 4,
      "slots": [
       {
-       "k": "chaos_knight_chaos_bolt",
-       "s": 0.83,
+       "k": "sniper_shrapnel",
+       "s": 0.51,
        "g": "chaos_knight_chaos_bolt",
-       "gs": 0.83
+       "gs": 0.78
       },
       {
-       "k": "enchantress_impetus",
-       "s": 0.61,
+       "k": "vengefulspirit_magic_missile",
+       "s": 0.99,
        "g": "vengefulspirit_magic_missile",
-       "gs": 0.97
+       "gs": 0.99
       },
       {
-       "k": "ringmaster_tame_the_beasts",
-       "s": 0.9,
+       "k": "invoker_deafening_blast_ad",
+       "s": 0.29,
        "g": "ringmaster_tame_the_beasts",
-       "gs": 0.9
+       "gs": 0.89
       },
       {
        "k": "magnataur_shockwave",
        "s": 0.47,
        "g": "shadow_demon_demonic_purge",
-       "gs": 0.93
+       "gs": 0.95
       }
      ]
     },
@@ -11143,20 +12946,20 @@
      "filled": 4,
      "slots": [
       {
-       "k": "nevermore_shadowraze2",
-       "s": 0.54,
+       "k": "invoker_ghost_walk_ad",
+       "s": 0.14,
        "g": "nevermore_shadowraze2",
        "gs": 0.54
       },
       {
-       "k": "enchantress_impetus",
-       "s": 0.4,
+       "k": "vengefulspirit_magic_missile",
+       "s": 0.5,
        "g": "phantom_lancer_spirit_lance",
        "gs": 0.93
       },
       {
-       "k": "ringmaster_the_box",
-       "s": 0.17,
+       "k": "sven_warcry",
+       "s": 0.2,
        "g": "shadow_demon_shadow_poison",
        "gs": 0.8
       },
@@ -11186,8 +12989,8 @@
        "gs": 0.91
       },
       {
-       "k": "enchantress_untouchable",
-       "s": 0.91,
+       "k": "invoker_alacrity_ad",
+       "s": 0.24,
        "g": "enchantress_untouchable",
        "gs": 0.91
       }
@@ -11199,20 +13002,20 @@
      "slots": [
       null,
       {
-       "k": "nevermore_dark_lord",
-       "s": 0.94,
+       "k": "sven_storm_bolt",
+       "s": 0.34,
        "g": "nevermore_dark_lord",
        "gs": 0.94
       },
       {
-       "k": "invoker_sun_strike_ad",
-       "s": 0.51,
+       "k": "invoker_alacrity_ad",
+       "s": 0.59,
        "g": "faceless_void_time_lock",
        "gs": 0.96
       },
       {
-       "k": "chaos_knight_phantasm",
-       "s": 0.91,
+       "k": "sven_warcry",
+       "s": 0.22,
        "g": "chaos_knight_phantasm",
        "gs": 0.91
       }
@@ -11223,14 +13026,14 @@
      "filled": 3,
      "slots": [
       {
-       "k": "tidehunter_kraken_shell",
-       "s": 0.6,
+       "k": "sven_warcry",
+       "s": 0.17,
        "g": "tidehunter_kraken_shell",
        "gs": 0.6
       },
       {
-       "k": "magnataur_shockwave",
-       "s": 0.36,
+       "k": "vengefulspirit_command_aura",
+       "s": 0.94,
        "g": "vengefulspirit_command_aura",
        "gs": 0.94
       },
@@ -11248,21 +13051,21 @@
      "filled": 3,
      "slots": [
       {
-       "k": "chaos_knight_chaos_strike",
-       "s": 0.77,
+       "k": "omniknight_martyr",
+       "s": 0.47,
        "g": "chaos_knight_chaos_strike",
        "gs": 0.77
       },
       {
-       "k": "invoker_ice_wall_ad",
-       "s": 0.23,
+       "k": "omniknight_hammer_of_purity",
+       "s": 0.2,
        "g": "batrider_sticky_napalm",
        "gs": 0.92
       },
       null,
       {
-       "k": "enchantress_enchant",
-       "s": 0.37,
+       "k": "sven_storm_bolt",
+       "s": 0.4,
        "g": "phantom_lancer_juxtapose",
        "gs": 0.93
       }
@@ -11274,71 +13077,111 @@
      "seat": "L1",
      "j": 1,
      "g": "phantom_lancer_doppelwalk",
+     "gs": 0.9,
+     "p": "sven_storm_bolt",
+     "ps": 0.47
+    },
+    {
+     "seat": "L1",
+     "j": 2,
+     "g": "tidehunter_anchor_smash",
      "gs": 0.89,
-     "p": "tidehunter_gush",
-     "ps": 0.34
+     "p": "invoker_alacrity_ad",
+     "ps": 0.38
     },
     {
      "seat": "L1",
      "j": 3,
      "g": "vengefulspirit_nether_swap",
      "gs": 0.93,
-     "p": "enchantress_impetus",
-     "ps": 0.26
+     "p": "sven_storm_bolt",
+     "ps": 0.22
     },
     {
      "seat": "L2",
-     "j": 0,
-     "g": "faceless_void_time_walk",
-     "gs": 0.66,
-     "p": "ringmaster_impalement",
-     "ps": 0.34
+     "j": 1,
+     "g": "ringmaster_the_box",
+     "gs": 0.9,
+     "p": "sven_warcry",
+     "ps": 0.27
+    },
+    {
+     "seat": "L2",
+     "j": 2,
+     "g": "tidehunter_gush",
+     "gs": 0.93,
+     "p": "omniknight_martyr",
+     "ps": 0.52
+    },
+    {
+     "seat": "L2",
+     "j": 3,
+     "g": "tidehunter_ravage",
+     "gs": 0.82,
+     "p": "invoker_sun_strike_ad",
+     "ps": 0.31
     },
     {
      "seat": "L3",
-     "j": 1,
-     "g": "vengefulspirit_wave_of_terror",
+     "j": 2,
+     "g": "chaos_knight_reality_rift",
      "gs": 0.94,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.51
+     "p": "omniknight_guardian_angel",
+     "ps": 0.21
     },
     {
      "seat": "L3",
      "j": 3,
      "g": "faceless_void_chronosphere",
-     "gs": 0.96,
+     "gs": 0.97,
      "p": "invoker_deafening_blast_ad",
-     "ps": 0.65
+     "ps": 0.67
+    },
+    {
+     "seat": "L4",
+     "j": 0,
+     "g": "enchantress_impetus",
+     "gs": 0.78,
+     "p": "vengefulspirit_magic_missile",
+     "ps": 0.62
     },
     {
      "seat": "L4",
      "j": 1,
      "g": "ursa_overpower",
-     "gs": 0.9,
-     "p": "chaos_knight_chaos_bolt",
-     "ps": 0.38
+     "gs": 0.95,
+     "p": "omniknight_hammer_of_purity",
+     "ps": 0.47
     },
     {
      "seat": "L4",
      "j": 3,
      "g": "ursa_enrage",
-     "gs": 0.91,
-     "p": "enchantress_enchant",
-     "ps": 0.39
+     "gs": 0.94,
+     "p": "vengefulspirit_wave_of_terror",
+     "ps": 0.46
     },
     {
      "seat": "L5",
-     "j": 1,
-     "g": "vengefulspirit_magic_missile",
-     "gs": 0.97,
-     "p": "enchantress_impetus",
-     "ps": 0.61
+     "j": 0,
+     "g": "chaos_knight_chaos_bolt",
+     "gs": 0.78,
+     "p": "sniper_shrapnel",
+     "ps": 0.51
+    },
+    {
+     "seat": "L5",
+     "j": 2,
+     "g": "ringmaster_tame_the_beasts",
+     "gs": 0.89,
+     "p": "invoker_deafening_blast_ad",
+     "ps": 0.29
     },
     {
      "seat": "L5",
      "j": 3,
      "g": "shadow_demon_demonic_purge",
-     "gs": 0.93,
+     "gs": 0.95,
      "p": "magnataur_shockwave",
      "ps": 0.47
     },
@@ -11347,16 +13190,16 @@
      "j": 1,
      "g": "phantom_lancer_spirit_lance",
      "gs": 0.93,
-     "p": "enchantress_impetus",
-     "ps": 0.4
+     "p": "vengefulspirit_magic_missile",
+     "ps": 0.5
     },
     {
      "seat": "R1",
      "j": 2,
      "g": "shadow_demon_shadow_poison",
      "gs": 0.8,
-     "p": "ringmaster_the_box",
-     "ps": 0.17
+     "p": "sven_warcry",
+     "ps": 0.2
     },
     {
      "seat": "R1",
@@ -11383,20 +13226,36 @@
      "ps": 0.35
     },
     {
+     "seat": "R2",
+     "j": 3,
+     "g": "enchantress_untouchable",
+     "gs": 0.91,
+     "p": "invoker_alacrity_ad",
+     "ps": 0.24
+    },
+    {
+     "seat": "R3",
+     "j": 1,
+     "g": "nevermore_dark_lord",
+     "gs": 0.94,
+     "p": "sven_storm_bolt",
+     "ps": 0.34
+    },
+    {
      "seat": "R3",
      "j": 2,
      "g": "faceless_void_time_lock",
      "gs": 0.96,
-     "p": "invoker_sun_strike_ad",
-     "ps": 0.51
+     "p": "invoker_alacrity_ad",
+     "ps": 0.59
     },
     {
-     "seat": "R4",
-     "j": 1,
-     "g": "vengefulspirit_command_aura",
-     "gs": 0.94,
-     "p": "magnataur_shockwave",
-     "ps": 0.36
+     "seat": "R3",
+     "j": 3,
+     "g": "chaos_knight_phantasm",
+     "gs": 0.91,
+     "p": "sven_warcry",
+     "ps": 0.22
     },
     {
      "seat": "R4",
@@ -11408,25 +13267,33 @@
     },
     {
      "seat": "R5",
+     "j": 0,
+     "g": "chaos_knight_chaos_strike",
+     "gs": 0.77,
+     "p": "omniknight_martyr",
+     "ps": 0.47
+    },
+    {
+     "seat": "R5",
      "j": 1,
      "g": "batrider_sticky_napalm",
      "gs": 0.92,
-     "p": "invoker_ice_wall_ad",
-     "ps": 0.23
+     "p": "omniknight_hammer_of_purity",
+     "ps": 0.2
     },
     {
      "seat": "R5",
      "j": 3,
      "g": "phantom_lancer_juxtapose",
      "gs": 0.93,
-     "p": "enchantress_enchant",
-     "ps": 0.37
+     "p": "sven_storm_bolt",
+     "ps": 0.4
     }
    ],
    "slotScore": {
     "n": 35,
-    "med": 0.51,
-    "lo": 0.17
+    "med": 0.38,
+    "lo": 0.14
    },
    "count": {
     "slots": 35,
@@ -11436,63 +13303,63 @@
    "names": [
     {
      "seat": "L1",
-     "h": "npc_dota_hero_primal_beast",
-     "s": 0.15,
-     "lead": 0.01
+     "h": "npc_dota_hero_vengefulspirit",
+     "s": 0.39,
+     "lead": 0.22
     },
     {
      "seat": "L2",
-     "h": "npc_dota_hero_primal_beast",
-     "s": 0.2,
-     "lead": 0.04
+     "h": "npc_dota_hero_sven",
+     "s": 0.14,
+     "lead": 0.03
     },
     {
      "seat": "L3",
      "h": null,
      "s": 0.65,
-     "lead": 0.29
+     "lead": 0.35
     },
     {
      "seat": "L4",
      "h": "npc_dota_hero_invoker",
      "s": 0.39,
-     "lead": 0
+     "lead": 0.05
     },
     {
      "seat": "L5",
      "h": null,
      "s": 0.65,
-     "lead": 0.3
+     "lead": 0.34
     },
     {
      "seat": "R1",
-     "h": "npc_dota_hero_nevermore",
-     "s": 0.33,
-     "lead": 0
+     "h": "npc_dota_hero_sven",
+     "s": 0.34,
+     "lead": 0.05
     },
     {
      "seat": "R2",
-     "h": "npc_dota_hero_enchantress",
-     "s": 0.61,
-     "lead": 0.26
+     "h": "npc_dota_hero_omniknight",
+     "s": 0.33,
+     "lead": 0.01
     },
     {
      "seat": "R3",
-     "h": "npc_dota_hero_nevermore",
-     "s": 0.56,
-     "lead": 0.1
+     "h": "npc_dota_hero_sven",
+     "s": 0.4,
+     "lead": 0.07
     },
     {
      "seat": "R4",
-     "h": "npc_dota_hero_tidehunter",
-     "s": 0.62,
-     "lead": 0.29
+     "h": "npc_dota_hero_omniknight",
+     "s": 0.29,
+     "lead": 0.01
     },
     {
      "seat": "R5",
-     "h": "npc_dota_hero_chaos_knight",
-     "s": 0.44,
-     "lead": 0.1
+     "h": "npc_dota_hero_omniknight",
+     "s": 0.45,
+     "lead": 0.09
     }
    ]
   },
@@ -11504,9 +13371,9 @@
    "lock": {
     "nd": 45,
     "heroes": 12,
-    "margin": 0.06,
+    "margin": 0.38,
     "dark": 6,
-    "ratio": 1.29,
+    "ratio": 1.3,
     "ok": true
    },
    "heroes": [
@@ -11527,25 +13394,25 @@
     {
      "c": 0,
      "k": "chaos_knight_phantasm",
-     "s": 0.79,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 1,
      "k": "tidehunter_ravage",
-     "s": 0.71,
+     "s": 0.86,
      "f": "大"
     },
     {
      "c": 2,
      "k": "faceless_void_chronosphere",
-     "s": 0.89,
+     "s": 0.95,
      "f": "大"
     },
     {
      "c": 3,
      "k": "enchantress_untouchable",
-     "s": 0.86,
+     "s": 0.83,
      "f": "大"
     },
     {
@@ -11557,13 +13424,13 @@
     {
      "c": 5,
      "k": "batrider_flaming_lasso",
-     "s": 0.87,
+     "s": 0.88,
      "f": "大"
     },
     {
      "c": 6,
      "k": "phantom_lancer_juxtapose",
-     "s": 0.89,
+     "s": 0.9,
      "f": "大"
     },
     {
@@ -11575,145 +13442,145 @@
     {
      "c": 8,
      "k": "nevermore_requiem",
-     "s": 0.92,
+     "s": 0.89,
      "f": "大"
     },
     {
      "c": 9,
      "k": "ursa_enrage",
-     "s": 0.94,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 10,
      "k": "vengefulspirit_nether_swap",
-     "s": 0.93,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 11,
      "k": "lina_laguna_blade",
-     "s": 0.96,
+     "s": 0.9,
      "f": "大"
     },
     {
      "c": 13,
      "k": "chaos_knight_chaos_bolt",
-     "s": 0.87,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 14,
      "k": "chaos_knight_reality_rift",
-     "s": 0.7,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 15,
      "k": "chaos_knight_chaos_strike",
-     "s": 0.76,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 16,
      "k": "batrider_sticky_napalm",
-     "s": 0.62,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 17,
      "k": "batrider_flamebreak",
-     "s": 0.78,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 18,
      "k": "batrider_firefly",
-     "s": 0.76,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 21,
      "k": "tidehunter_gush",
-     "s": 0.87,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 22,
      "k": "tidehunter_kraken_shell",
-     "s": 0.81,
+     "s": 0.79,
      "f": ""
     },
     {
      "c": 23,
      "k": "tidehunter_anchor_smash",
-     "s": 0.87,
+     "s": 0.81,
      "f": ""
     },
     {
      "c": 24,
      "k": "ringmaster_tame_the_beasts",
-     "s": 0.76,
+     "s": 0.87,
      "f": ""
     },
     {
      "c": 25,
      "k": "ringmaster_the_box",
-     "s": 0.89,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 26,
      "k": "ringmaster_impalement",
-     "s": 0.84,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 29,
      "k": "faceless_void_time_walk",
-     "s": 0.69,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 30,
      "k": "faceless_void_time_dilation",
-     "s": 0.83,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 31,
      "k": "faceless_void_time_lock",
-     "s": 0.87,
+     "s": 0.9,
      "f": ""
     },
     {
      "c": 32,
      "k": "enchantress_impetus",
-     "s": 0.89,
+     "s": 0.92,
      "f": ""
     },
     {
      "c": 33,
      "k": "enchantress_enchant",
-     "s": 0.81,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 34,
      "k": "enchantress_natures_attendants",
-     "s": 0.65,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 37,
      "k": "phantom_lancer_spirit_lance",
-     "s": 0.83,
+     "s": 0.85,
      "f": ""
     },
     {
      "c": 38,
      "k": "phantom_lancer_doppelwalk",
-     "s": 0.87,
+     "s": 0.88,
      "f": ""
     },
     {
@@ -11731,91 +13598,104 @@
     {
      "c": 41,
      "k": "lina_light_strike_array",
-     "s": 0.88,
+     "s": 0.91,
      "f": ""
     },
     {
      "c": 42,
      "k": "lina_fiery_soul",
-     "s": 0.79,
+     "s": 0.8,
      "f": ""
     },
     {
      "c": 45,
      "k": "shadow_demon_disruption",
-     "s": 0.65,
+     "s": 0.78,
      "f": ""
     },
     {
      "c": 46,
      "k": "shadow_demon_disseminate",
-     "s": 0.83,
+     "s": 0.79,
      "f": ""
     },
     {
      "c": 47,
      "k": "shadow_demon_shadow_poison",
-     "s": 0.75,
+     "s": 0.71,
      "f": ""
     },
     {
      "c": 48,
      "k": "vengefulspirit_magic_missile",
-     "s": 0.95,
+     "s": 0.94,
      "f": ""
     },
     {
      "c": 49,
      "k": "vengefulspirit_wave_of_terror",
-     "s": 0.87,
+     "s": 0.89,
      "f": ""
     },
     {
      "c": 50,
      "k": "vengefulspirit_command_aura",
-     "s": 0.86,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 53,
      "k": "nevermore_shadowraze2",
-     "s": 0.65,
+     "s": 0.64,
      "f": ""
     },
     {
      "c": 54,
      "k": "nevermore_frenzy",
-     "s": 0.84,
+     "s": 0.88,
      "f": ""
     },
     {
      "c": 55,
      "k": "nevermore_dark_lord",
-     "s": 0.82,
+     "s": 0.83,
      "f": ""
     },
     {
      "c": 56,
      "k": "ursa_earthshock",
-     "s": 0.73,
+     "s": 0.82,
      "f": ""
     },
     {
      "c": 57,
      "k": "ursa_overpower",
-     "s": 0.83,
+     "s": 0.86,
      "f": ""
     },
     {
      "c": 58,
      "k": "ursa_fury_swipes",
-     "s": 0.83,
+     "s": 0.85,
      "f": ""
     }
    ],
    "unknown": 0,
    "rescued": 0,
    "filler": 0,
+   "me": "R3",
+   "meRim": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0.76,
+    0
+   ],
    "panels": [
     {
      "seat": "L1",
@@ -12000,7 +13880,7 @@
  },
  "pairs": {
   "snap_20260911_222801_pool_mid → snap_20260911_222737_pool_mid": {
-   "agree": 0.81,
+   "agree": 0.88,
    "T": 0,
    "N": 54,
    "O": 6,
@@ -12037,11 +13917,12 @@
    ]
   },
   "snap_20260912_152126_pool_mid → snap_20260912_152752_draft_end": {
-   "agree": 0.83,
+   "agree": 1,
    "T": 45,
    "N": 15,
    "O": 0,
    "taken": [
+    "?unk:5",
     "ancient_apparition_cold_feet",
     "ancient_apparition_ice_blast",
     "ancient_apparition_ice_vortex",
@@ -12068,7 +13949,6 @@
     "hero:npc_dota_hero_undying",
     "juggernaut_blade_dance",
     "juggernaut_blade_fury",
-    "keeper_of_the_light_spirit_form",
     "lion_finger_of_death",
     "lion_impale",
     "lion_voodoo",
@@ -12090,7 +13970,7 @@
    ]
   },
   "屏幕截图 2026-09-12 152305 → 屏幕截图 2026-09-12 152730": {
-   "agree": 0.87,
+   "agree": 1,
    "T": 41,
    "N": 19,
    "O": 0,
@@ -12137,18 +14017,69 @@
     "undying_soul_rip",
     "undying_tombstone"
    ]
+  },
+  "start_1080p_0911 → sheen_1080p_0911": {
+   "agree": 1,
+   "T": 43,
+   "N": 17,
+   "O": 0,
+   "taken": [
+    "batrider_firefly",
+    "batrider_sticky_napalm",
+    "chaos_knight_chaos_bolt",
+    "chaos_knight_chaos_strike",
+    "chaos_knight_phantasm",
+    "chaos_knight_reality_rift",
+    "enchantress_impetus",
+    "enchantress_untouchable",
+    "faceless_void_chronosphere",
+    "faceless_void_time_dilation",
+    "faceless_void_time_lock",
+    "faceless_void_time_walk",
+    "hero:npc_dota_hero_batrider",
+    "hero:npc_dota_hero_enchantress",
+    "hero:npc_dota_hero_faceless_void",
+    "hero:npc_dota_hero_lina",
+    "hero:npc_dota_hero_nevermore",
+    "hero:npc_dota_hero_shadow_demon",
+    "hero:npc_dota_hero_tidehunter",
+    "hero:npc_dota_hero_vengefulspirit",
+    "lina_fiery_soul",
+    "lina_laguna_blade",
+    "nevermore_dark_lord",
+    "nevermore_shadowraze2",
+    "phantom_lancer_doppelwalk",
+    "phantom_lancer_juxtapose",
+    "phantom_lancer_spirit_lance",
+    "ringmaster_tame_the_beasts",
+    "ringmaster_the_box",
+    "shadow_demon_demonic_purge",
+    "shadow_demon_disruption",
+    "shadow_demon_shadow_poison",
+    "tidehunter_anchor_smash",
+    "tidehunter_gush",
+    "tidehunter_kraken_shell",
+    "tidehunter_ravage",
+    "ursa_enrage",
+    "ursa_fury_swipes",
+    "ursa_overpower",
+    "vengefulspirit_command_aura",
+    "vengefulspirit_magic_missile",
+    "vengefulspirit_nether_swap",
+    "vengefulspirit_wave_of_terror"
+   ]
   }
  },
  "summary": {
-  "frames": 22,
-  "lockOk": 17,
-  "unknown": 2,
-  "filler": 13,
-  "rescued": 2,
-  "outOfPool": 3,
-  "slots": 29,
-  "countGap": 8,
-  "names": 8,
-  "pairs": 7
+  "frames": 25,
+  "lockOk": 20,
+  "unknown": 3,
+  "filler": 12,
+  "rescued": 1,
+  "outOfPool": 1,
+  "slots": 39,
+  "countGap": 10,
+  "names": 10,
+  "pairs": 8
  }
 }

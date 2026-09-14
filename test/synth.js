@@ -61,8 +61,9 @@ function render(o) {
   for (const side of ["L", "R"]) { const P = LAYOUT.panels[side];
     for (let i = 0; i < 5; i++) { const px0 = P.x0 + dx, py0 = P.y_top + P.pitch * i + dy, pw = 419, ph = P.pitch; const id = side + i;
       const isCur = o.cur && o.cur[0] === side && o.cur[1] === i, isMe = o.me && o.me[0] === side && o.me[1] === i;
-      const col = isCur ? [210, 200, 170] : isMe ? [70, 170, 70] : [70, 70, 75]; fill(img, px0, py0, pw, ph, col); fill(img, px0 + 6, py0 + 6, pw - 12, ph - 12, [30, 32, 38]);
-      if (isMe && !isCur) { fill(img, px0, py0, pw, 6, [40, 200, 40]); fill(img, px0, py0 + ph - 6, pw, 6, [40, 200, 40]); fill(img, px0, py0, 6, ph, [40, 200, 40]); fill(img, px0 + pw - 6, py0, 6, ph, [40, 200, 40]); }
+      const col = isCur ? [210, 200, 170] : [70, 70, 75]; fill(img, px0, py0, pw, ph, col); fill(img, px0 + 6, py0 + 6, pw - 12, ph - 12, [30, 32, 38]);
+      /* 本人绿框:真实游戏里是英雄头像那一侧的一条亮绿竖线(L 面板左边、R 面板右边), 轮到自己选时也在(v1.22 按真实截图改) */
+      if (isMe) fill(img, side === "L" ? px0 : px0 + pw - 6, py0, 6, ph, [40, 200, 40]);
       /* 空技能槽:真实游戏里近乎纯黑(09-11 实测 1080p/1440p 整格平均 2~6, 高亮面板 15~18, 最亮一格 ≤13), 不是面板底色 */
       for (const [sx, sy, sw] of P.slots) { const x0 = Math.max(px0 + sx, px0 + 6), x1 = Math.min(px0 + sx + sw, px0 + pw - 6); fill(img, x0, py0 + sy, x1 - x0, sw, isCur ? [14, 14, 16] : [4, 4, 5]); }   // 不压到面板边框(高亮检测量的是边框)
       const pan = (o.panels || {})[id] || {};
