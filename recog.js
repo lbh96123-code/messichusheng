@@ -416,6 +416,50 @@ function refineBoxes(img, pool) {
     hb.box = [hb.box[0] + o[0], hb.box[1] + o[1], hb.box[2] + o[2], hb.box[3] + o[3]]; }
   return adj;
 }
+/* ===== v1.26:"图标还在不在" + 同局自标定 =====
+   现行 cellState 全是"和这格锁池时的亮度比"—— 受分辨率/画质/反光/图标本身明暗影响, 每台机器阈值都不一样(1080p 补丁打不完;
+   焦渴这种暗红图标基准亮度只有 52, 选走后 32, 比值 0.6 判"没变", 4 分钟一直被推荐)。
+   iconScore:这格现在还像不像它自己锁池时认出的那个图标(去均值单位化的模板匹配, 与亮度/缩放/反光无关)。
+   真机 1378 格实测:选走后中位数 0.02~0.06(1080p 与 2K 一样), 没选走 1.00;判据只用相对值(除以锁池时的分数)。 */
+/* 只比格子里"覆盖层画不到"的那块:真机 09-15 1080p 截图证实插件自己画的推荐框/底部标签条/左上角序号**会进截屏**
+   (setContentProtection 在那台机器上没生效), 底部标签条高 23px 占了 61px 格子的 38%。所以掩掉:外圈 8%、底部 40%、左上角 30%×30%。
+   锁池时的参考分也按同一掩码算(见 Tracker.observe 里的 icoRef), 只用比值, 掩码本身不影响判据 */
+const ICO_MASK = (() => { const m = new Uint8Array(T * T); for (let j = 0; j < T; j++) for (let i = 0; i < T; i++) { const fy = j / T, fx = i / T;
+  m[j * T + i] = (fy >= 0.08 && fy < 0.60 && fx >= 0.08 && fx < 0.92 && !(fy < 0.30 && fx < 0.30)) ? 1 : 0; } return m; })();
+/* 掩码归一化向量(技能格和英雄卡共用):英雄卡没有图标库, 和它自己锁池时的向量比(selfScore) */
+function maskedVec(img, box) { const v = cropResize(img, box[0], box[1], box[2], box[3], T, T); let n = 0, mr = 0, mg = 0, mb = 0;
+  for (let p = 0; p < T * T; p++) if (ICO_MASK[p]) { mr += v[p * 3]; mg += v[p * 3 + 1]; mb += v[p * 3 + 2]; n++; } mr /= n; mg /= n; mb /= n;
+  let ss = 0; for (let p = 0; p < T * T; p++) { if (ICO_MASK[p]) { v[p * 3] -= mr; v[p * 3 + 1] -= mg; v[p * 3 + 2] -= mb; ss += v[p * 3] ** 2 + v[p * 3 + 1] ** 2 + v[p * 3 + 2] ** 2; } else v[p * 3] = v[p * 3 + 1] = v[p * 3 + 2] = 0; }
+  const inv = 1 / (Math.sqrt(ss) + 1e-6); for (let t = 0; t < v.length; t++) v[t] *= inv; return v; }
+const selfScore = (a, b) => { let s = 0; for (let t = 0; t < a.length; t++) s += a[t] * b[t]; return s; };
+/* 英雄卡判定:sc = 现在的卡面和锁池时自己的相关性(没参考时为 null → 原样) */
+function heroVerdict(base, st, ref, sc) {
+  if (base === 'T' || sc == null) return base;
+  const r = st.mean / Math.max(ref, 8), mr = st.max / Math.max(ref, 8), notLit = r < 0.9 && mr < 1.3;
+  if (sc < 0.35 && notLit && (base === 'O' || r < 0.75)) return 'T';
+  if (sc > 0.8 && base === 'O' && r >= 0.32) return 'N';
+  return base;
+}
+function iconScore(img, box, key) { const idx = KIDX[key]; if (idx == null || !box) return null;
+  const v = cropResize(img, box[0], box[1], box[2], box[3], T, T); let n = 0, mr = 0, mg = 0, mb = 0;
+  for (let p = 0; p < T * T; p++) if (ICO_MASK[p]) { mr += v[p * 3]; mg += v[p * 3 + 1]; mb += v[p * 3 + 2]; n++; } mr /= n; mg /= n; mb /= n;
+  let ss = 0; for (let p = 0; p < T * T; p++) { if (ICO_MASK[p]) { v[p * 3] -= mr; v[p * 3 + 1] -= mg; v[p * 3 + 2] -= mb; ss += v[p * 3] ** 2 + v[p * 3 + 1] ** 2 + v[p * 3 + 2] ** 2; } else v[p * 3] = v[p * 3 + 1] = v[p * 3 + 2] = 0; }
+  const inv = 1 / (Math.sqrt(ss) + 1e-6); for (let t = 0; t < v.length; t++) v[t] *= inv;
+  return dot1(v, idx); }
+/* 综合判定(纯函数, 便于离线验证):base = cellState 的亮度判定;icoR = 现在的图标分 / 锁池时的图标分;
+   slabs = 同一排里**已确认**选走的格子此刻的亮度(同排光照一样, 选走后的那块黑板长得一样 —— 这台机器自己的样本, 不需要任何人调阈值)。
+   · 图标没了 + 没有被点亮(不是提示框的白字) + (亮度判"看不清" / 长得像同排已选走的格子 / 颜色也淡了) → 选走
+   · 图标清清楚楚还在 + 亮度判"看不清" → 没变(提示框半透明盖着) */
+function skillVerdict(base, st, ref, icoR, slabs) {
+  if (base === 'T' || icoR == null) return base;
+  const r = st.mean / Math.max(ref, 8), mr = st.max / Math.max(ref, 8);
+  const notLit = r < 0.9 && mr < 1.3;
+  const slabLike = (slabs || []).some(s => Math.abs(s.mean - st.mean) <= 8 && Math.abs(s.max - st.max) <= 10);
+  if (icoR < 0.35 && notLit && (base === 'O' || slabLike || st.sat < 0.35 || r < 0.75)) return 'T';   // r<0.75:焦渴那种暗图标, 选走后亮度比 0.6、颜色还在, 只有图标没了这一条证据
+  if (icoR < 0.55 && base === 'O' && r < 0.4 && notLit) return 'T';   // "鬼影":选走后还残留一点淡淡的图案(冰火交加/飘忽不定), 很暗 + 图案只剩一半像
+  if (icoR > 0.7 && base === 'O' && r >= 0.32) return 'N';
+  return base;
+}
 function takenFlags(imgNow, refB, pool, boxesNow, refS) {
   const out = {}, S = refS || {};
   for (const r of pool.skills) out[r.key] = cellState(imgNow, boxesNow[r.cell], refB[r.cell], S[r.cell] || 0, false);
@@ -578,6 +622,36 @@ class Tracker {
     const rawTaken = takenFlags(img, this.refB, this.pool, boxes, this.refS);   // 每格 'T' 被选走 / 'N' 没变 / 'O' 看不清
     /* 鼠标正停在上面的格子:游戏会弹介绍框、被选走的卡还会把原画亮出来 —— 一律"看不清", 不改任何状态 */
     const hk = this.hoverKey(boxes); if (hk) { if (hk.startsWith('hero:')) { const hb = this.pool.heroBoxes.find(h => 'hero:' + h.hero === hk); if (hb) hb.state = 'O'; } else rawTaken[hk] = 'O'; }
+    /* v1.26:图标匹配 + 同排已确认选走格子的亮度样本(见 skillVerdict)。回放老轨迹没有图标分 → 原样 */
+    const slabNow = {};
+    for (const r of this.pool.skills) { const k = r.key; if (!boxes[r.cell]) continue;
+      const confirmed = this.owner[k] || (this.stable[k] && (this.darkRun[k] || 0) >= 12); if (!confirmed) continue;
+      const row = (LAYOUT.board[r.cell] || {}).row; if (row == null) continue;
+      const st = cellStats(img, boxes[r.cell]); (slabNow[row] = slabNow[row] || []).push({ mean: st.mean, max: st.max }); }
+    this.slabs = slabNow; this.icoFix = this.icoFix || {}; this.icoRef = this.icoRef || {};
+    /* 鼠标停在某格上时游戏会弹技能介绍框(1080p 实测在光标右侧 ~350px、上下各 ~220px), 框底下的格子图标被文字盖住 → 这一片不用图标规则 */
+    const c = this.cursor, tip = (hk && c) ? [c[0] - 560 * SC, c[1] - 320 * SC, c[0] + 560 * SC, c[1] + 280 * SC] : null;
+    const inTip = b => tip && b[0] < tip[2] && b[0] + b[2] > tip[0] && b[1] < tip[3] && b[1] + b[3] > tip[1];
+    for (const r of this.pool.skills) { const k = r.key, b = boxes[r.cell]; if (!b || r.unk || !k || k[0] === '?' || k === hk || inTip(b)) continue;
+      const base = rawTaken[k];
+      const ico = SRC ? (SRC.ico ? SRC.ico(r.cell, k) : null) : iconScore(img, b, k); if (ico == null) continue;
+      /* 参考分:第一次清清楚楚看到它亮着(亮度判"没变")时记下, 之后只看比值 */
+      if (this.icoRef[k] == null) { if (base === 'N' && ico > 0.15) this.icoRef[k] = ico; continue; }
+      if (base === 'T') continue;
+      const st = cellStats(img, b), row = (LAYOUT.board[r.cell] || {}).row;
+      const v = skillVerdict(base, st, this.refB[r.cell], ico / Math.max(this.icoRef[k], 0.2), slabNow[row] || []);
+      if (v !== base) { rawTaken[k] = v; this.icoFix[k] = (this.icoFix[k] || 0) + 1; } }
+    /* v1.27:英雄卡 —— 和自己锁池时(第一次清楚看到亮着时)的卡面比。录轨迹时把分数写进记录, 回放读记录 */
+    this.heroRef = this.heroRef || {}; const live = !SRC || SRC.img != null;
+    for (const hb of this.pool.heroBoxes) { const b = boxes[hb.cell], hk2 = 'hero:' + hb.hero; if (!b || !hb.hero || hk2 === hk || inTip(b)) continue;
+      const base = hb.state; let sc = null;
+      if (live) { const v = maskedVec(img, b);
+        if (!this.heroRef[hb.cell]) { if (base === 'N') this.heroRef[hb.cell] = v; continue; }
+        sc = selfScore(v, this.heroRef[hb.cell]); if (SRC && SRC.rec) { SRC.rec.icoH = SRC.rec.icoH || {}; SRC.rec.icoH[hb.cell] = Math.round(sc * 1000) / 1000; } }
+      else { sc = SRC.icoH ? SRC.icoH(hb.cell) : null; if (sc == null) continue; }
+      if (base === 'T') continue;
+      const v2 = heroVerdict(base, cellStats(img, b), this.refB[hb.cell], sc);
+      if (v2 !== base) { hb.state = v2; this.icoFix[hk2] = (this.icoFix[hk2] || 0) + 1; } }
     /* 铁律:一手只选走一件。所以"这一帧新变黑的格子 ≥2 个"必定不是选人 —— 是半透明的提示框/弹窗盖住了一片,
        整批丢弃(实测有一次盖黑 30 格, 被当成 12 件已选走, 还连累"新的一局"误判)。
        只有刚锁定池子/刚从后台回来那几帧允许批量(那时确实可能一次看到很多件已被选走)。 */
@@ -590,6 +664,12 @@ class Tracker {
        现在:这种格子逐个标记"要等更久"(连续 5 次都暗才认), 各算各的, 互不牵连;不再有"整批接受"。
        只有刚锁池/刚从后台回来那一帧(allowBulk)允许一次认很多(那时确实可能已经被选了好几件)。 */
     const fresh = rawList.filter(([k, d]) => d === 'T' && !this.stable[k] && !this.darkRun[k]);
+    /* v1.26:同一帧 ≥10 格一起"新变黑"只可能是整块被盖住(菜单/计分板/转场;真机 09-15 08:59 有 25 格一起暗了 3 分钟),
+       这些格子当"看不清"处理, 什么都不改 —— 以前 5 帧后就当选走, 然后一批"不当落子"。落子一次只有一格, 撞上 9 个闪烁格的概率可以不计 */
+    this.occlRun = (fresh.length >= 10 && !this.allowBulk) ? (this.occlRun || 0) + 1 : 0;
+    if (this.occlRun >= 1 && this.occlRun <= 8) { for (const e of rawList) if (fresh.some(f => f[0] === e[0])) e[1] = 'O'; fresh.length = 0;
+      if (this.occlRun === 1) this.bulkLog = `≥10 格同时变黑 → 整块被盖住, 这些格子先当看不清(最多 8 帧)`; }
+    /* 超过 8 帧还这样 = 真的一起黑了(从后台切回来、中途才打开插件) → 放行, 走原来的"连续 5 次才认" */
     let bulk = false; this.hold = this.hold || {};
     if (fresh.length >= 2 && !this.allowBulk) { bulk = true; for (const [k] of fresh) this.hold[k] = true;
       this.bulkLog = `${fresh.length} 格同时变黑 → 当遮挡嫌疑, 这几格要连续 5 次都暗才认`; }
@@ -867,7 +947,9 @@ class Tracker {
   pickedKeys() { return new Set(Object.keys(this.owner).concat(Object.keys(this.pend || {}), Object.keys(this.suspect || {}).filter(k => this.solidDark(k)))); }
   /* "实打实被选走了":追踪中看到它从亮变暗(不是锁池时就暗着的), 之后**连续 6 次**都是"被选走"的样子, 而且不是会闪的格子。
      赛前准备阶段有格子每半秒明暗一次、鼠标提示框会瞬间盖黑一片 —— 这些连续暗不到 6 次, 不会被当成落子 */
-  solidDark(k) { const t = (this.firstT || {})[k]; return t != null && t > (this.lockFrame || 1) && (this.darkRun[k] || 0) >= 6 && !this.flaky[k]; }
+  solidDark(k) { const t = (this.firstT || {})[k]; return t != null && t > (this.lockFrame || 1) && ((this.darkRun[k] || 0) >= 6 && !this.flaky[k] || (this.darkRun[k] || 0) >= 12); }
+  /* v1.25:被标成"会闪"的格子以前永远进不了这里 —— 真机 09-14 日志:粘性炸弹赛前闪过几次被标 flaky, 之后真被选走(没配上面板 → 不当落子),
+     连续暗了 60 多帧引擎还当它可选, 78 秒里一直可能被推荐。会闪的格子撑不过 12 次连续暗(完整识别十几秒), 暗满 12 次就是真被拿走 */
   /* 当前完整认定(每确认一手写一行日志, 事后能逐手对照真实阵容) */
   snapshotLine() { const seats = []; for (const side of ['L', 'R']) for (let i = 0; i < 5; i++) { const q = [side, i];
       const h = Object.keys(this.heroOf).find(x => this.heroOf[x][0] === side && this.heroOf[x][1] === i);
@@ -876,4 +958,4 @@ class Tracker {
       seats.push(`${side}${i + 1}:${h ? cn(h) : '-'}|${sk.join('/') || '-'}`); }
     return seats.join('  '); }
 }
-module.exports = { GEO: () => GEO, boxesFor, setSource, cellState, slotFilled, slotSignal, cellVec, _scoreCell: (img, b) => scoreAll(cellVec(img, b)), init, rescale, SCALE: () => SC, readPool, alignBoard, takenFlags, refBrightness, readPanels, matchSkill, calibratePanels, readHeroName, quickPresence, quickSig, boardSig, fastDark, sigDiff, cellBright, cellStats, isDarkCell, Tracker, cn, OWNER: () => OWNER, LAYOUT: () => LAYOUT };
+module.exports = { GEO: () => GEO, boxesFor, setSource, cellState, iconScore, skillVerdict, maskedVec, selfScore, heroVerdict, slotFilled, slotSignal, cellVec, _scoreCell: (img, b) => scoreAll(cellVec(img, b)), init, rescale, SCALE: () => SC, readPool, alignBoard, takenFlags, refBrightness, readPanels, matchSkill, calibratePanels, readHeroName, quickPresence, quickSig, boardSig, fastDark, sigDiff, cellBright, cellStats, isDarkCell, Tracker, cn, OWNER: () => OWNER, LAYOUT: () => LAYOUT };

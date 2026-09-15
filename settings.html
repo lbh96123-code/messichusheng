@@ -1,0 +1,124 @@
+<!doctype html><html><head><meta charset="utf-8"><title>AD 选技助手 · 设置</title><style>
+/* 设置面板(v1.23):双击托盘图标打开。以前所有开关都在右下角托盘菜单里, 一次只能改一项;这里一屏全在, 颜色改了游戏里立刻变。 */
+:root{--bg:#1b1f27;--card:#242a35;--line:#333b49;--fg:#dce8f2;--dim:#8b98a8;--acc:#ffd76a}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.5 "Microsoft YaHei",system-ui,sans-serif;user-select:none}
+body{padding:10px 14px 16px}
+h1{font-size:15px;margin:0 0 8px;color:var(--acc);display:flex;justify-content:space-between;align-items:baseline}
+h1 small{color:var(--dim);font-weight:normal;font-size:11px}
+section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-bottom:8px}
+h2{font-size:13px;margin:0 0 6px;color:var(--acc)}
+.row{display:flex;align-items:center;gap:8px;min-height:26px;flex-wrap:wrap}
+.row+.row{margin-top:2px}
+.row label.k{width:104px;color:var(--dim);flex:none}
+button{background:#2f3846;color:var(--fg);border:1px solid #4a5568;border-radius:5px;padding:3px 10px;cursor:pointer;font:inherit}
+button:hover{background:#3a4557}button.on{background:#3d5a80;border-color:#5b86bd;color:#fff}
+button.warn{border-color:#8a4b4b}
+select,input[type=range]{background:#2f3846;color:var(--fg);border:1px solid #4a5568;border-radius:5px;padding:2px 6px;font:inherit}
+input[type=color]{width:34px;height:24px;border:1px solid #4a5568;border-radius:5px;background:#2f3846;padding:1px 2px;cursor:pointer}
+.sw{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.sw input{accent-color:#5b86bd}
+.seg{display:inline-flex;border:1px solid #4a5568;border-radius:5px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-right:1px solid #4a5568}.seg button:last-child{border-right:0}
+.note{color:var(--dim);font-size:11px;margin:2px 0 0}
+.colors{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 10px}
+.colors .c{display:flex;align-items:center;gap:6px}
+.colors .c span{color:var(--dim)}
+canvas#pv{display:block;width:100%;background:#0d1117;border-radius:6px;margin-top:6px}
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;color:var(--dim);font-size:11px}
+.keys b{color:var(--fg);font-weight:normal}
+#st{color:var(--dim);font-size:11px;margin-top:4px;white-space:pre-wrap}
+</style></head><body>
+<h1>AD 选技助手 设置 <small id="ver"></small></h1>
+
+<section><h2>显示</h2>
+ <div class="row"><label class="k">覆盖层</label><button id="b-hidden"></button><span class="note">隐藏后识别照常运行, 再点一下立刻显示最新结果</span></div>
+ <div class="row"><label class="k">给谁看推荐</label><div class="seg"><button id="m-solo">单人:只看我</button><button id="m-all">团队:我方五人</button></div></div>
+ <div class="row"><label class="k">组合明细</label><label class="sw"><input type="checkbox" id="c-ps">显示双方十人的组合明细小卡</label></div>
+ <div class="row"><label class="k">直播模式</label><label class="sw"><input type="checkbox" id="c-live">📺 让直播/录屏软件能抓到覆盖层</label></div>
+ <div class="note" id="live-note">默认关:覆盖层对所有截屏/录屏隐身(视频号直播助手、OBS 都抓不到)。开了以后插件改抓游戏窗口而不是整个屏幕, 接通后才放开隐身;游戏要是独占全屏会抓到黑屏, 请用无边框窗口。</div>
+ <div class="row"><label class="k">我是几号位</label><select id="s-me"></select><span class="note">手动只对这一局有效, 下一局自动恢复</span></div>
+ <div class="row"><label class="k">个人权重</label><div class="seg" id="seg-pl"></div></div>
+ <div class="note">个人权重只影响你自己的回合:1 = 全为团队;2/3/4 = 每手最多让队伍少 1 / 2.5 / 5 个百分点来换你自己的强度。</div>
+</section>
+
+<section><h2>推荐框颜色</h2>
+ <div class="colors">
+  <div class="c"><input type="color" id="k-c1"><span>第 1 名</span></div>
+  <div class="c"><input type="color" id="k-c2"><span>第 2 名</span></div>
+  <div class="c"><input type="color" id="k-c3"><span>第 3 名</span></div>
+  <div class="c"><input type="color" id="k-mid"><span>4 名以后</span></div>
+ </div>
+ <div class="row" style="margin-top:6px"><label class="k">画框画到第</label><select id="k-midN"></select><span>名</span>
+  <label class="sw" style="margin-left:12px"><input type="checkbox" id="k-rest">后面的只写胜率不画框</label></div>
+ <div class="row"><label class="k">框的粗细</label><input type="range" id="k-thick" min="0.5" max="2" step="0.1" style="width:160px"><span id="k-thick-v"></span>
+  <button id="k-reset" style="margin-left:auto">恢复默认配色</button></div>
+ <canvas id="pv" width="640" height="150"></canvas>
+ <div class="note">预览和游戏里画的是同一份代码;改颜色时游戏里(选技中)立刻跟着变。默认配色是 09-15 朋友改的那套。</div>
+</section>
+
+<section><h2>运行</h2>
+ <div class="row"><label class="k">识别</label><button id="b-pause"></button><button id="b-reset">重新识别池子</button><span class="note">一般不需要重新识别</span></div>
+ <div class="row"><label class="k">运行模式</label><div class="seg"><button id="t-off">正式</button><button id="t-on">🔬 测试(自动截图+细日志)</button></div></div>
+ <div class="row"><label class="k">状态估计内核</label><div class="seg"><button id="v-1x">1.x 稳定</button><button id="v-v2">2.0 试验</button></div></div>
+ <div class="row"><label class="k">日志</label><label class="sw"><input type="checkbox" id="c-up">打完一局自动上传日志(帮作者排查问题)</label></div>
+ <div class="row"><label class="k"></label><button id="b-upload">立即上传本次日志</button><button id="b-snap">保存当前截图</button><button id="b-logs">打开日志文件夹</button></div>
+</section>
+
+<section><h2>快捷键</h2><div class="keys" id="keys"></div>
+ <div class="note">被别的程序占用的键会自动退让到 Alt+ / Ctrl+Alt+ 组合;这里显示的是实际生效的。双击托盘图标随时打开这个面板。</div>
+ <div class="row" style="margin-top:6px"><button id="b-quit" class="warn">退出插件</button><span id="st"></span></div>
+</section>
+
+<script src="frames.js"></script><script>
+"use strict";
+const $=id=>document.getElementById(id);
+let S=null, look=ADFrames.norm(null), busy=false;
+const PLN=["1 团队","2 略偏个人","3 偏个人","4 贪"];
+/* ---- 一次性搭好控件 ---- */
+for(const q of ["auto","L1","L2","L3","L4","L5","R1","R2","R3","R4","R5"]){const o=document.createElement("option");o.value=q;o.textContent=q==="auto"?"自动识别(推荐)":`${q[0]==="L"?"左":"右"}${q[1]}`;$("s-me").append(o);}
+PLN.forEach((n,i)=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>panel.set("plevel",i);$("seg-pl").append(b);});
+for(let n=3;n<=10;n++){const o=document.createElement("option");o.value=n;o.textContent=n;$("k-midN").append(o);}
+/* ---- 预览:3×4 的假格子, 用和覆盖层同一个 drawRow 画前 12 名 ---- */
+function preview(){const cv=$("pv"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv.width,cv.height);
+ const w=52,h=52,gx=(cv.width-4*w-3*100)/2;   // 4 列, 列距留宽一点, 给发光和徽章空间
+ for(let i=0;i<8;i++){const x=Math.round(gx+30+(i%4)*(w+100)),y=18+Math.floor(i/4)*(h+22);
+  const g=ctx.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,"#3a4a5c");g.addColorStop(1,"#1a222c");ctx.fillStyle=g;ctx.fillRect(x,y,w,h);
+  const p=58-i*1.7,d=8-i*2.2;ADFrames.drawRow(ctx,i,x,y,w,h,p.toFixed(1)+(d>=0?" +":" ")+d.toFixed(1),look,false);}
+ /* 右侧再示意一下 "画到第几名" 之后的样子 */
+ ctx.fillStyle="#8b98a8";ctx.font='11px "Microsoft YaHei",system-ui';ctx.textAlign="left";ctx.textBaseline="top";
+ ctx.fillText(`前 3 名粗框 · 4~${look.midN} 名细框 · ${look.midN+1} 名以后${look.showRest?"只写胜率":"什么都不画"}`,8,cv.height-16);}
+/* ---- 主进程推来的完整状态 → 刷新所有控件 ---- */
+function render(m){S=m;look=ADFrames.norm(m.look);
+ $("ver").textContent=`v${m.version}`+(m.phase==="active"?" · 选技中":"")+(m.meShown?` · 认出你是 ${m.meShown}`:"");
+ $("b-hidden").textContent=m.hidden?"👁 已隐藏 — 点击恢复显示":"🙈 正在显示 — 点击隐藏";$("b-hidden").className=m.hidden?"":"on";
+ $("m-solo").className=m.all?"":"on";$("m-all").className=m.all?"on":"";
+ $("c-ps").checked=m.showPlayerScores!==false;$("s-me").value=m.meSeat||"auto";
+ [...$("seg-pl").children].forEach((b,i)=>b.className=i===m.plevel?"on":"");
+ for(const k of ["c1","c2","c3","mid"])$("k-"+k).value=look[k];
+ $("k-midN").value=look.midN;$("k-rest").checked=look.showRest;$("k-thick").value=look.thick;$("k-thick-v").textContent=look.thick.toFixed(1)+"×";
+ $("b-pause").textContent=m.paused?"▶ 已暂停 — 点击继续":"⏸ 运行中 — 点击暂停";$("b-pause").className=m.paused?"":"on";
+ $("t-off").className=m.test?"":"on";$("t-on").className=m.test?"on":"";
+ $("v-1x").className=m.core==="v2"?"":"on";$("v-v2").className=m.core==="v2"?"on":"";
+ $("c-up").checked=!!m.uploadLogs;$("c-live").checked=!!m.allowCapture;
+ const lv=m.live||{};$("live-note").textContent=m.allowCapture?("📺 "+(lv.msg||(lv.mode==="window"?"已捕获游戏窗口, 覆盖层可被抓到":"等待游戏窗口…"))+"  ·  游戏独占全屏会黑屏, 请用无边框窗口"):"默认关:覆盖层对所有截屏/录屏隐身(视频号直播助手、OBS 都抓不到)。开了以后插件改抓游戏窗口而不是整个屏幕, 接通后才放开隐身;游戏要是独占全屏会抓到黑屏, 请用无边框窗口。";
+ const hk=m.hotkey||{};$("keys").innerHTML=Object.keys(hk).map(k=>`<div>${k}:<b>${hk[k]||"(被占用, 用面板)"}</b></div>`).join("");
+ $("st").textContent=m.status||"";preview();}
+/* ---- 控件 → 主进程 ---- */
+$("b-hidden").onclick=()=>panel.set("hidden",!S.hidden);
+$("m-solo").onclick=()=>panel.set("all",false);$("m-all").onclick=()=>panel.set("all",true);
+$("c-ps").onchange=e=>panel.set("showPlayerScores",e.target.checked);
+$("s-me").onchange=e=>panel.set("meSeat",e.target.value);
+$("b-pause").onclick=()=>panel.set("paused",!S.paused);$("b-reset").onclick=()=>panel.act("reset");
+$("t-off").onclick=()=>panel.set("test",false);$("t-on").onclick=()=>panel.set("test",true);
+$("v-1x").onclick=()=>panel.set("core","1x");$("v-v2").onclick=()=>panel.set("core","v2");
+$("c-up").onchange=e=>panel.set("uploadLogs",e.target.checked);$("c-live").onchange=e=>panel.set("allowCapture",e.target.checked);
+$("b-upload").onclick=()=>panel.act("upload");$("b-snap").onclick=()=>panel.act("snap");$("b-logs").onclick=()=>panel.act("logs");
+$("b-quit").onclick=()=>{if(confirm("退出插件?"))panel.act("quit");};
+/* 颜色:拖动取色器时 input 事件很密, 本地先画预览, 每 60ms 才发一次给主进程(游戏里也跟着变) */
+let sendT=null;function sendLook(){const o={...look};for(const k of ["c1","c2","c3","mid"])o[k]=$("k-"+k).value;
+ o.midN=+$("k-midN").value;o.showRest=$("k-rest").checked;o.thick=+$("k-thick").value;look=ADFrames.norm(o);$("k-thick-v").textContent=look.thick.toFixed(1)+"×";preview();
+ clearTimeout(sendT);sendT=setTimeout(()=>panel.set("look",look),60);}
+for(const id of ["k-c1","k-c2","k-c3","k-mid","k-midN","k-rest","k-thick"]){$(id).oninput=sendLook;$(id).onchange=sendLook;}
+$("k-reset").onclick=()=>{look=ADFrames.norm(null);panel.set("look",look);render({...S,look});};
+panel.on("panel",render);panel.ready();
+</script></body></html>

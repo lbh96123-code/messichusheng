@@ -3,24 +3,12 @@ html,body{margin:0;background:transparent;overflow:hidden;width:100%;height:100%
 canvas{position:absolute;left:0;top:0}
 #toast{position:absolute;left:50%;top:140px;transform:translateX(-50%);font:bold 18px/1.4 "Microsoft YaHei",system-ui,sans-serif;color:#ffcc33;background:rgba(0,0,0,.85);border:2px solid #ffcc33;padding:6px 16px;pointer-events:none;white-space:pre;display:none}
 #status{position:absolute;left:12px;top:8px;font:13px/1.4 "Microsoft YaHei",system-ui,sans-serif;color:#ffd76a;text-shadow:0 0 4px #000,0 0 2px #000;pointer-events:none;white-space:pre}
-</style></head><body><canvas id="c"></canvas><div id="status"></div><div id="toast"></div><script>
+</style></head><body><canvas id="c"></canvas><div id="status"></div><div id="toast"></div><script src="frames.js"></script><script>
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),status=document.getElementById('status'),toast=document.getElementById('toast');let toastT=null;
 let scale=1,cfg={all:false,paused:false},lastState=null,adv=null,err='',busy=false;
 function fit(){cv.width=innerWidth;cv.height=innerHeight;}fit();addEventListener('resize',()=>{fit();draw();});
-/* 画法(游戏画面本身很鲜艳,所以每条亮边外面都套一圈黑边,靠明暗对比而不是颜色取胜):
-   前三 = 金/银/铜 粗框(外黑 10px + 亮色 6px + 外发光) + 左上角大号名次徽章
-   4-10 = 青色 中框(外黑 6px + 3px)  + 小徽章
-   11+  = 不画框,只在格子底部写胜率(暗一点)
-   每格底部一条:选它之后**我方**胜率 + 相对现在的增减 */
-/* 前三名:金 / 银 / 铜。第一名原来是 #ffcc33(偏琥珀), 在游戏本身偏暖的背景上不够跳 —— 换成更亮的金,
-   并且单独给它更大的外发光。银(近白中性)和金(强黄, 蓝通道很低)在亮度接近时也不会混。 */
-const GOLD=['#ffe24a','#e6e9ef','#e08a4a'], MID='#5fd0ff', GLOW=[30,18,18], LW=[9,6,6];
-function bar(x,y,w,h,txt,col,fs,alpha){ctx.globalAlpha=alpha;ctx.fillStyle='#000';ctx.fillRect(x,y+h-fs-8,w,fs+8);
- ctx.globalAlpha=1;ctx.fillStyle=col;ctx.font=`bold ${fs}px "Segoe UI",system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.fillText(txt,x+w/2,y+h-4-fs/2);}
-function badge(x,y,r,n,col){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();
- ctx.lineWidth=2;ctx.strokeStyle=col;ctx.stroke();ctx.fillStyle=col;ctx.font=`bold ${Math.round(r*1.35)}px "Segoe UI",system-ui`;
- ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(n),x,y+1);}
+/* 推荐框的画法和配色都在 frames.js(和设置面板的预览共用一份);颜色/名次范围/粗细来自 cfg.look(设置面板改, 存盘) */
+let look=ADFrames.norm(null);
 function drawPlayers(){
  if(cfg.showPlayerScores===false||!lastState||lastState.phase!=='active'||lastState.idle)return;
  for(const p of lastState.playerScores||[]){
@@ -46,18 +34,8 @@ function draw(){ctx.clearRect(0,0,cv.width,cv.height);if(cfg.hidden||(cfg.phase&
  drawPlayers();if(!lastState||lastState.phase!=='active'||lastState.idle||!adv||!adv.rows)return;
  adv.rows.forEach((r,i)=>{if(!r.box)return;const [x,y,w,h]=r.box.map(v=>v/scale);
   const txt=(100*r.p).toFixed(1)+(r.d>=0?' +':' ')+(100*r.d).toFixed(1);
-  if(i<3){const col=GOLD[i];
-   ctx.save();ctx.shadowColor=col;ctx.shadowBlur=GLOW[i];
-   const lw=LW[i], off=lw/2;   // 第一名框更粗:颜色和形状一起变才够跳, 银铜维持原样 → 名次层级反而更清楚
-   ctx.lineWidth=lw+4;ctx.strokeStyle='#000';ctx.strokeRect(x-off-2,y-off-2,w+2*off+4,h+2*off+4);
-   if(adv.pre==='preview')ctx.setLineDash([10,6]);ctx.lineWidth=lw;ctx.strokeStyle=col;ctx.strokeRect(x-off,y-off,w+2*off,h+2*off);ctx.setLineDash([]);ctx.restore();
-   bar(x,y,w,h,txt,col,15,0.85);badge(x+2,y+2,14,i+1,col);
-  }else if(i<10){
-   ctx.lineWidth=6;ctx.strokeStyle='#000';ctx.strokeRect(x-3,y-3,w+6,h+6);
-   ctx.lineWidth=3;ctx.strokeStyle=MID;ctx.strokeRect(x-1,y-1,w+2,h+2);
-   bar(x,y,w,h,txt,MID,13,0.8);badge(x+1,y+1,10,i+1,MID);
-  }else{bar(x,y,w,h,txt,'#c9d1d9',11,0.6);}
-  if(adv.personal&&i<10&&r.pm!=null){const t2=`个${r.pm>=0?'+':''}${r.pm.toFixed(1)}`;ctx.font='bold 11px "Segoe UI",system-ui';
+  ADFrames.drawRow(ctx,i,x,y,w,h,txt,look,adv.pre==='preview');
+  if(adv.personal&&i<Math.max(10,look.midN)&&r.pm!=null){const t2=`个${r.pm>=0?'+':''}${r.pm.toFixed(1)}`;ctx.font='bold 11px "Segoe UI",system-ui';
    const tw2=ctx.measureText(t2).width+8,bx=x+w-tw2+2,by=y-2;ctx.fillStyle='rgba(0,0,0,.85)';ctx.fillRect(bx,by,tw2,15);
    ctx.fillStyle=r.pm>0.05?'#7ee0a8':(r.pm<-0.05?'#f0908b':'#c9d1d9');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t2,bx+tw2/2,by+8);}});
  /* 顶部一行 */
@@ -76,6 +54,7 @@ function st(){const hk=(cfg.hotkey||{}),k=n=>hk[n]?hk[n]:'托盘菜单';
     游戏里的画面常被粗检当成像棋盘, 以前会一直挂着"看到棋盘, 正在识别池子…"。隐藏时什么都不画 */
  if(cfg.hidden||!lastState||(lastState.idle&&!(lastState.board&&lastState.near))){status.textContent='';return;}
  const s=[];s.push(`AD 助手 v${cfg.version||''} · `+(cfg.paused?`⏸ 已暂停(${k('暂停/继续')} 继续)`:(cfg.all?`团队模式:我方五人(${k('切换显示模式')} 切换)`:`单人模式:只看我(${k('切换显示模式')} 切换)`)+` · 个人权重 ${cfg.plname||'1 团队'}(${k('团队/个人优先')} 切换)`));
+ if(cfg.live&&cfg.live.on)s.push('📺 直播模式: '+(cfg.live.msg||(cfg.live.mode==='window'?'已捕获游戏窗口':'等待游戏窗口…')));
  if(lastState&&lastState.idle)s.push(lastState.waiting?'看到棋盘, 正在识别池子…':'看到棋盘, 等待完整画面…');
  else if(lastState)s.push(`识别 ${lastState.ms}ms${lastState.skipped?'(画面未变)':''} · 池子${lastState.poolOk?'OK':`未认全(${k('重新识别')})`} · 已选走 ${lastState.taken} · 当前 ${lastState.current.side}${lastState.current.idx+1}${lastState.pre?'(已选)':''} 我 ${lastState.me?`${lastState.me.side}${lastState.me.idx+1}${lastState.meSource==='manual'?'(手动)':''}`:'未确定'}${lastState.nextIsMe?' · 下一个是我':''}`);
  if(lastState&&!lastState.idle&&!lastState.me)s.push('⚠ 还没认出你是几号位, 先不给推荐(游戏给你自己的面板画了一圈绿框, 插件要连续看到几次才认定;也可以在托盘「我是几号位」手动指定)');
@@ -86,7 +65,7 @@ function st(){const hk=(cfg.hotkey||{}),k=n=>hk[n]?hk[n]:'托盘菜单';
   s.push(t.join(' · '));}
  if(err)s.push('⚠ '+err);status.textContent=s.join('\n');}
 function flash(t){toast.textContent=t;toast.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>{toast.style.display='none';},2000);}
-ad.on('cfg',m=>{scale=m.scale||1;const was=cfg.hidden;cfg=m;const k=(m.hotkey||{})['隐藏/显示']||'托盘菜单';
+ad.on('cfg',m=>{scale=m.scale||1;const was=cfg.hidden;cfg=m;look=ADFrames.norm(m.look);const k=(m.hotkey||{})['隐藏/显示']||'托盘菜单';
  if(was!==undefined&&was!==m.hidden)flash(m.hidden?`AD 助手已隐藏 · 识别照常运行(${k} 恢复显示)`:`AD 助手恢复显示(${k} 隐藏)`);
  st();draw();});ad.on('state',m=>{lastState=m;err='';st();draw();});
 ad.on('advice',m=>{adv=m;busy=false;draw();});ad.on('computing',m=>{busy=true;draw();});ad.on('clear',()=>{adv=null;draw();});ad.on('error',m=>{err=(m.msg||'').slice(0,160);st();});

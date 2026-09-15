@@ -1,6 +1,7 @@
 "use strict";
 const assert=require('assert/strict'),fs=require('fs'),path=require('path');
 const code=fs.readFileSync(path.resolve(__dirname,'../overlay.html'),'utf8').split('<script>')[1].split('</script>')[0];
+require("../frames.js");   // overlay.html 现在从 frames.js 取画框代码(挂在 globalThis.ADFrames)
 let texts=[],colors=[];const handlers={},els={};
 const ctx=new Proxy({measureText:()=>({width:100}),fillText:t=>{texts.push(t);colors.push([t,ctx.fillStyle]);},clearRect:()=>{texts=[];colors=[];}},{get:(t,k)=>t[k]||(()=>{})});
 const canvas={getContext:()=>ctx};

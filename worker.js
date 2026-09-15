@@ -165,7 +165,7 @@ function tryLock(img, pres) {
     t.owner = old.owner; t.heroOf = old.heroOf; t.firstT = old.firstT; t.pickT = old.pickT; t.frameNo = old.frameNo; t.lockFrame = old.lockFrame;   /* 帧号接着走, 否则旧落子的时间比新落子还大, 按时间排座位会乱 */
     /* 归属过程的其余状态也要带上:以前只带了归属结果, "哪些格已处理过"丢了 → 已归属的技能被当成新变暗的格子重走一遍、判成"不当落子";
        面板计数从头数 → 第一帧按"开局已在面板里"重记一遍、回合数被重置 */
-    for (const f of ["known", "suspect", "pend", "unknownBy", "orphan", "forced", "pc", "pcRaw", "pcRun", "pcInit", "surSince", "turn", "flaky", "flips", "hold", "nameHero", "nameRun"]) if (old[f] !== undefined) t[f] = old[f]; t.log = old.log.slice(); t.meSeat = old.meSeat; t.meVotes = old.meVotes; t.meAuto = old.meAuto; t.curSeat = old.curSeat; t.stable = old.stable; t.darkRun = old.darkRun; t.brightRun = old.brightRun; t.bhist = old.bhist; t.nameSize = old.nameSize;
+    for (const f of ["known", "suspect", "pend", "unknownBy", "orphan", "forced", "pc", "pcRaw", "pcRun", "pcInit", "surSince", "turn", "flaky", "flips", "hold", "nameHero", "nameRun", "icoRef", "heroRef"]) if (old[f] !== undefined) t[f] = old[f]; t.log = old.log.slice(); t.meSeat = old.meSeat; t.meVotes = old.meVotes; t.meAuto = old.meAuto; t.curSeat = old.curSeat; t.stable = old.stable; t.darkRun = old.darkRun; t.brightRun = old.brightRun; t.bhist = old.bhist; t.nameSize = old.nameSize;
     log("pool", `同一池子重锁, 保留归属 ${Object.keys(t.owner).length} 技能 ${Object.keys(t.heroOf).length} 英雄`); }
   else logIdx = 0;
   t.fullOrder = FULL_ORDER; t.orderSeat = n => { const x = FULL_ORDER[Math.max(0, Math.min(n, FULL_ORDER.length - 1))]; return [x < 5 ? "L" : "R", x % 5]; };   // 第 n 手归谁
@@ -296,7 +296,7 @@ function fastTick(img) {
   /* 快通道只做**临时推算**(为了抢时间提前开算), 不写任何归属 —— 归属一律等完整识别里"棋盘变暗 + 面板多一个图标"配对确认。
      以前快通道直接写归属, 写错了再靠后面改, 改的时候又可能改错。 */
   log("fast", `${R.cn(key)} 整格变暗 → 判定 ${seat[0]}${seat[1] + 1} 已落子 (扫描 ${Date.now() - t0}ms)`);
-  fastPicks.set(k, Date.now());   // 在完整识别确认/否认之前, 推荐一直把它算作已拿走(见慢通道)
+  fastPicks.set(k, { t: Date.now(), n: 0 });   // 在完整识别确认/否认之前, 推荐一直把它算作已拿走(见慢通道);n = 之后完整识别清楚看到它亮着的次数
   pickedAtCur = true; lastS = S; lastTaken = S.skills.filter(x => x.taken).length + S.taken_heroes.length + (S.extraPicks || 0);
   chooseAdvice(S, startIdxOf(S, true, lastTaken), true, Date.now() - t0);
   want(true); return true;
@@ -443,9 +443,15 @@ parentPort.on("message", async m => {
     /* 快通道判定的落子, 完整识别要连续 2 帧 + 面板配对才确认(1~2 秒)。这段时间里局面如果把它时有时无, 推荐的计算会被打断重来 ——
        09-12 日志:落子后 0.4 秒和 1.7 秒各重来一次, 前半局每手白等 1.5~2 秒。现在:完整识别还看得到它暗着(或已确认)就一直算它已拿走;
        看到它亮回来 / 超过 6 秒没确认就放掉 */
-    for (const [k, t] of [...fastPicks]) { const isH = k.startsWith("hero:"), key = isH ? k.slice(5) : k;
+    /* v1.25:以前"看到它亮回来"写成 brightRun>=1 && darkRun==0 —— 落子前它一直亮着(brightRun 早就 >=1), 完整识别只要没判成"被选走"(判"看不清"也算)
+       就立刻放掉。真机 09-15 日志:左1 拿月刃, 快扫 0.5 秒就看到变黑, 但那格变黑后颜色反而变浓(棋盘下排的反光), 完整识别连判 12 秒"看不清",
+       快通道的判定第一帧就被放掉 → 月刃被推荐给我 20 秒。现在:只有完整识别**清清楚楚看到它亮着('N')连续 2 帧**才放, 否则一直算已拿走, 最长 20 秒 */
+    const rawNow = tracker.prev && tracker.prev.rawState || {};
+    for (const [k, fp] of [...fastPicks]) { const isH = k.startsWith("hero:"), key = isH ? k.slice(5) : k;
       const confirmed = isH ? S.taken_heroes.includes(key) : S.skills.some(x => x.key === key && x.taken);
-      if (confirmed || Date.now() - t > 6000 || ((tracker.brightRun[k] || 0) >= 1 && !(tracker.darkRun[k] > 0))) { fastPicks.delete(k); continue; }   // 清楚看到亮回来才放("看不清"不算)
+      const raw = isH ? ((tracker.pool.heroBoxes.find(h => "hero:" + h.hero === k) || {}).state) : rawNow[k];
+      if (raw === "N") fp.n = (fp.n || 0) + 1;
+      if (confirmed || Date.now() - fp.t > 20000 || fp.n >= 2) { fastPicks.delete(k); continue; }
       if (isH) S.taken_heroes.push(key); else { const r = S.skills.find(x => x.key === key); if (r) r.taken = true; } }
     pendingNext = !!S.pending;
     flushTrackLog(img);

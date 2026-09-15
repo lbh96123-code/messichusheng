@@ -1,0 +1,36 @@
+"use strict";
+/* 设置面板(settings.html)的脚本用假 DOM 跑一遍:收到状态能刷新控件;点控件发对的 set/act;改色本地预览 + 发主进程;坏值不炸。 */
+const fs = require("fs"), path = require("path");
+const html = fs.readFileSync(path.join(__dirname, "..", "settings.html"), "utf8"), code = html.split('<script src="frames.js"></script><script>')[1].split("</script>")[0];
+require("../frames.js");
+const ctx = new Proxy({ measureText: () => ({ width: 10 }), createLinearGradient: () => ({ addColorStop() {} }) }, { get: (t, k) => t[k] !== undefined ? t[k] : () => {}, set: (t, k, v) => { t[k] = v; return true; } });
+function mk(id) { const e = { id, children: [], style: {}, value: "", checked: false, textContent: "", innerHTML: "", className: "", append(...c) { this.children.push(...c); }, getContext: () => ctx, width: 640, height: 150 }; return e; }
+const els = {}; const $ = id => els[id] || (els[id] = mk(id));
+const document = { getElementById: $, createElement: tag => mk(tag) };
+const sent = [], acts = []; let ready = false, onPanel = null;
+const panel = { on: (ch, f) => { if (ch === "panel") onPanel = f; }, set: (k, v) => sent.push([k, v]), act: n => acts.push(n), ready: () => { ready = true; } };
+const timers = []; const setTimeout = f => { timers.push(f); return timers.length; }, clearTimeout = id => { if (id) timers[id - 1] = null; };
+new Function("document", "panel", "setTimeout", "clearTimeout", "confirm", code)(document, panel, setTimeout, clearTimeout, () => true);
+let ok = true; const check = (what, cond) => { console.log(`${cond ? "✓" : "✗"} ${what}`); ok = ok && cond; };
+check("启动即向主进程要状态", ready && typeof onPanel === "function");
+check("座位下拉 11 项 / 个人权重 4 档 / 画到第几名 3~10", $("s-me").children.length === 11 && $("seg-pl").children.length === 4 && $("k-midN").children.length === 8);
+const st = { all: false, paused: false, hidden: false, showPlayerScores: true, plevel: 2, version: "1.23.0", phase: "active", hotkey: { "隐藏/显示": "F6", "切换显示模式": null }, test: false, core: "1x", meSeat: "R5", look: { c1: "#123456", midN: 6, showRest: false, thick: 1.5 }, uploadLogs: true, meShown: "右5", status: "active 当前L1 我R5" };
+onPanel(st);
+check("状态推来: 控件按状态刷新(第一名色/画到第几名/座位/权重档/内核)", $("k-c1").value === "#123456" && String($("k-midN").value) === "6" && $("s-me").value === "R5" && $("seg-pl").children[2].className === "on" && $("v-1x").className === "on" && $("k-rest").checked === false);
+check("look 缺的项补默认(第二名黄)", $("k-c2").value === "#ffd038");
+check("快捷键区: 被占用的写明用面板", /被占用/.test($("keys").innerHTML) && /F6/.test($("keys").innerHTML));
+$("b-hidden").onclick(); $("m-all").onclick(); $("seg-pl").children[3].onclick(); $("s-me").value = "L2"; $("s-me").onchange({ target: $("s-me") }); $("c-up").onchange({ target: { checked: false } }); $("v-v2").onclick(); $("c-live").onchange({ target: { checked: true } });
+check("点开关 → 发对应的 set", JSON.stringify(sent) === JSON.stringify([["hidden", true], ["all", true], ["plevel", 3], ["meSeat", "L2"], ["uploadLogs", false], ["core", "v2"], ["allowCapture", true]]));
+onPanel({ ...st, allowCapture: true, live: { on: true, mode: "window", msg: "已捕获游戏窗口「Dota 2」" } });
+check("直播模式开着: 勾上 + 说明行写当前捕获状态", $("c-live").checked && /已捕获游戏窗口/.test($("live-note").textContent));
+sent.length = 0; $("k-c1").value = "#00ff00"; $("k-thick").value = "0.7"; $("k-c1").oninput(); $("k-c1").oninput();
+check("拖取色器: 本地立刻改粗细文字/预览, 60ms 合并后只发一次", sent.length === 0 && $("k-thick-v").textContent === "0.7×");
+timers.splice(0).forEach(f => f && f());
+check("合并后发出的 look 是规范化过的(新色 + 原有 midN 6)", sent.length === 1 && sent[0][0] === "look" && sent[0][1].c1 === "#00ff00" && sent[0][1].midN === 6 && sent[0][1].thick === 0.7);
+sent.length = 0; $("k-reset").onclick();
+check("恢复默认: 发默认配色, 控件回默认", sent[0][1].c1 === "#ff4d4f" && sent[0][1].midN === 8 && $("k-c1").value === "#ff4d4f");
+$("b-reset").onclick(); $("b-snap").onclick(); $("b-logs").onclick(); $("b-upload").onclick(); $("b-quit").onclick();
+check("按钮 → act", acts.join() === "reset,snap,logs,upload,quit");
+onPanel({ version: "1.23.0", look: null, hotkey: null });
+check("残缺状态(look/hotkey 为空)不炸", $("k-c1").value === "#ff4d4f");
+console.log(ok ? "通过" : "失败"); process.exit(ok ? 0 : 1);

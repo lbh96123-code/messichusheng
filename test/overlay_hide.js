@@ -2,6 +2,7 @@
 /* 覆盖层显示逻辑(v1.8):选技以外什么都不画;一键隐藏只藏显示。用假 DOM/canvas 跑 overlay.html 里的脚本。 */
 const fs = require("fs"), path = require("path");
 const html = fs.readFileSync(path.join(__dirname, "..", "overlay.html"), "utf8"), code = html.split("<script>")[1].split("</script>")[0];
+require("../frames.js");   // overlay.html 现在从 frames.js 取画框代码(挂在 globalThis.ADFrames)
 const els = {}, el = id => els[id] = els[id] || { id, textContent: "", style: {} };
 let drawn = 0; const ctx = new Proxy({}, { get: (t, k) => k === "measureText" ? () => ({ width: 100 }) : (k === "strokeRect" || k === "fillText") ? () => { drawn++; } : (typeof t[k] !== "undefined" ? t[k] : () => {}), set: (t, k, v) => { t[k] = v; return true; } });
 const canvas = { getContext: () => ctx, width: 0, height: 0 }; const handlers = {};

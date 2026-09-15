@@ -34,6 +34,8 @@ class Frame {
     this.poolKeys = (opt && opt.poolKeys) || []; this.cache = (opt && opt.cache) || null; this.miss = 0; this.missWhat = []; }
   _gap(what) { this.miss++; if (this.missWhat.length < 8) this.missWhat.push(what); }
   boxes() { const b = {}; for (const c in this.rec.boxes) b[c] = this.rec.boxes[c].slice(); return b; }
+  icoH(cell) { const a = this.rec.icoH; if (a && a[cell] != null) return a[cell]; return null; }   // 英雄卡自相关分(v1.27), 记录时由 Tracker.observe 写入
+  ico(cell, key) { const a = this.rec.ico; if (a && a[cell] != null) return a[cell]; if (this.img) return R.iconScore(this.img, this.rec.boxes[cell], key); if (a) this._gap("ico" + cell); return null; }
   cellStats(cell) { const C = this.rec.cells, i = cell * 3;
     if (!C || C[i] == null) { if (this.img) return R.cellStats(this.img, this.rec.boxes[cell]); this._gap("cell" + cell); return { mean: 0, max: 0, sat: 0 }; }
     return { mean: C[i], max: C[i + 1], sat: C[i + 2] }; }
@@ -122,9 +124,11 @@ class Recorder {
       panels.push({ seat, b: p.borderRGB.map(q1), fs: q1(p.faceSat), ft: Math.round(p.faceTex), r: Math.round((p.selfRim || 0) * 1000) / 1000 });   // r = 本人绿框分数(v1.22), 老轨迹没有 → 回放当 0
       for (let j = 0; j < 4; j++) { const b = p.slotBoxes[j], k = seat + ":" + j; boxes4[k] = [b[0], b[1], b[2], b[3]];
         const g = R.slotSignal(img, b); slots[k] = g.tiny ? [q1(g.mean), 0, 1] : [q1(g.mean), q1(g.lap), 0]; } }
+    /* v1.26:每格"自己图标还在不在"的匹配分(回放要用;老轨迹没有 → 回放时图标规则不生效) */
+    const ico = {}; for (const r of tracker.pool.skills) { if (r.unk || !r.key || r.key[0] === "?" || !boxes[r.cell]) continue; const sc = R.iconScore(img, boxes[r.cell], r.key); if (sc != null) ico[r.cell] = Math.round(sc * 1000) / 1000; }
     const rec = { t: "f", f: tracker.frameNo + 1, ms: Date.now() - this.t0, cells, panels, slots, boxes4, scores: {}, names: {},
       cursor: tracker.cursor ? tracker.cursor.slice() : null };
-    rec.boxes = boxes;
+    rec.boxes = boxes; rec.ico = ico;
     const src = new Frame(rec, { img, tracker, poolKeys: this.poolKeys }); src.onScore = k => this.fresh.add(k);
     /* 面板图标是持久的 —— 只在某个槽"内容像是变了"时才重算分数行(否则每帧 40 槽 × 全库 = 秒级) */
     for (const k in slots) { const g = slots[k], filled = g[2] ? g[0] >= 30 : (g[0] >= 60 || g[1] >= 10);
