@@ -32,8 +32,11 @@ canvas#pv{display:block;width:100%;background:#0d1117;border-radius:6px;margin-t
 
 <section><h2>显示</h2>
  <div class="row"><label class="k">覆盖层</label><button id="b-hidden"></button><span class="note">隐藏后识别照常运行, 再点一下立刻显示最新结果</span></div>
+ <div class="row"><label class="k">AI 档位</label><div class="seg"><button id="ai-mcts">现役:推演排序</button><button id="ai-net">🧠 网络档(自博弈 550 轮)</button><button id="ai-combo">🧪 组合版(本机显卡)</button></div></div>
+ <div class="row" id="combo-row"><label class="k">组合版参数</label><label class="sw">每手取前 <input id="cb-K" type="number" min="2" max="16" style="width:48px"> 个候选, 各推演 <input id="cb-R" type="number" min="8" max="128" style="width:56px"> 局, 每手最多 <input id="cb-sec" type="number" min="2" max="30" style="width:48px"> 秒(超时自动减半推演局数, 太慢或显卡不可用就改用网络档)</label></div>
  <div class="row"><label class="k">给谁看推荐</label><div class="seg"><button id="m-solo">单人:只看我</button><button id="m-all">团队:我方五人</button></div></div>
  <div class="row"><label class="k">组合明细</label><label class="sw"><input type="checkbox" id="c-ps">显示双方十人的组合明细小卡</label></div>
+ <div class="row"><label class="k">轮到你时</label><label class="sw"><input type="checkbox" id="c-arr">预估下一手时, 在推荐条下面加一行备注:把中间那几手模拟掉, 每件推荐「轮到你时还在」的概率(主推荐不变)</label></div>
  <div class="row"><label class="k">直播模式</label><label class="sw"><input type="checkbox" id="c-live">📺 让直播/录屏软件能抓到覆盖层</label></div>
  <div class="note" id="live-note">默认关:覆盖层对所有截屏/录屏隐身(视频号直播助手、OBS 都抓不到)。开了以后插件改抓游戏窗口而不是整个屏幕, 接通后才放开隐身;游戏要是独占全屏会抓到黑屏, 请用无边框窗口。</div>
  <div class="row"><label class="k">我是几号位</label><select id="s-me"></select><span class="note">手动只对这一局有效, 下一局自动恢复</span></div>
@@ -91,8 +94,10 @@ function preview(){const cv=$("pv"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv
 function render(m){S=m;look=ADFrames.norm(m.look);
  $("ver").textContent=`v${m.version}`+(m.phase==="active"?" · 选技中":"")+(m.meShown?` · 认出你是 ${m.meShown}`:"");
  $("b-hidden").textContent=m.hidden?"👁 已隐藏 — 点击恢复显示":"🙈 正在显示 — 点击隐藏";$("b-hidden").className=m.hidden?"":"on";
+ $("ai-mcts").className=m.aimode==="net"||m.aimode==="combo"?"":"on";$("ai-net").className=m.aimode==="net"?"on":"";$("ai-combo").className=m.aimode==="combo"?"on":"";
+ $("combo-row").style.display=m.aimode==="combo"?"":"none";const cc=m.combo||{};for(const [id,k,d] of [["cb-K","K",8],["cb-R","R",16],["cb-sec","sec",8]])if(document.activeElement!==$(id))$(id).value=cc[k]||d;
  $("m-solo").className=m.all?"":"on";$("m-all").className=m.all?"on":"";
- $("c-ps").checked=m.showPlayerScores!==false;$("s-me").value=m.meSeat||"auto";
+ $("c-ps").checked=m.showPlayerScores!==false;$("c-arr").checked=!!m.arrive;$("s-me").value=m.meSeat||"auto";
  [...$("seg-pl").children].forEach((b,i)=>b.className=i===m.plevel?"on":"");
  for(const k of ["c1","c2","c3","mid"])$("k-"+k).value=look[k];
  $("k-midN").value=look.midN;$("k-rest").checked=look.showRest;$("k-thick").value=look.thick;$("k-thick-v").textContent=look.thick.toFixed(1)+"×";
@@ -105,8 +110,11 @@ function render(m){S=m;look=ADFrames.norm(m.look);
  $("st").textContent=m.status||"";preview();}
 /* ---- 控件 → 主进程 ---- */
 $("b-hidden").onclick=()=>panel.set("hidden",!S.hidden);
+$("ai-mcts").onclick=()=>panel.set("aimode","mcts");$("ai-net").onclick=()=>panel.set("aimode","net");$("ai-combo").onclick=()=>panel.set("aimode","combo");
+for(const id of ["cb-K","cb-R","cb-sec"])$(id).onchange=()=>panel.set("combo",{K:+$("cb-K").value,R:+$("cb-R").value,sec:+$("cb-sec").value});
 $("m-solo").onclick=()=>panel.set("all",false);$("m-all").onclick=()=>panel.set("all",true);
 $("c-ps").onchange=e=>panel.set("showPlayerScores",e.target.checked);
+$("c-arr").onchange=e=>panel.set("arrive",e.target.checked);
 $("s-me").onchange=e=>panel.set("meSeat",e.target.value);
 $("b-pause").onclick=()=>panel.set("paused",!S.paused);$("b-reset").onclick=()=>panel.act("reset");
 $("t-off").onclick=()=>panel.set("test",false);$("t-on").onclick=()=>panel.set("test",true);

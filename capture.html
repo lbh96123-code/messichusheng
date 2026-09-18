@@ -11,6 +11,7 @@ async function start() {
   if (!video.videoWidth) await new Promise(r => { video.onloadedmetadata = r; setTimeout(r, 3000); });
   cv = document.createElement("canvas"); ctx = cv.getContext("2d", { willReadFrequently: true, alpha: false });
   ready = true; say("cap-ready", { w: video.videoWidth, h: video.videoHeight });
+  if (!benched) { benched = true; setTimeout(bench, 3000); }
   stream.getVideoTracks()[0].addEventListener("ended", () => { ready = false; say("cap-fail", { msg: "视频流被结束(可能是分辨率切换或权限变化)" }); });
 }
 cap.on("cap-grab", m => {
@@ -22,5 +23,30 @@ cap.on("cap-grab", m => {
     say("cap-frame", { id: m.id, w: m.w, h: m.h, buf: d.data.buffer });
   } catch (e) { say("cap-fail", { id: m.id, msg: String(e) }); }
 });
+/* v1.30 诊断:同一条流, 现用画布(willReadFrequently=CPU 画布)vs 显卡画布, 各取扫描帧/全分辨率几次, 只测不改行为。
+   每次采样单独一个 setTimeout, 不连续占住这个页面(主进程取帧 1.5s 超时会判流坏)。 */
+let benched = false;
+function bench() {
+  if (!ready) return;
+  const W = Math.min(video.videoWidth, 2560), H = Math.round(video.videoHeight * W / video.videoWidth);
+  const gcv = document.createElement("canvas"), gctx = gcv.getContext("2d", { alpha: false });
+  const ccv = document.createElement("canvas"), cctx = ccv.getContext("2d", { willReadFrequently: true, alpha: false });   // 和取帧同一种画布
+  const jobs = [], res = {};
+  for (const [tag, w, h] of [["扫描", Math.round(W / 8), Math.round(H / 8)], ["全分辨率", W, H]])
+    for (const [kind, c, x] of [["CPU画布", ccv, cctx], ["显卡画布", gcv, gctx]])
+      for (let i = 0; i < 6; i++) jobs.push({ tag, w, h, kind, c, x });
+  const one = () => {
+    if (!ready || !jobs.length) return done();
+    const j = jobs.shift(), c = j.c, x = j.x;
+    try { if (c.width !== j.w || c.height !== j.h) { c.width = j.w; c.height = j.h; }
+      const t0 = performance.now(); x.drawImage(video, 0, 0, j.w, j.h); const t1 = performance.now(); x.getImageData(0, 0, j.w, j.h); const t2 = performance.now();
+      (res[j.tag + " " + j.kind] = res[j.tag + " " + j.kind] || []).push([t1 - t0, t2 - t1]); } catch (e) { res.err = String(e); }
+    setTimeout(one, 300); };
+  const med = a => { const s = a.slice().sort((p, q) => p - q); return s[s.length >> 1]; };
+  const done = () => { const parts = Object.keys(res).filter(k => k !== "err").map(k => { const a = res[k].slice(1);   // 第一次含建画布, 丢掉
+      return `${k} ${med(a.map(v => v[0] + v[1])).toFixed(0)}ms(画${med(a.map(v => v[0])).toFixed(0)}+读回${med(a.map(v => v[1])).toFixed(0)})`; });
+    say("cap-bench", { msg: `流 ${video.videoWidth}x${video.videoHeight} → 识别 ${W}x${H}: ${parts.join(" | ")}${res.err ? " 出错 " + res.err : ""}` }); };
+  one();
+}
 start().catch(e => say("cap-fail", { msg: "getDisplayMedia 失败: " + e }));
 </script>

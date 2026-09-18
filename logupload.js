@@ -89,6 +89,8 @@ function create(opts) {
         if (rejects >= 8) rejectTimer = setTimeout(() => { rejects = 0; run("nolock", false); }, 120e3); }
     },
     now() { opts.log("upload", "菜单: 立即上传本次日志"); run("manual", true); },
+    /* v1.30 识别线程崩溃: 不等"一局结束"(线程死了永远等不到), 立刻传(仍听"自动上传"开关) */
+    crash() { if (opts.enabled()) setTimeout(() => run("crash", true), 1500); },
   };
 }
 module.exports = { create, makeZip, pickFiles };

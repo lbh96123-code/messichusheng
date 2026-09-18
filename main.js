@@ -5,6 +5,8 @@
 const { app, BrowserWindow, screen, desktopCapturer, Tray, Menu, globalShortcut, nativeImage, shell, ipcMain, session } = require("electron");
 const path = require("path"), fs = require("fs"); const { Worker } = require("worker_threads");
 const VERSION = require("./package.json").version;
+/* v1.30 优先独显: Chromium(截屏流/画布)用高性能显卡。必须在 app ready 之前设。 */
+app.commandLine.appendSwitch("force_high_performance_gpu");
 let overlay = null, tray = null, worker = null, timer = null, snapOnce = false, uploader = null, panelWin = null;
 const ADFrames = require("./frames.js");   // 推荐框配色/范围/粗细(和覆盖层、设置面板共用)
 const HOTKEY = { "隐藏/显示": "F6", "切换显示模式": "F8", "暂停/继续": "F9", "重新识别": "F10", "团队/个人优先": "F7" };   // 实际注册成功的键(可能退让到 Alt+F8 等)
@@ -54,7 +56,7 @@ function createOverlay() {
 }
 const send = (ch, m) => { if (overlay && !overlay.isDestroyed()) overlay.webContents.send(ch, m); };
 /* scale = 识别坐标(≤2560 宽) → 覆盖窗 DIP 坐标 的比例 */
-function sendCfg() { const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, live: liveInfo() }); sendPanel(); }
+function sendCfg() { const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], aimode: (["net", "combo"].includes(settings.aimode) ? settings.aimode : "mcts"), version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, live: liveInfo() }); sendPanel(); }
 function setVisible(v) { if (!overlay || overlay.isDestroyed()) return; if (!overlay.isVisible()) overlay.showInactive();
   if (v) overlay.setAlwaysOnTop(true, "screen-saver"); else send("clear", {}); }
 /* ---- 截屏 ----
@@ -79,6 +81,7 @@ function createCapture() {
     } catch (e) { log("cap", "选源失败 " + e); callback({}); }
   }, { useSystemPicker: false });
   ipcMain.on("cap-ready", (e, m) => { capReady = true; capDead = false; capRestartAt = 0; log("cap", `${capMode === "window" ? "窗口" : "屏幕"}视频流已就绪 ${m.w}x${m.h}(常驻流模式)`); });
+  ipcMain.on("cap-bench", (e, m) => log("cap", "截屏测速 " + String(m && m.msg).slice(0, 600)));
   ipcMain.on("cap-frame", (e, m) => { const w = capWait.get(m.id); if (w) { capWait.delete(m.id); w({ w: m.w, h: m.h, buf: m.buf, bgra: false }); } });
   ipcMain.on("cap-fail", (e, m) => { const w = m.id != null && capWait.get(m.id); if (w) { capWait.delete(m.id); w(null); }
     if (m.id == null && capRestartAt && Date.now() - capRestartAt < 3000) return;   // 重开流时旧页面的收尾消息, 不算流坏
@@ -149,6 +152,7 @@ async function grabLegacy(full) {
   const img = s.thumbnail; const sz = img.getSize(); const buf = img.toBitmap();   // Windows/Linux: BGRA
   return { w: sz.width, h: sz.height, buf: buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.length), bgra: true };
 }
+let workerRestarts = [], quitting = false;
 function startWorker() {
   worker = new Worker(path.join(__dirname, "worker.js"));
   worker.postMessage({ type: "logdir", dir: LOGDIR });   // 观测轨迹和日志/截图放一起
@@ -171,8 +175,15 @@ function startWorker() {
     if (m.type === "advice" || m.type === "state" || m.type === "clear" || m.type === "error" || m.type === "computing") send(m.type, m);
     if (m.type === "error") log("error", m.msg);
   });
-  worker.on("error", e => { log("error", "worker " + e); send("error", { msg: String(e) }); });
-  worker.on("exit", c => log("error", "worker 退出 " + c));
+  /* v1.30 识别线程崩了: 以前只显示报错、画面永远停在最后一帧(09-18 飞刀那局)。现在立刻上传日志 + 自动重启(10 分钟内最多 5 次) */
+  const me = worker;
+  worker.on("error", e => { log("error", "worker " + (e && e.stack || e)); send("error", { msg: String(e) + " —— 识别线程已自动重启" }); });
+  worker.on("exit", c => { log("error", "worker 退出 " + c); if (worker !== me || quitting) return;
+    uploader && uploader.crash();
+    const now = Date.now(); workerRestarts = workerRestarts.filter(t => now - t < 600e3);
+    if (workerRestarts.length >= 5) { log("error", "识别线程 10 分钟内崩了 5 次, 不再自动重启(托盘重启插件)"); return; }
+    workerRestarts.push(now); worker = null; phase = "idle";
+    setTimeout(() => { log("error", `识别线程自动重启(第 ${workerRestarts.length} 次)`); startWorker(); }, 1000); });
 }
 let inflight = false, sameRun = 0, lastHash = 0;
 const frameHash = buf => { const u8 = new Uint8Array(buf); let h = 0; for (let i = 0; i < u8.length; i += 997) h = (h * 31 + u8[i]) | 0; return h; };
@@ -189,7 +200,7 @@ async function loop() {
     /* 鼠标位置(换算到识别用的全分辨率坐标):鼠标悬停的那一格游戏会弹介绍框/变样子, 识别端把它当"看不清" */
     let cursor = null; try { const cp = screen.getCursorScreenPoint(), d = screen.getPrimaryDisplay(), cs = capSize();
       cursor = [(cp.x - d.bounds.x) * cs.w / d.bounds.width, (cp.y - d.bounds.y) * cs.h / d.bounds.height]; } catch (e) { }
-    if (f && worker) { const snap = snapOnce; snapOnce = false; worker.postMessage({ type: "frame", ...f, full, all: cfg.all, plevel: cfg.plevel, meSeat: cfg.meSeat, snap, cursor, test: cfg.test, core: cfg.core }, [f.buf]); } }
+    if (f && worker) { const snap = snapOnce; snapOnce = false; worker.postMessage({ type: "frame", ...f, full, all: cfg.all, plevel: cfg.plevel, arrive: !!settings.arrive, aimode: (["net", "combo"].includes(settings.aimode) ? settings.aimode : "mcts"), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8 }, meSeat: cfg.meSeat, snap, cursor, test: cfg.test, core: cfg.core }, [f.buf]); } }
   catch (e) { needFull = needFull || full; log("error", "截屏 " + e); send("error", { msg: String(e) }); }
   finally { inflight = false; }
 }
@@ -211,7 +222,7 @@ function openPanel() {
 }
 function sendPanel() { if (!panelWin || panelWin.isDestroyed()) return;
   panelWin.webContents.send("panel", { all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY,
-    test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, uploadLogs: settings.uploadLogs, allowCapture: settings.allowCapture, live: liveInfo(), meShown, status: lastStatus }); }
+    test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, uploadLogs: settings.uploadLogs, arrive: !!settings.arrive, aimode: (["net", "combo"].includes(settings.aimode) ? settings.aimode : "mcts"), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8 }, allowCapture: settings.allowCapture, live: liveInfo(), meShown, status: lastStatus }); }
 ipcMain.on("panel-ready", () => sendPanel());
 ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; const { k, v } = m;
   if (["all", "paused", "hidden", "showPlayerScores", "test"].includes(k)) cfg[k] = !!v;
@@ -219,6 +230,10 @@ ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; con
   else if (k === "core") cfg.core = v === "v2" ? "v2" : "1x";
   else if (k === "meSeat") cfg.meSeat = /^[LR][1-5]$/.test(String(v)) ? String(v) : "auto";
   else if (k === "uploadLogs") { settings.uploadLogs = !!v; saveSettings(); }
+  else if (k === "arrive") { settings.arrive = !!v; saveSettings(); }
+  else if (k === "aimode") { settings.aimode = ["net", "combo"].includes(v) ? v : "mcts"; saveSettings(); }
+  else if (k === "combo" && v && typeof v === "object") { settings.comboK = Math.max(2, Math.min(16, v.K | 0 || 8)); settings.comboR = Math.max(8, Math.min(128, v.R | 0 || 16));
+    settings.comboSec = Math.max(2, Math.min(30, +v.sec || 8)); saveSettings(); }
   else if (k === "look") { settings.look = ADFrames.norm(v); saveSettings(); }
   else if (k === "allowCapture") { settings.allowCapture = !!v; saveSettings(); applyLive(`面板${v ? "开" : "关"}直播模式`); }
   else return;
@@ -264,9 +279,38 @@ function sync() { tray.setContextMenu(buildMenu()); sendCfg(); log("cfg", `all=$
 /* 一键隐藏:覆盖层什么都不画(切换那一下闪 2 秒提示, 确认按键生效), 截屏/识别/引擎照常跑 —— 再按一次立刻显示最新结果,
    可以反复开关确认插件一直在正常工作 */
 function toggleHidden() { cfg.hidden = !cfg.hidden; sync(); tray.setToolTip(`AD 选技助手 v${VERSION}${cfg.hidden ? " · 已隐藏" : ""} · ${lastStatus}`); }
+/* v1.30 强制独显: 和"设置 → 系统 → 显示 → 图形 → 高性能"是同一个注册表项(当前用户, 不要管理员),
+   只对本程序 exe 生效;没设过或被设成"节能"(1)才改成 2。Windows 在进程启动时读 → 下次启动生效, 这次靠组合版逐块测速兜底。 */
+function preferDiscreteGpu() {
+  if (process.platform !== "win32" || !app.isPackaged) return;
+  const { execFile } = require("child_process"), KEY = "HKCU\\Software\\Microsoft\\DirectX\\UserGpuPreferences", exe = process.execPath;
+  execFile("reg", ["query", KEY, "/v", exe], { windowsHide: true, timeout: 10000 }, (err, out) => {
+    const cur = !err && /GpuPreference=(\d)/.exec(String(out));
+    if (cur && cur[1] === "2") return log("gpu", "显卡偏好: 本程序已是高性能(独显)");
+    if (cur && cur[1] !== "1" && cur[1] !== "0") return log("gpu", `显卡偏好: 用户设成 GpuPreference=${cur[1]}, 不改`);
+    execFile("reg", ["add", KEY, "/v", exe, "/t", "REG_SZ", "/d", "GpuPreference=2;", "/f"], { windowsHide: true, timeout: 10000 }, e2 =>
+      log("gpu", e2 ? "显卡偏好设置失败 " + String(e2.message || e2).slice(0, 120) : `显卡偏好: 原来${cur ? "GpuPreference=" + cur[1] : "未设"} → 已设为高性能(独显), 下次启动插件生效`));
+  });
+}
+/* v1.30 诊断:显卡型号 + Chromium 各项是否用上显卡(截屏画布走 2d_canvas / video_decode)。只写日志。 */
+function logGpu() {
+  try { const f = app.getGPUFeatureStatus() || {};
+    log("gpu", `硬件加速=${app.isHardwareAccelerationEnabled ? app.isHardwareAccelerationEnabled() : "?"} ` + ["gpu_compositing", "2d_canvas", "video_decode", "webgl", "rasterization"].map(k => `${k}=${f[k]}`).join(" ")); } catch (e) { log("gpu", "特性状态读不到 " + e); }
+  app.getGPUInfo("complete").then(info => {
+    const hex = v => (v >>> 0).toString(16).padStart(4, "0");
+    const dev = (info.gpuDevice || []).map(g => `${g.active ? "[在用]" : ""}${hex(g.vendorId)}:${hex(g.deviceId)}${g.deviceString ? " " + g.deviceString : ""}${g.driverVersion ? " 驱动" + g.driverVersion : ""}`).join(" / ");
+    const aux = info.auxAttributes || {};
+    log("gpu", `显卡: ${dev || "?"} | 渲染器: ${aux.glRenderer || "?"}`);
+  }).catch(e => log("gpu", "显卡信息读不到 " + e));
+  /* 系统里所有显卡(台式机没关的核显也会列出来) —— 插件被 Windows 分到核显上时, 截屏跨卡拷贝 + 组合版跑核显都会慢一个量级 */
+  if (process.platform === "win32") require("child_process").execFile("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command",
+    "Get-CimInstance Win32_VideoController | ForEach-Object { $_.Name + ' drv ' + $_.DriverVersion + ' ' + $_.CurrentHorizontalResolution + 'x' + $_.CurrentVerticalResolution }"],
+    { timeout: 15000, windowsHide: true }, (err, out) => log("gpu", err ? "系统显卡列表读不到 " + String(err.message || err).slice(0, 120) : "系统显卡列表: " + String(out).trim().split(/\r?\n/).filter(Boolean).join(" / ")));
+}
 app.whenReady().then(() => {
   pruneLogs(); const d = screen.getPrimaryDisplay();
   log("start", `v${VERSION} electron ${process.versions.electron} ${process.platform} ${process.arch} 主屏 ${d.bounds.width}x${d.bounds.height} 缩放 ${d.scaleFactor} 物理 ${Math.round(d.bounds.width * d.scaleFactor)}x${Math.round(d.bounds.height * d.scaleFactor)} 日志 ${LOGFILE}`);
+  logGpu(); preferDiscreteGpu();
   if (Math.round(d.bounds.height * d.scaleFactor) !== 1440) log("warn", "主屏不是 1440p, 版式按高度等比缩放(16:9 可用, 带鱼屏未验证)");
   tray = new Tray(makeTrayIcon()); tray.setToolTip(`AD 选技助手 v${VERSION}`); tray.setContextMenu(buildMenu());
   tray.on("double-click", () => openPanel());
@@ -288,5 +332,5 @@ app.whenReady().then(() => {
   setInterval(flushLog, 2000);
 });
 app.on("window-all-closed", () => {});
-app.on("before-quit", () => { log("stop", "退出"); flushLog(); });
+app.on("before-quit", () => { quitting = true; log("stop", "退出"); flushLog(); });
 process.on("uncaughtException", e => { log("error", "主进程 " + (e && e.stack || e)); flushLog(); });
