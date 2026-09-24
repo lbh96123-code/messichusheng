@@ -12,6 +12,7 @@ let ort = null, sess = null, EP = null, DEV = null, BFIX = 0, INFO = null, MED =
    ② DirectML 逐块显卡(deviceId 0..3)建会话实测, 选最快的 —— 防 Windows 把插件分到核显。每块的结果都写日志。 */
 function dummyBuf(B) { const b = mkBuf(B); for (let i = 0; i < B * 60; i++) { b.ids[i] = (i * 7) % 600; b.legal[i] = 1; b.delta[i] = ((i % 13) - 6) / 10; } b.t.fill(10); return b; }
 async function benchSess(s, B) {
+  HAS_EXT = (s.inputNames || []).includes("ext");
   const b = dummyBuf(B), f = feedsOf(b, B), t0 = Date.now(); await s.run(f); const first = Date.now() - t0, a = [];
   for (let i = 0; i < 5; i++) { const q = Date.now(); await s.run(f); a.push(Date.now() - q); }
   a.sort((x, y) => x - y); return { first, med: a[2] };
@@ -53,7 +54,10 @@ async function init(modelPath, prefer, bfix) {
   }
   if (!sess) { sess = await ort.InferenceSession.create(modelPath, { ...base, executionProviders: ["cpu"] }); EP = "cpu"; DEV = null;
     const b = await benchSess(sess, bfix); MED = b.med; notes.push(`CPU: 首跑${b.first}ms 每次${b.med}ms`); }
-  BFIX = bfix; PAD = null; PBUF = null;
+  BFIX = bfix; PAD = null; PBUF = null; HAS_EXT = (sess.inputNames || []).includes("ext");
+  if (HAS_EXT) {   /* v1.40 新网络(netC300)多 3 项输入: 需要训练用的两两配合表 pairP.bin(640×640 float32, 下标 = 打分模型 key 顺序, 与 items[i].p 一致) */
+    const b = require("fs").readFileSync(path.join(path.dirname(modelPath), "pairP.bin")); PN = Math.round(Math.sqrt(b.length / 4));
+    PAIR = new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.length)); notes.push(`新输入配合表 ${PN}×${PN}`); }
   INFO = { ep: EP + (FP16 ? "·半精度" : ""), dev: DEV, bfix, med: MED, fp16: FP16, detail: notes.join(" | "), ms: Date.now() - T0 };
   return INFO;
 }
@@ -78,16 +82,17 @@ function encodeRange(sims, owns, tAbs, buf, base) {
       buf.legal[o + i] = lg ? 1 : 0;
       buf.delta[o + i] = lg ? (mySide ? 1 : -1) * F.deltaOf(sim, i) : 0;
     }
+    if (HAS_EXT) extFill(sim, own, seat, buf, b);
     buf.t[b] = tAbs; buf.seat[b] = seat;
     buf.slot[b * 3] = sim.slot[seat * 3]; buf.slot[b * 3 + 1] = sim.slot[seat * 3 + 1]; buf.slot[b * 3 + 2] = sim.slot[seat * 3 + 2];
   }
 }
-const W_OF = { ids: 60, code: 60, delta: 60, legal: 60, t: 1, seat: 1, slot: 3 };
+const W_OF = { ids: 60, code: 60, delta: 60, legal: 60, t: 1, seat: 1, slot: 3, ext: 180 };
 function feedsOf(b, B) {
   const T = (a, t, d) => { const n = d.reduce((x, y) => x * y, 1); let v = a.subarray(0, n);
     if (v.buffer instanceof SharedArrayBuffer) v = v.slice(); return new ort.Tensor(t, v, d); };
   return { ids: T(b.ids, "int32", [B, 60]), code: T(b.code, "int32", [B, 60]), delta: T(b.delta, "float32", [B, 60]),
-    legal: T(b.legal, "float32", [B, 60]), t: T(b.t, "int32", [B]), seat: T(b.seat, "int32", [B]), slot: T(b.slot, "int32", [B, 3]) };
+    legal: T(b.legal, "float32", [B, 60]), t: T(b.t, "int32", [B]), seat: T(b.seat, "int32", [B]), slot: T(b.slot, "int32", [B, 3]), ...(HAS_EXT ? { ext: T(b.ext, "float32", [B, 60, 3]) } : {}) };
 }
 /* 每次调用的耗时构成(decide 开头清零): 打包=拷贝补齐+建张量, 运行=sess.run(含上传/下载) */
 let PAD = null, PBUF = null; const ST = { calls: 0, build: 0, run: 0, runs: [] };
@@ -114,7 +119,7 @@ const LAYOUT = [["ids", Int32Array, 60], ["code", Int32Array, 60], ["delta", Flo
 function mkShared(B) { let n = 0; for (const [, , w] of LAYOUT) n += 4 * B * w; return { sab: new SharedArrayBuffer(n), B }; }
 function views(sh) { const out = {}; let off = 0; for (const [k, T, w] of LAYOUT) { out[k] = new T(sh.sab, off, sh.B * w); off += 4 * sh.B * w; } return out; }
 const mkBuf = B => ({ ids: new Int32Array(B * 60), code: new Int32Array(B * 60), delta: new Float32Array(B * 60), legal: new Float32Array(B * 60),
-  t: new Int32Array(B), seat: new Int32Array(B), slot: new Int32Array(B * 3) });
+  t: new Int32Array(B), seat: new Int32Array(B), slot: new Int32Array(B * 3), ext: new Float32Array(B * 180) });
 /* v1.30 硬依赖: 根节点候选里, 座位缺条件件的依赖者概率 ×e^-4(与网络档/现役同一张 hard_deps.json) */
 const DEP_NET = Math.exp(-4);
 function rng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
@@ -421,4 +426,28 @@ async function refine(st, me, t0, o = {}) {
   }
   return { rows: rowsOf(sim0, E.S, cands), ms: Date.now() - T0, reused: E.nReused, fresh, calls, tot, uniq };
 }
-module.exports = { fate, init, decide, decideMT, ownerOf, encodeRange, views, rng, logits, statReset, statOut, rollouts, screen, final, refine, myCands, LAST, info: () => INFO, simRng, ownKey, mkBuf };
+
+/* v1.40 新网络输入 ext(与训练 azn/env.py Env.extra 逐项等价, 09-24 JS↔Python 最大差 3e-8):
+   每件能拿的东西 3 项 = [我的潜在配合, 对面已有的配合, 对面的潜在配合], 配合取 max(P,0), 按槽位。
+   潜在配合(座位, 件 i) = max_{j 还没人拿, j≠i, 拿了 i 后还有 j 那类空槽} P[i,j]; 对面已有 = max_{对手有 i 的空槽} Σ_{x∈对手已拿} P[i,x]; 对面潜在 = max_对手 潜在配合 */
+let HAS_EXT = false, PAIR = null, PN = 0;
+function extFill(sim, own, seat, buf, b) {
+  /* 先算一次 MK[i][k] = max_{j 还没人拿, j≠i, j 属第 k 类} max(P[i,j],0) 及次大(同类里 j 的第二名, 给"i 自己也是 k 类且只剩一个空槽"的情形),
+     各座位共用; 再按座位槽位取 max。比逐座位逐对扫快 ~5 倍, 结果与逐对扫逐位相同(test/ext_fast.js)。 */
+  const o3 = b * 180, CAP3 = [1, 3, 1], it = sim.items, kind = new Int8Array(60), pp = new Int32Array(60);
+  for (let i = 0; i < 60; i++) { kind[i] = it[i].kind; pp[i] = it[i].p; }
+  const openJ = []; for (let j = 0; j < 60; j++) if (own[j] < 0 && pp[j] >= 0) openJ.push(j);
+  const MK = new Float32Array(180);
+  for (let i = 0; i < 60; i++) { if (pp[i] < 0) continue; const row = pp[i] * PN;
+    for (const j of openJ) { if (j === i) continue; const v = PAIR[row + pp[j]]; if (v > 0) { const q = i * 3 + kind[j]; if (v > MK[q]) MK[q] = v; } } }
+  const pot = (st, i) => { const ki = kind[i], sl = st * 3; let m = 0;
+    for (let k = 0; k < 3; k++) { if (!(sim.slot[sl + k] + (k === ki ? 1 : 0) < CAP3[k])) continue; const v = MK[i * 3 + k]; if (v > m) m = v; } return m; };
+  const opp = [], owned = []; for (let st = 0; st < 10; st++) if ((st < 5) !== (seat < 5)) { opp.push(st); const l = []; for (let x = 0; x < 60; x++) if (own[x] === st && pp[x] >= 0) l.push(x); owned.push(l); }
+  for (let i = 0; i < 60; i++) { const q = o3 + i * 3; buf.ext[q] = 0; buf.ext[q + 1] = 0; buf.ext[q + 2] = 0;
+    if (!buf.legal[b * 60 + i] || pp[i] < 0) continue;
+    buf.ext[q] = pot(seat, i); const ki = kind[i], row = pp[i] * PN; let hv = 0, po = 0;
+    for (let oi = 0; oi < opp.length; oi++) { const o = opp[oi]; if (!(sim.slot[o * 3 + ki] < CAP3[ki])) continue;
+      let h = 0; for (const x of owned[oi]) { const v = PAIR[row + pp[x]]; if (v > 0) h += v; } if (h > hv) hv = h; const p2 = pot(o, i); if (p2 > po) po = p2; }
+    buf.ext[q + 1] = hv; buf.ext[q + 2] = po; }
+}
+module.exports = { _setPair: (P, n) => { PAIR = P; PN = n; HAS_EXT = true; }, extFill, fate, init, decide, decideMT, ownerOf, encodeRange, views, rng, logits, statReset, statOut, rollouts, screen, final, refine, myCands, LAST, info: () => INFO, simRng, ownKey, mkBuf };

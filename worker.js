@@ -193,7 +193,8 @@ const REFINE_K = 6, REFINE_M = +process.env.REFINE_M || 512;   // 决赛加时:�
 const ARRIVE_N = 200, ARRIVE_T = +process.env.AI_T || 0.05;
 /* v1.28「网络档」: 自博弈训练出的选技网络(第 550 轮, 对现役 AI 模型口径胜率约 52%)。
    排序改用网络的出手概率;格子上的胜率数字仍是原推演算的(网络自己的估值不准, 不显示)。设置面板「AI 档位」切换, 默认现役。 */
-let NETM = null; const NETNAME = "netB300"; const DEP_NET = Math.exp(-4);
+let NETM = null; const NETNAME = "netB300";   /* 网络档/预估(CPU netinfer)仍用 netB300 */
+const COMBO_NET = "netC300";   /* v1.40 GPU 版推演换 09-24 重训网络(+潜在配合/对面配合输入, 纯直觉对 netB300 胜率 ~52.9%) */ const DEP_NET = Math.exp(-4);
 function netModel() { if (NETM === null) { try { NETM = require(path.join(D, "..", "netinfer.js")).create(path.join(D, NETNAME)); log("engine", "网络档模型已载入(" + NETNAME + ")"); }
   catch (e) { NETM = false; log("error", "网络档模型载入失败, 退回现役排序: " + String(e && e.message || e)); } } return NETM || null; }
 function netProbs(st, cur, t) {
@@ -232,7 +233,7 @@ const COMBO_CB = new Map();
 function comboWorker() {
   if (COMBO_W || COMBO_OFF === "broken") return COMBO_W;
   try { const { Worker } = require("worker_threads");
-    COMBO_W = new Worker(path.join(D, "..", "combo_worker.js"), { workerData: { model: path.join(D, NETNAME + ".onnx"), prefer: process.env.AD_COMBO_EP || "" } });
+    COMBO_W = new Worker(path.join(D, "..", "combo_worker.js"), { workerData: { model: path.join(D, COMBO_NET + ".onnx"), prefer: process.env.AD_COMBO_EP || "" } });
     COMBO_W.on("message", m => {
       if (m.type === "warm") { if (m.err) log("error", "组合版预热失败: " + m.err); else { COMBO_MED = m.info.med; const t = comboTier();
           log("engine", `组合版预热 ${m.info.ep}${m.info.dev != null ? " 显卡" + m.info.dev : ""} 固定批${m.info.bfix} 用时${m.ms}ms: ${m.info.detail}`);
