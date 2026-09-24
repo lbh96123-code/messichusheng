@@ -10,6 +10,17 @@ parentPort.on("message", async m => {
     try { const q = Date.now(), info = await ensure(m.bfix); parentPort.postMessage({ type: "warm", info, ms: Date.now() - q }); }
     catch (e) { ready = null; parentPort.postMessage({ type: "warm", err: String(e && e.message || e).slice(0, 300) }); }
     return; }
+  /* v1.38 新方案三种任务: screen(后台筛选) / final(轮到时决赛) / refine(更新一次)。新任务照样取消旧任务。 */
+  if (m.type === "screen" || m.type === "final" || m.type === "refine" || m.type === "fate") {
+    curJob = m.id;
+    try {
+      const info = await ensure(m.bfix);
+      const o = { ...m.o, cancelled: () => curJob !== m.id, deadline: m.budget ? Date.now() + m.budget : 0 };
+      const r = m.type === "screen" ? await C.screen(m.st, m.me, m.t0, o) : m.type === "final" ? await C.final(m.st, m.me, m.t0, m.keys, o)
+        : m.type === "fate" ? await C.fate(m.st, m.me, m.t0, m.alt, m.tgt, o) : await C.refine(m.st, m.me, m.t0, o);   // v1.40 fate = 推荐理由
+      parentPort.postMessage({ type: "done", id: m.id, r, cancelled: curJob !== m.id, ep: info.ep + (info.dev != null ? "#" + info.dev : "") });
+    } catch (e) { ready = null; parentPort.postMessage({ type: "err", id: m.id, msg: String(e && e.stack || e) }); }
+    return; }
   if (m.type !== "job") return;
   curJob = m.id;
   try {

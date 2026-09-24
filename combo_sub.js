@@ -15,7 +15,7 @@ parentPort.on("message", m => {
       const buf = L.views(sab), sims = [], owns = [], ci = [];
       for (let b = b0; b < b1; b++) { const c = Math.floor(b / R), s = F.cloneSim(sim0); F.applySim(s, cands[c]);
         const ow = Int8Array.from(own0); ow[cands[c]] = cur; sims.push(s); owns.push(ow); ci.push(c); }
-      job = { sims, owns, ci, b0, b1, buf, rnd: L.rng(seed + b0 * 7919), cur, K: cands.length };
+      job = { sims, owns, ci, b0, b1, buf, rnd: L.rng(seed + b0 * 7919), cur, K: cands.length, nPass: 0 };
       L.encodeRange(sims, owns, t0 + 1, buf, b0);
       return parentPort.postMessage({ type: "ready", done: F.simDone(sims[0]) });
     }
@@ -27,12 +27,13 @@ parentPort.on("message", m => {
         let z = 0; for (let i = 0; i < 60; i++) if (buf.legal[o6 + i]) z += Math.exp(buf.logits[o6 + i] - m2);
         let u = j.rnd() * z, pick = -1;
         for (let i = 0; i < 60; i++) if (buf.legal[o6 + i]) { pick = i; u -= Math.exp(buf.logits[o6 + i] - m2); if (u <= 0) break; }
+        if (pick < 0) { j.nPass++; F.passSim(j.sims[k]); continue; }   // 这个座位没有合法候选了: 空过这一手(同 combo_local)
         F.applySim(j.sims[k], pick); j.owns[k][pick] = seat;
       }
       if (F.simDone(j.sims[0])) {
         const sum = new Float64Array(j.K), sg = j.cur < 5 ? 1 : -1;
         for (let k = 0; k < j.sims.length; k++) sum[j.ci[k]] += 1 / (1 + Math.exp(-sg * j.sims[k].z));
-        return parentPort.postMessage({ type: "ready", done: true, sum: Array.from(sum) });
+        return parentPort.postMessage({ type: "ready", done: true, sum: Array.from(sum), nPass: j.nPass });
       }
       L.encodeRange(j.sims, j.owns, m.tAbs, buf, j.b0);
       return parentPort.postMessage({ type: "ready", done: false });

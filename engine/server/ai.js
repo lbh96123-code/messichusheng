@@ -146,6 +146,25 @@ async function omniAsync(st, onBatch, alive) {
   }
   return pack("done");
 }
+/* 顶栏实时胜率(以前在浏览器里用公开权重算,现在搬到服务端)。
+   口径和旧前端 rollout 一致:从 st 这个局面起,双方每手都挑纯 Δlogit 最大的(不带 policyBonus),
+   一路贪心选到满编,返回左方最终胜率。增量引擎一次 < 5 ms,同步跑即可。 */
+function greedyProb(st) {
+  if (!boot()) return null;
+  const s = simFrom(st);
+  while (!F.simDone(s)) {
+    const seat = s.order[s.step], sg = seat < 5 ? 1 : -1;
+    let b = -1, bv = -Infinity;
+    for (let i = 0; i < s.nItems; i++) {
+      if (s.taken[i] || s.slot[seat * 3 + s.items[i].kind] >= F.CAP[s.items[i].kind]) continue;
+      const v = sg * F.deltaOf(s, i);
+      if (v > bv) { bv = v; b = i; }
+    }
+    if (b < 0) break;
+    F.applySim(s, b);
+  }
+  return 1 / (1 + Math.exp(-s.z));
+}
 function choose(st) {
   try {
     if (boot()) { const sim = simFrom(st);
@@ -153,4 +172,4 @@ function choose(st) {
   } catch (e) { console.error("ai.choose", e); }
   return D.autoPick(st);
 }
-module.exports = { choose, chooseAsync, omniAsync, NAME: "AI · 走子取平均", _simFrom: st => (boot(), simFrom(st)) };  // _simFrom 仅供自测
+module.exports = { choose, chooseAsync, omniAsync, greedyProb, NAME: "AI · 走子取平均", _simFrom: st => (boot(), simFrom(st)) };  // _simFrom 仅供自测

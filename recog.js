@@ -267,6 +267,8 @@ const isDarkCell = (img, box, ref) => { const st = cellStats(img, box); const r 
   return (st.mean < 10 && st.max < 20) || (r < 0.32 && mr < 0.5); };
 /* 棋盘在不在:按版式格子中心 40% 区域取亮度(容忍 ±20px 位移),格子间隙应是暗背景。img 可以是缩小图(按宽度比例缩放坐标)。
    返回 {bright:亮格数(>30), dark:暗格数, gapDark:间隙暗的比例, k:缩放}。有棋盘判据:bright>=8 且 gapDark>=0.75;新一局靠暗格数骤降/棋盘签名变化判,不靠绝对亮格数(有的图标本身就暗)。 */
+/* v1.37:本帧最亮格低于「这局见过的最亮」这个比例 → 判定画面已经不是选技棋盘(见 observe) */
+const OFF_RATIO = +process.env.AD_OFF_RATIO || 0.72;
 function quickPresence(img) {
   const k = img.w / LAYOUT.res[0]; let bright = 0, dark = 0, gapOk = 0, gapN = 0;
   for (const c of LAYOUT.board) { const w = c.w * k, x = Math.round((c.cx - c.w * 0.2) * k), y = Math.round((c.cy - c.w * 0.2) * k), s = Math.max(2, Math.round(w * 0.4));
@@ -658,6 +660,24 @@ class Tracker {
     const rawList = [];
     for (const r of this.pool.skills) rawList.push([r.key, rawTaken[r.key]]);
     for (const hb of this.pool.heroBoxes) rawList.push(['hero:' + hb.hero, hb.state]);
+    /* v1.37 画面根本不是选技棋盘(切回 Dota 大厅打字/看记分板/选完转场)。
+       09-19 23:05 那局:用户切到大厅聊天 4 秒, 棋盘位置上显示的是大厅背景和黑聊天框, 60 格"一起变黑" ——
+       旧版的整块遮挡守卫只顶 8 帧就放行, 于是把 20 多件当成"被选走"且配不上归属, 账从此烂掉(还要选 17 手 vs 池里剩 11 样),
+       GPU 版推演走到"没得选"崩了 8 次。
+       判据用**相对**基准而不是写死的亮度(各人显示器/游戏亮度不同):选技画面里总有没被选走的技能图标是高光的,
+       所以"本帧最亮的那一格" 和 "这一局见过的最亮" 比。实测(两人同一局的轨迹):
+         正常选技帧 = 1.00(最亮格恒 255) | 切大厅 11 秒 = 0.64~0.68 | 选完转场 = 0.31~0.65 | 偶发单帧闪动 = 0.78。
+       取 0.72:大厅和转场都拦住, 单帧闪动不误杀。这一帧整个当"看不清", 一个字都不改 —— 看不见的时候不记账。 */
+    const cellMax = b => (SRC ? (SRC.cellStats ? SRC.cellStats(b.cell).max : 0) : cellStats(img, b).max);
+    let maxNow = 0;
+    for (const r of this.pool.skills) { const b = boxes[r.cell]; if (b) { const m = cellMax(b); if (m > maxNow) maxNow = m; } }
+    for (const hb of this.pool.heroBoxes) { const b = boxes[hb.cell]; if (b) { const m = cellMax(b); if (m > maxNow) maxNow = m; } }
+    this.refMaxAll = Math.max(this.refMaxAll || 0, maxNow);
+    const dim = this.refMaxAll > 0 ? maxNow / this.refMaxAll : 1;
+    if (dim < OFF_RATIO) { this.offRun = (this.offRun || 0) + 1;
+      if (this.offRun === 1) this.offLog = `画面不是选技棋盘了(最亮格只有平时的 ${(100 * dim).toFixed(0)}%) → 这段时间一律当看不见, 不记账`;
+      for (const e of rawList) e[1] = 'O'; }
+    else { if (this.offRun) this.offLog = `选技画面回来了(暗了 ${this.offRun} 帧)`; this.offRun = 0; }
     /* 同一帧里 ≥2 个格子"新变黑" = 多半是遮挡(一手只选一件)。以前的做法是整批丢弃并把计数清零 ——
        结果真被选走的格子只要跟一个闪烁格同帧出现, 就会被一直拖着永远认不上(实测食人魔魔法师整局没被认出, 最后一轮还在推荐它);
        而"同一批连续 N 次都黑就接受"又把停着看技能介绍时框底下的 8 格一次收了进来(已选数 6→14, 40 秒后才撤销)。
@@ -710,9 +730,10 @@ class Tracker {
     /* pending = 还有待确认的变化(已选走去抖中 / 换人待二次确认)。worker 据此强制下一帧做完整识别,
        否则画面一模一样时会被"画面未变"跳过,二次确认永远等不到。 */
     const bulkMsg = this.bulkLog; this.bulkLog = null;
+    const offMsg = this.offLog; this.offLog = null;
     const flakyMsg = this.flakyLog && this.flakyLog.length ? `${this.flakyLog.map(k => cn(k.replace(/^hero:/, ''))).join("/")} 这几格明暗来回跳(不是选人), 以后要连续 6 次才认` : null; this.flakyLog = null;
     const nO = rawList.filter(([, d]) => d === 'O').length;
-    return { taken, takenHeroes, panels, rawState: Object.fromEntries(rawList), current: cur.slice(), me: this.meSeat ? this.meSeat.slice() : null, pending: pending || this.curCandRun > 0, bulkMsg, flakyMsg, occluded: nO, rawDark: rawList.filter(([, d]) => d === 'T').length };
+    return { taken, takenHeroes, panels, rawState: Object.fromEntries(rawList), current: cur.slice(), me: this.meSeat ? this.meSeat.slice() : null, pending: pending || this.curCandRun > 0, bulkMsg, flakyMsg, occluded: nO, offScreen: this.offRun || 0, offMsg, rawDark: rawList.filter(([, d]) => d === 'T').length };
   }
   /* ================= 归属:配对式(v1.5) =================
      每落一手, 画面上**同时**有两个变化:① 棋盘某格变成"被选走"的样子 ② 某个人的面板多了东西。
@@ -935,7 +956,7 @@ class Tracker {
     return { pool_heroes: this.pool.poolHeroes, skills: this.pool.skills.map(r => ({ key: r.key, taken: pk.has(r.key), ultslot: !!r.ultslot })), taken_heroes: takenHeroes, panels,
       extraPicks: unk.length, pendingPair: Object.keys(this.pend || {}).length, suspects: Object.keys(this.suspect || {}), turn: this.turn,
       current: { side: ob.current[0], idx: ob.current[1] }, me: ob.me ? { side: ob.me[0], idx: ob.me[1] } : null, my_turn: !!ob.me && ob.current[0] === ob.me[0] && ob.current[1] === ob.me[1], boxes: this.boxesNow, align: this.pool.align,
-      pending: ob.pending || Object.keys(this.pend || {}).length > 0 || Object.keys(this.surSince || {}).length > 0, bulkMsg: ob.bulkMsg, flakyMsg: ob.flakyMsg, occluded: ob.occluded, rawDark: ob.rawDark }; }
+      pending: ob.pending || Object.keys(this.pend || {}).length > 0 || Object.keys(this.surSince || {}).length > 0, bulkMsg: ob.bulkMsg, flakyMsg: ob.flakyMsg, occluded: ob.occluded, offScreen: ob.offScreen, offMsg: ob.offMsg, rawDark: ob.rawDark }; }
   /* 引擎看到的"已被拿走" = 配对确认的 + 正在等面板配对的(一两帧内就会确认, 先算上免得局面来回变);被判"不是落子"的不算 */
   /* 另外:追踪中亲眼看到从亮变暗、但没配上面板的暗格(不当落子)也算"已被拿走"—— 棋盘"被选走"的判定现在很可靠(遮挡会判"看不清"),
      不算进去引擎就可能推荐一件已经没了的技能。锁池时就暗着的(例如本来就很暗的"感染")照旧不算。 */

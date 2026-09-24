@@ -6,10 +6,12 @@
      · 一局选完(快选完时存了 draft_end 截图), 回到空闲 20 秒后;
      · 选技中持续 3 分钟以上、没到选完就结束了(识别中途出问题的那种), 回到空闲 20 秒后;
      · 连续锁池失败 ≥8 次, 之后 2 分钟没有新的失败(09-13 那种一直锁不上的局 —— 从来没进过选技中, 最需要日志);
-     · 托盘"立即上传本次日志"。
+     · 托盘"立即上传本次日志";
+     · v1.39 启动 30 秒后: 上一次会话的日志末尾没有"退出"(被任务管理器结束/卡死/崩溃), 把那份日志 + 同时段的轨迹补传一次(why=prevcrash)。
+       以前卡死那次的日志永远留在用户电脑上 —— 重启后只传新会话(09-23 飞刀卡死排查时一份都拿不到)。
    两次自动上传至少隔 5 分钟;单包 ≤25MB(先放日志, 再按新到旧放轨迹和截图)。 */
 const fs = require("fs"), path = require("path"), zlib = require("zlib"), http = require("http");
-const HOST = "43.130.62.185", PATHNAME = "/ad/logup", KEY = "adlog-7Kq2vXe9LmP4tRz";
+const HOST = process.env.AD_LOGUP_HOST || "43.130.62.185", PORT = +process.env.AD_LOGUP_PORT || 80, PATHNAME = process.env.AD_LOGUP_PATH || "/ad/logup", KEY = "adlog-7Kq2vXe9LmP4tRz";   // 环境变量只给 test/logup_chunked.js 指向本机
 const CAP = 25 * 1024 * 1024, MIN_GAP = 5 * 60e3;
 
 const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
@@ -46,15 +48,64 @@ function pickFiles(logdir, logfile, since) {
   return out;
 }
 
-function post(buf, headers) {
+/* v1.38: 截图 PNG(2560×1440 每张 2~4MB)转 JPEG(同分辨率, 质量 85, 约 0.3~0.6MB)。
+   09-22 整局包 8MB 左右, 跨境上传常卡住超时(当晚 46b2/8252/baa2 的整局包几乎全失败, 服务器记 499)。
+   只在主进程里有 electron;测试环境没有就原样传 PNG。 */
+let NI; function nativeImage() { if (NI === undefined) { try { NI = require("electron").nativeImage || null; } catch (e) { NI = null; } } return NI; }
+function shrinkSnaps(files) {
+  const ni = nativeImage(); if (!ni) return files;
+  return files.map(f => { if (!/\.png$/i.test(f.name)) return f;
+    try { const img = ni.createFromBuffer(f.data); if (img.isEmpty()) return f; const j = img.toJPEG(85); return j && j.length < f.data.length ? { name: f.name.replace(/\.png$/i, ".jpg"), data: j } : f; }
+    catch (e) { return f; } });
+}
+/* v1.38 分块上传: 每块 512KB, 每块最多试 4 次(间隔 3/10/30 秒)。一块卡住只重传这一块, 不用从头来。
+   服务器(logup.py)收齐后拼回 zip, 校验同整包上传。 */
+const PART = 512 * 1024, TRIES = [0, 3e3, 10e3, 30e3];
+async function postChunked(buf, headers) {
+  const parts = Math.max(1, Math.ceil(buf.length / PART)), upid = require("crypto").randomBytes(8).toString("hex"); let last = null;
+  for (let i = 0; i < parts; i++) {
+    const body = buf.subarray(i * PART, Math.min(buf.length, (i + 1) * PART)); let ok = false;
+    for (const wait of TRIES) {
+      if (wait) await new Promise(r => setTimeout(r, wait));
+      last = await post(body, { ...headers, "x-ad-upid": upid, "x-ad-part": String(i), "x-ad-parts": String(parts) }, 60e3);
+      if (last.code === 200) { ok = true; break; }
+      if (last.code >= 400 && last.code < 500) return last;   // 被服务器拒(格式/次数), 重试没用
+    }
+    if (!ok) return { code: last.code, body: `第${i + 1}/${parts}块失败: ${last.body}` };
+  }
+  return { ...last, parts };
+}
+function post(buf, headers, timeout) {
   return new Promise(resolve => {
-    const req = http.request({ host: HOST, port: 80, path: PATHNAME, method: "POST", timeout: 120e3,
+    const req = http.request({ host: HOST, port: PORT, path: PATHNAME, method: "POST", timeout: timeout || 120e3,
       headers: { "content-type": "application/zip", "content-length": buf.length, "x-ad-key": KEY, ...headers } }, res => {
       let body = ""; res.on("data", c => { body += c; }); res.on("end", () => resolve({ code: res.statusCode, body: body.slice(0, 200) })); });
     req.on("timeout", () => req.destroy(new Error("超时")));
     req.on("error", e => resolve({ code: 0, body: String(e.message || e) }));
     req.end(buf);
   });
+}
+
+/* v1.39 找上一次没正常退出的会话: 除本次外最新的 ad_*.log, 48 小时内, 末尾 4KB 没有"退出", 且没补传过(记在 prevcrash_sent.txt) */
+function findPrevUnclean(logdir, logfile) {
+  let logs = [];
+  try { logs = fs.readdirSync(logdir).filter(f => /^ad_\d{8}_\d{6}\.log$/.test(f) && path.join(logdir, f) !== logfile)
+    .map(f => ({ f, p: path.join(logdir, f), st: fs.statSync(path.join(logdir, f)) })).sort((a, b) => b.st.mtimeMs - a.st.mtimeMs); } catch (e) { return null; }
+  const x = logs[0]; if (!x || Date.now() - x.st.mtimeMs > 48 * 3600e3) return null;
+  let sent = ""; try { sent = fs.readFileSync(path.join(logdir, "prevcrash_sent.txt"), "utf8"); } catch (e) { }
+  if (sent.split(/\r?\n/).includes(x.f)) return null;
+  let tail = ""; try { const fd = fs.openSync(x.p, "r"), n = Math.min(4096, x.st.size), b = Buffer.alloc(n); fs.readSync(fd, b, 0, n, x.st.size - n); fs.closeSync(fd); tail = b.toString("utf8"); } catch (e) { return null; }
+  if (/\] stop +退出/.test(tail)) return null;
+  return x;
+}
+function pickPrev(logdir, x) {
+  const out = [{ name: x.f, data: fs.readFileSync(x.p) }]; let total = out[0].data.length;
+  const m = /^ad_(\d{4})(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)\.log$/.exec(x.f), t0 = m ? new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]).getTime() : x.st.mtimeMs - 6 * 3600e3;
+  let rest = [];
+  try { rest = fs.readdirSync(logdir).filter(f => /\.jsonl$/i.test(f)).map(f => ({ f, p: path.join(logdir, f), st: fs.statSync(path.join(logdir, f)) }))
+    .filter(y => y.st.mtimeMs >= t0 && y.st.mtimeMs <= x.st.mtimeMs + 60e3).sort((a, b) => b.st.mtimeMs - a.st.mtimeMs); } catch (e) { }
+  for (const y of rest) { if (total + y.st.size > CAP) continue; try { const b = fs.readFileSync(y.p); out.push({ name: y.f, data: b }); total += b.length; } catch (e) { } }
+  return out;
 }
 
 /* opts: { logdir, logfile, version, installId, log(tag,msg), flush(), enabled() } */
@@ -68,13 +119,22 @@ function create(opts) {
     await new Promise(r => setTimeout(r, 800));   // 等日志落盘(flushLog 是 500ms 攒一批)
     const t0 = Date.now(), files = pickFiles(opts.logdir, opts.logfile, since);
     try {
-      const zip = makeZip(files);
-      const r = await post(zip, { "x-ad-ver": opts.version, "x-ad-id": opts.installId, "x-ad-why": why });
-      if (r.code === 200) { since = t0; if (!manual) lastAuto = Date.now(); opts.log("upload", `日志已上传(${why}) ${files.length} 个文件 ${(zip.length / 1048576).toFixed(1)}MB`); }
+      const raw = files.reduce((a, f) => a + f.data.length, 0), zip = makeZip(shrinkSnaps(files));
+      const r = await postChunked(zip, { "x-ad-ver": opts.version, "x-ad-id": opts.installId, "x-ad-why": why });
+      if (r.code === 200) { since = t0; if (!manual) lastAuto = Date.now(); opts.log("upload", `日志已上传(${why}) ${files.length} 个文件 ${(zip.length / 1048576).toFixed(1)}MB(原 ${(raw / 1048576).toFixed(1)}MB, 分${r.parts}块) 用时${((Date.now() - t0) / 1000).toFixed(0)}s`); }
       else opts.log("upload", `日志上传失败(${why}) HTTP ${r.code} ${r.body}`);
     } catch (e) { opts.log("upload", `日志上传出错(${why}) ${e.message || e}`); }
     finally { busy = false; }
   }
+  setTimeout(async () => {
+    if (!opts.enabled()) return; const x = findPrevUnclean(opts.logdir, opts.logfile); if (!x) return;
+    try { fs.appendFileSync(path.join(opts.logdir, "prevcrash_sent.txt"), x.f + "\n"); } catch (e) { }
+    opts.log("upload", `上一次会话 ${x.f} 没有正常退出(被结束/卡死/崩溃), 补传那份日志`);
+    try { const files = pickPrev(opts.logdir, x), zip = makeZip(files);
+      const r = await postChunked(zip, { "x-ad-ver": opts.version, "x-ad-id": opts.installId, "x-ad-why": "prevcrash" });
+      opts.log("upload", r.code === 200 ? `上一次会话日志已补传 ${files.length} 个文件 ${(zip.length / 1048576).toFixed(1)}MB` : `上一次会话日志补传失败 HTTP ${r.code} ${r.body}`);
+    } catch (e) { opts.log("upload", "上一次会话日志补传出错 " + (e.message || e)); }
+  }, opts.prevDelay != null ? opts.prevDelay : 30e3);
   return {
     onPhase(p) {
       if (p === "active") { if (!activeSince) activeSince = Date.now(); rejects = 0; clearTimeout(rejectTimer); return; }
@@ -93,4 +153,4 @@ function create(opts) {
     crash() { if (opts.enabled()) setTimeout(() => run("crash", true), 1500); },
   };
 }
-module.exports = { create, makeZip, pickFiles };
+module.exports = { create, makeZip, pickFiles, postChunked, shrinkSnaps, findPrevUnclean, pickPrev };

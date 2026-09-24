@@ -33,4 +33,20 @@ $("b-reset").onclick(); $("b-snap").onclick(); $("b-logs").onclick(); $("b-uploa
 check("按钮 → act", acts.join() === "reset,snap,logs,upload,quit");
 onPanel({ version: "1.23.0", look: null, hotkey: null });
 check("残缺状态(look/hotkey 为空)不炸", $("k-c1").value === "#ff4d4f");
+/* v1.32 更新区 */
+acts.length = 0;
+onPanel({ ...st, phase: "idle", upd: { phase: "latest", msg: "已是最新版 v1.32.0", checkedAt: Date.now() } });
+check("更新: 已是最新 → 只有检查更新按钮", $("u-apply").style.display === "none" && $("u-full").style.display === "none" && /已是最新/.test($("u-msg").textContent) && $("upd").className === "");
+onPanel({ ...st, phase: "idle", upd: { phase: "available", latest: "1.33.0", msg: "有新版本 v1.33.0", notes: ["修了 A", "加了 B"] } });
+check("更新: 有新版 → 高亮 + 立即更新按钮 + 更新内容", $("u-apply").style.display === "" && $("upd").className === "hot" && $("u-notes").children.length === 2 && $("u-notes").children[0].textContent === "修了 A");
+$("u-apply").onclick(); $("u-check").onclick();
+check("更新: 点立即更新/检查更新 → act", acts.join() === "update-apply,update-check");
+onPanel({ ...st, phase: "idle", upd: { phase: "downloading", latest: "1.33.0", done: 2e6, total: 4e6 } });
+check("更新: 下载中 → 进度条 50% + 按钮禁用", $("u-fill").style.width === "50%" && $("u-apply").disabled === true && /2\.0\/4\.0MB/.test($("u-msg").textContent));
+onPanel({ ...st, phase: "idle", upd: { phase: "needFull", latest: "2.0.0", msg: "换了程序本体", fullUrl: "http://x/full.zip" } });
+acts.length = 0; $("u-full").onclick();
+check("更新: 要完整包 → 下载按钮 → act", $("u-full").style.display === "" && $("u-apply").style.display === "none" && acts.join() === "update-apply");
+let asked = 0; const code2 = code; new Function("document", "panel", "setTimeout", "clearTimeout", "confirm", code2)(document, panel, setTimeout, clearTimeout, () => { asked++; return false; });
+onPanel({ ...st, phase: "active", upd: { phase: "available", latest: "1.33.0" } }); acts.length = 0; $("u-apply").onclick();
+check("更新: 选技中点更新 → 先确认, 取消就不更新", asked === 1 && acts.length === 0);
 console.log(ok ? "通过" : "失败"); process.exit(ok ? 0 : 1);

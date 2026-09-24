@@ -23,6 +23,19 @@ const b64f32 = s => { const bin = Buffer.from(s, "base64"); return new Float32Ar
 
 function buildEngine(win) {
   const M = win.AD_MODEL;
+  const G = buildEngineInner(win);
+  try {
+    const dp = JSON.parse(fs.readFileSync(path.join(__dirname, "hard_deps.json"), "utf8"));
+    const HID = Object.fromEntries((win.AD_HEROES || []).map(h => [h.key, "hero:" + h.id]));
+    const toP = k => G.at(HID[k] || k);
+    const DEPP = {}; let n = 0;
+    for (const [a, bs] of Object.entries(dp)) { if (a.startsWith("_")) continue; const pa = toP(a); const pb = bs.map(toP).filter(x => x >= 0); if (pa >= 0 && pb.length) { DEPP[pa] = pb; n++; } }
+    G.DEPP = n ? DEPP : null; G.DEPN = n;
+  } catch (e) { G.DEPP = null; G.DEPN = 0; console.error("hard_deps.json", e.message); }
+  return G;
+}
+function buildEngineInner(win) {
+  const M = win.AD_MODEL;
   if (!M.e) throw new Error("只支持 PLAIN 单表模型");
   const K = M.K, KS = M.ksplit == null ? K : M.ksplit, idx = M.index;
   const W = b64f32(M.w), E = b64f32(M.e);
@@ -39,9 +52,9 @@ function buildEngine(win) {
     SQ = new Map(); for (let q = 0; q < sk.length; q++) SQ.set(sk[q], sv[q * 2]); }
   /* 小样本正配合收缩(09-09):启动时预算一张 n×n 修正表 CORR[a*n+b] = (g−1)·max(真交互+压缩, 0),
      热路径一次查表。真交互 = 切半内积 + 簇对 − μ − r_a − r_b,和 public/ad_score.js 的 pairFinal 同源。 */
-  let CORR = null;
+  let CORR = null, CC = null, CORR2 = null, ISC = null;
   if (M.gk && M.rg) { const gb = Buffer.from(M.gk, "base64"), RG = b64f32(M.rg), RMU = M.rmu || 0, nn = M.n;
-    CORR = new Float32Array(nn * nn);
+    CORR = new Float32Array(nn * nn); const ICP = M.cck ? new Float32Array(nn * nn) : null;
     for (let a = 0; a < nn; a++) for (let b = a + 1; b < nn; b++) {
       let s2 = 0; const oa = a * K, ob = b * K;
       for (let t = 0; t < KS; t++) s2 += E[oa + t] * E[ob + t];
@@ -49,8 +62,17 @@ function buildEngine(win) {
       let cp0 = 0; if (CP) { let x = CL[a], y2 = CL[b]; if (x > y2) { const tt = x; x = y2; y2 = tt; } cp0 = CP[x * NCL - x * (x - 1) / 2 + (y2 - x)]; }
       const sqv = SQ ? (SQ.get(a * nn + b) || 0) : 0;
       const ic = s2 + cp0 - RMU - RG[a] - RG[b] + sqv;
-      if (ic > 0) { const g = gb[a * (2 * nn - a - 1) / 2 + (b - a - 1)] / 255; const c = (g - 1) * ic; CORR[a * nn + b] = c; CORR[b * nn + a] = c; }
-    } }
+      if (ic > 0) { const g = gb[a * (2 * nn - a - 1) / 2 + (b - a - 1)] / 255; const c = (g - 1) * ic; CORR[a * nn + b] = c; CORR[b * nn + a] = c; if (ICP) ICP[a * nn + b] = ic; }
+    }
+    /* 条件收缩(09-18):表 cck/ccc/ccg(见 tools/build-cond.py)。座位缺条件件 c 时,(a,x) 的修正用 CORR2=(g_wo−1)·ic;
+       放入 c 时 condBack 把座位里以 c 为条件的对补回 CORR。和 public/ad_score.js pairFinal(a,b,seat) 同源。 */
+    if (ICP) { const i32 = s0 => { const bb = Buffer.from(s0, "base64"); return new Int32Array(bb.buffer.slice(bb.byteOffset, bb.byteOffset + bb.length)); };
+      const ck = i32(M.cck), cc = i32(M.ccc), cg = b64f32(M.ccg);
+      CC = new Int16Array(nn * nn).fill(-1); CORR2 = new Float32Array(nn * nn); ISC = new Uint8Array(nn);
+      for (let q = 0; q < ck.length; q++) { const a = Math.floor(ck[q] / nn), x = ck[q] - a * nn, ic = ICP[a * nn + x];
+        if (!(ic > 0)) continue; const g0 = gb[a * (2 * nn - a - 1) / 2 + (x - a - 1)] / 255; if (!(cg[q] < g0)) continue;
+        CC[a * nn + x] = CC[x * nn + a] = cc[q]; CORR2[a * nn + x] = CORR2[x * nn + a] = (cg[q] - 1) * ic; ISC[cc[q]] = 1; } }
+  }
   /* 队伍级配比项(09-08 上线):座位方向向量 U=Σ单位化嵌入 → 8 轴投影 → 队伍 36 项二次型 */
   let EN = null, TQAX = null, TQMUAX = null, TQHMU = null, TQHSD = null, TQG = null, PA = null;
   if (M.tqg) {
@@ -72,9 +94,14 @@ function buildEngine(win) {
     let a = CL[i], b = CL[j]; if (a > b) { const t = a; a = b; b = t; }
     return CP[a * NCL - a * (a - 1) / 2 + (b - a)]; };
   const nn_ = M.n;
-  const sqd = (i, j) => { if (i < 0 || j < 0) return 0; let v = 0;
+  /* si(可选):放入前座位已有的下标;给了才做条件收缩 */
+  const sqd = (i, j, si) => { if (i < 0 || j < 0) return 0; let v = 0;
     if (SQ) { const t = SQ.get(i < j ? i * nn_ + j : j * nn_ + i); if (t !== undefined) v += t; }
-    if (CORR) v += CORR[i * nn_ + j]; return v; };
+    if (CORR) { const key = i * nn_ + j; v += (CC && si && CC[key] >= 0 && si.indexOf(CC[key]) < 0) ? CORR2[key] : CORR[key]; } return v; };
+  /* 放入 p 时:座位里已有的对 (q,r) 若以 p 为条件,修正从 CORR2 回到 CORR */
+  const condBack = (p, si) => { if (!ISC || p < 0 || !ISC[p]) return 0; let v = 0;
+    for (let q = 0; q < si.length; q++) for (let r = q + 1; r < si.length; r++) { const key = si[q] * nn_ + si[r]; if (CC[key] === p) v += CORR[key] - CORR2[key]; }
+    return v; };
   const seg = v => { const B = KNOT.length - 1; let j = 0;
     while (j < B - 1 && v >= KNOT[j + 1]) j++;
     let fr = (v - KNOT[j]) / (KNOT[j + 1] - KNOT[j]);
@@ -83,7 +110,7 @@ function buildEngine(win) {
   /* sax_p/ASD 预先除好,省得每次除 */
   const SAXn = SAX ? new Float32Array(SAX.length) : null;
   if (SAX) for (let p = 0; p < M.n; p++) for (let k = 0; k < NAX; k++) SAXn[p * NAX + k] = SAX[p * NAX + k] / ASD[k];
-  return { K, KS, W, E, FW, KNOT, TH, AV, SAXn, AMU, ASD, NAX, CP, cpair, sqd, seg, at, n: M.n,
+  return { K, KS, W, E, FW, KNOT, TH, AV, SAXn, AMU, ASD, NAX, CP, cpair, sqd, condBack, seg, at, n: M.n,
            EN, TQAX, TQMUAX, TQHMU, TQHSD, TQG, PA, RG: RGV, MEANFW };
 }
 
@@ -153,7 +180,8 @@ function deltaOf(s, i) {
   for (let k = 0; k < KS; k++) d += s.SA[base + k] * E[o + k];
   for (let k = KS; k < K; k++) d -= s.SA[base + k] * E[o + k];
   const si = s.seatItems[seat];
-  for (let q = 0; q < si.length; q++) d += G.cpair(p, si[q]) + G.sqd(p, si[q]);
+  for (let q = 0; q < si.length; q++) d += G.cpair(p, si[q]) + G.sqd(p, si[q], si);
+  d += G.condBack(p, si);
   let z = g * d;
   if (G.FW) z += G.seg(s.gold[t] + G.FW[p]) * (t === 0 ? 1 : -1) - G.seg(s.gold[t]) * (t === 0 ? 1 : -1);
   if (G.AV) { const NAX = G.NAX, ao = p * NAX, ub = (1 - t) * NAX, ab = (1 - t) * NAX;
@@ -186,6 +214,9 @@ function seedItem(s, seat, p) {
     }
   }
 }
+/* 这一手没有任何合法候选(座位该拿的那一类在池子里已经被拿光了,比如只差英雄但英雄格全没了):
+   这手空过 —— 局面不变, 只推进 step。批量推演里必须"空过"而不是 break, 否则同一批的各局步数会错开。 */
+function passSim(s) { s.step++; }
 function applySim(s, i) {
   const p = s.items[i].p, seat = s.order[s.step];
   s.z += deltaOf(s, i);
@@ -201,12 +232,24 @@ function applySim(s, i) {
  *      改成按满编尺度看:缺的位置先按均值补齐,再比"放它" vs "放一件均值货"。
  *   AI_POLICY_FIX=0 关掉(A/B 用)。 */
 let POLICY_FIX = process.env.AI_POLICY_FIX !== "0";
+/* 硬依赖(09-16):server/hard_deps.json 列出"没有 enabler 就废"的技能。座位里没有任一 enabler 时,
+ * 拿 dependent 扣 DEP_PEN(只进 scoreAll,裁判 z 不变)。AI 会先拿月光再拿月蚀,或者不碰月蚀。AI_DEP_PEN=0 关掉。 */
+let DEP_PEN = process.env.AI_DEP_PEN == null ? 0.6 : +process.env.AI_DEP_PEN;
+const setDepPen = v => { DEP_PEN = +v || 0; };
+function depBlocked(s, i) {
+  const G = s.G, p = s.items[i].p; if (!G.DEPP || p < 0) return false;
+  const en = G.DEPP[p]; if (!en) return false;
+  const si = s.seatItems[s.order[s.step]];
+  for (let q = 0; q < si.length; q++) if (en.includes(si[q])) return false;
+  return true;
+}
 const setPolicyFix = on => { POLICY_FIX = !!on; };
 function policyBonus(s, i) {
   if (!POLICY_FIX) return 0;
   const G = s.G, p = s.items[i].p; if (p < 0) return 0;
   const seat = s.order[s.step], t = seat < 5 ? 0 : 1;
   let b = 0;
+  if (DEP_PEN > 0 && depBlocked(s, i)) b -= DEP_PEN;
   if (G.RG) { const left = 4 - s.seatItems[seat].length; if (left > 0) b += left * G.RG[p]; }
   if (G.FW) {
     let m = 0; for (let q = t * 5; q < t * 5 + 5; q++) m += s.seatItems[q].length;
@@ -240,7 +283,8 @@ function deltaParts(s, i, out) {
   for (let k = 0; k < KS; k++) syn += s.SA[base + k] * E[o + k];
   for (let k = KS; k < K; k++) syn -= s.SA[base + k] * E[o + k];
   let cp = 0; const si = s.seatItems[seat];
-  for (let q = 0; q < si.length; q++) cp += G.cpair(p, si[q]) + G.sqd(p, si[q]);
+  for (let q = 0; q < si.length; q++) cp += G.cpair(p, si[q]) + G.sqd(p, si[q], si);
+  cp += G.condBack(p, si);
   out[0] = g * G.W[p]; out[1] = g * syn; out[2] = g * cp;
   if (G.FW) { const sgn = t === 0 ? 1 : -1; out[3] = sgn * (G.seg(s.gold[t] + G.FW[p]) - G.seg(s.gold[t])); }
   if (G.AV) { const NAX = G.NAX, ao = p * NAX, ub = (1 - t) * NAX;
@@ -267,4 +311,4 @@ function scoreAllBy(s, wts, outIdx, outVal) {
 }
 
 module.exports = { loadModel, deltaParts, scoreAllBy, seedItem, buildEngine, makeSim, cloneSim, simDone, moverSeat, moverSign,
-                   deltaOf, applySim, scoreAll, policyBonus, setPolicyFix, CAP };
+                   deltaOf, applySim, passSim, scoreAll, policyBonus, setPolicyFix, setDepPen, depBlocked, CAP };

@@ -26,14 +26,28 @@ input[type=color]{width:34px;height:24px;border:1px solid #4a5568;border-radius:
 canvas#pv{display:block;width:100%;background:#0d1117;border-radius:6px;margin-top:6px}
 .keys{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;color:var(--dim);font-size:11px}
 .keys b{color:var(--fg);font-weight:normal}
+#upd.hot{border-color:#b8913a;box-shadow:0 0 0 1px #b8913a55}
+button.go{background:#8a6a1f;border-color:#d4a73c;color:#fff;font-weight:bold}button.go:hover{background:#a07c26}
+.bar{flex:1;min-width:120px;height:8px;background:#11151b;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#d4a73c}
+#u-notes{margin:4px 0 0;padding-left:18px;color:var(--dim);font-size:11px}
 #st{color:var(--dim);font-size:11px;margin-top:4px;white-space:pre-wrap}
 </style></head><body>
 <h1>AD 选技助手 设置 <small id="ver"></small></h1>
 
+<section id="upd"><h2>更新</h2>
+ <div class="row"><label class="k">版本</label><span id="u-msg"></span></div>
+ <div class="row"><label class="k"></label><button id="u-apply" class="go">⬆ 立即更新(自动重启)</button><button id="u-full" class="go">打开完整包下载</button><button id="u-check">检查更新</button>
+  <div class="bar" id="u-bar"><i id="u-fill"></i></div></div>
+ <ul id="u-notes"></ul>
+ <div class="note">只下载有变化的文件, 设置不会丢;更新完插件自动重启。换了程序本体的大版本需要下载完整包。</div>
+</section>
+
 <section><h2>显示</h2>
  <div class="row"><label class="k">覆盖层</label><button id="b-hidden"></button><span class="note">隐藏后识别照常运行, 再点一下立刻显示最新结果</span></div>
- <div class="row"><label class="k">AI 档位</label><div class="seg"><button id="ai-mcts">现役:推演排序</button><button id="ai-net">🧠 网络档(自博弈 550 轮)</button><button id="ai-combo">🧪 组合版(本机显卡)</button></div></div>
- <div class="row" id="combo-row"><label class="k">组合版参数</label><label class="sw">每手取前 <input id="cb-K" type="number" min="2" max="16" style="width:48px"> 个候选, 各推演 <input id="cb-R" type="number" min="8" max="128" style="width:56px"> 局, 每手最多 <input id="cb-sec" type="number" min="2" max="30" style="width:48px"> 秒(超时自动减半推演局数, 太慢或显卡不可用就改用网络档)</label></div>
+ <div class="row"><label class="k">AI 档位</label><div class="seg"><button id="ai-mcts">现役:推演排序</button><button id="ai-net">🧠 网络档(自博弈 550 轮)</button><button id="ai-combo">⚡ GPU版(本机显卡)</button></div></div>
+ <div class="row" id="combo-row"><label class="k">GPU版参数</label><label class="sw">每手取前 <input id="cb-K" type="number" min="2" max="16" style="width:48px"> 个候选, 各推演 <input id="cb-R" type="number" min="8" max="128" style="width:56px"> 局, 每手最多 <input id="cb-sec" type="number" min="2" max="30" style="width:48px"> 秒(超时自动减半推演局数, 太慢或显卡不可用就改用网络档)</label></div>
+ <div class="row" id="combo-row2"><label class="k">GPU版更新</label><label class="sw"><input id="cb-refine" type="checkbox"> 轮到我时先显示决赛结果, 再用准确局面把全部候选重算一遍、更新一次(一般 1~2 秒后; 关掉则回合内推荐不再变)</label></div>
+ <div class="note" id="gp-note"></div>
  <div class="row"><label class="k">给谁看推荐</label><div class="seg"><button id="m-solo">单人:只看我</button><button id="m-all">团队:我方五人</button></div></div>
  <div class="row"><label class="k">组合明细</label><label class="sw"><input type="checkbox" id="c-ps">显示双方十人的组合明细小卡</label></div>
  <div class="row"><label class="k">轮到你时</label><label class="sw"><input type="checkbox" id="c-arr">预估下一手时, 在推荐条下面加一行备注:把中间那几手模拟掉, 每件推荐「轮到你时还在」的概率(主推荐不变)</label></div>
@@ -95,7 +109,8 @@ function render(m){S=m;look=ADFrames.norm(m.look);
  $("ver").textContent=`v${m.version}`+(m.phase==="active"?" · 选技中":"")+(m.meShown?` · 认出你是 ${m.meShown}`:"");
  $("b-hidden").textContent=m.hidden?"👁 已隐藏 — 点击恢复显示":"🙈 正在显示 — 点击隐藏";$("b-hidden").className=m.hidden?"":"on";
  $("ai-mcts").className=m.aimode==="net"||m.aimode==="combo"?"":"on";$("ai-net").className=m.aimode==="net"?"on":"";$("ai-combo").className=m.aimode==="combo"?"on":"";
- $("combo-row").style.display=m.aimode==="combo"?"":"none";const cc=m.combo||{};for(const [id,k,d] of [["cb-K","K",8],["cb-R","R",16],["cb-sec","sec",8]])if(document.activeElement!==$(id))$(id).value=cc[k]||d;
+ $("combo-row").style.display=m.aimode==="combo"?"":"none";$("combo-row2").style.display=m.aimode==="combo"?"":"none";$("cb-refine").checked=(m.combo||{}).refine!==false;const gp=m.gpuPrio;$("gp-note").style.display=m.aimode==="combo"?"":"none";
+ $("gp-note").textContent=!gp?"显卡优先级: 未设置(非 Windows 或还在设置中)":gp.level>=5?"⚡ 显卡优先级: 实时(最高), 游戏占满显卡时组合版也能插队":`⚡ 显卡优先级: ${gp.name}${gp.admin?"":" —— 游戏占满显卡时组合版仍可能很慢, 可以右键 ADAssistant.exe「以管理员身份运行」拿到最高档(实时)"}`;const cc=m.combo||{};for(const [id,k,d] of [["cb-K","K",8],["cb-R","R",16],["cb-sec","sec",8]])if(document.activeElement!==$(id))$(id).value=cc[k]||d;
  $("m-solo").className=m.all?"":"on";$("m-all").className=m.all?"on":"";
  $("c-ps").checked=m.showPlayerScores!==false;$("c-arr").checked=!!m.arrive;$("s-me").value=m.meSeat||"auto";
  [...$("seg-pl").children].forEach((b,i)=>b.className=i===m.plevel?"on":"");
@@ -107,11 +122,22 @@ function render(m){S=m;look=ADFrames.norm(m.look);
  $("c-up").checked=!!m.uploadLogs;$("c-live").checked=!!m.allowCapture;
  const lv=m.live||{};$("live-note").textContent=m.allowCapture?("📺 "+(lv.msg||(lv.mode==="window"?"已捕获游戏窗口, 覆盖层可被抓到":"等待游戏窗口…"))+"  ·  游戏独占全屏会黑屏, 请用无边框窗口"):"默认关:覆盖层对所有截屏/录屏隐身(视频号直播助手、OBS 都抓不到)。开了以后插件改抓游戏窗口而不是整个屏幕, 接通后才放开隐身;游戏要是独占全屏会抓到黑屏, 请用无边框窗口。";
  const hk=m.hotkey||{};$("keys").innerHTML=Object.keys(hk).map(k=>`<div>${k}:<b>${hk[k]||"(被占用, 用面板)"}</b></div>`).join("");
- $("st").textContent=m.status||"";preview();}
+ $("st").textContent=m.status||"";renderUpd(m.upd||{});preview();}
+function renderUpd(u){const busy=["checking","downloading","installing","done"].includes(u.phase);
+ const cur=`当前 v${S.version}`,ago=u.checkedAt?` · ${new Date(u.checkedAt).toLocaleTimeString()} 查过`:"";
+ $("u-msg").textContent=u.phase&&u.phase!=="idle"?`${cur} · ${u.msg||""}${u.phase==="latest"?ago:""}`:cur;
+ $("upd").className=u.phase==="available"||u.phase==="needFull"?"hot":"";
+ $("u-apply").style.display=u.phase==="available"||(u.phase==="error"&&u.latest)?"":"none";$("u-apply").disabled=busy;
+ $("u-full").style.display=u.phase==="needFull"&&u.fullUrl?"":"none";
+ $("u-check").disabled=busy;
+ const showBar=u.phase==="downloading"||u.phase==="installing"||u.phase==="done";$("u-bar").style.display=showBar?"":"none";
+ $("u-fill").style.width=(u.phase==="installing"||u.phase==="done"?100:u.total?Math.min(100,100*u.done/u.total):0)+"%";
+ if(u.phase==="downloading"&&u.total)$("u-msg").textContent=`${cur} → v${u.latest} · 下载 ${(u.done/1e6).toFixed(1)}/${(u.total/1e6).toFixed(1)}MB`;
+ const ns=(u.phase==="available"||u.phase==="needFull")&&u.notes?u.notes:[];$("u-notes").innerHTML="";for(const n of ns){const li=document.createElement("li");li.textContent=n;$("u-notes").append(li);}}
 /* ---- 控件 → 主进程 ---- */
 $("b-hidden").onclick=()=>panel.set("hidden",!S.hidden);
 $("ai-mcts").onclick=()=>panel.set("aimode","mcts");$("ai-net").onclick=()=>panel.set("aimode","net");$("ai-combo").onclick=()=>panel.set("aimode","combo");
-for(const id of ["cb-K","cb-R","cb-sec"])$(id).onchange=()=>panel.set("combo",{K:+$("cb-K").value,R:+$("cb-R").value,sec:+$("cb-sec").value});
+for(const id of ["cb-K","cb-R","cb-sec","cb-refine"])$(id).onchange=()=>panel.set("combo",{K:+$("cb-K").value,R:+$("cb-R").value,sec:+$("cb-sec").value,refine:$("cb-refine").checked});
 $("m-solo").onclick=()=>panel.set("all",false);$("m-all").onclick=()=>panel.set("all",true);
 $("c-ps").onchange=e=>panel.set("showPlayerScores",e.target.checked);
 $("c-arr").onchange=e=>panel.set("arrive",e.target.checked);
@@ -121,6 +147,8 @@ $("t-off").onclick=()=>panel.set("test",false);$("t-on").onclick=()=>panel.set("
 $("v-1x").onclick=()=>panel.set("core","1x");$("v-v2").onclick=()=>panel.set("core","v2");
 $("c-up").onchange=e=>panel.set("uploadLogs",e.target.checked);$("c-live").onchange=e=>panel.set("allowCapture",e.target.checked);
 $("b-upload").onclick=()=>panel.act("upload");$("b-snap").onclick=()=>panel.act("snap");$("b-logs").onclick=()=>panel.act("logs");
+$("u-check").onclick=()=>panel.act("update-check");$("u-full").onclick=()=>panel.act("update-apply");
+$("u-apply").onclick=()=>{if(S.phase==="active"&&!confirm("正在选技中, 更新会重启插件(这一局剩下的推荐要等重启后重新识别)。现在更新?"))return;panel.act("update-apply");};
 $("b-quit").onclick=()=>{if(confirm("退出插件?"))panel.act("quit");};
 /* 颜色:拖动取色器时 input 事件很密, 本地先画预览, 每 60ms 才发一次给主进程(游戏里也跟着变) */
 let sendT=null;function sendLook(){const o={...look};for(const k of ["c1","c2","c3","mid"])o[k]=$("k-"+k).value;

@@ -18,7 +18,7 @@ const q1 = v => Math.round(v * 10) / 10;
 /* 重锁时 worker.js 从旧追踪器搬过来的字段(必须和 worker.js tryLock 里那张表一致) */
 const CARRY = ["owner", "heroOf", "suspect", "pend", "unknownBy", "orphan", "forced", "pc", "pcRaw", "pcRun", "pcInit",
   "surSince", "turn", "flaky", "flips", "hold", "nameHero", "nameRun", "stable", "darkRun", "brightRun", "bhist",
-  "firstT", "pickT", "frameNo", "meSeat", "meVotes", "meAuto", "curSeat", "nameSize"];
+  "firstT", "pickT", "frameNo", "meSeat", "meVotes", "meAuto", "curSeat", "nameSize", "refMaxAll"];
 /* 分数行用 int16(1e-4 精度)而不是 int8:阈值(0.3/0.45/0.6…)边上差 0.008 就可能翻判, 回放就不再是**同一件事**了。
    实测 int8 会让 8 条日志的分数差 0.01;换 int16 后逐字相同。 */
 const i8 = a => { const b = Buffer.allocUnsafe(a.length * 2);

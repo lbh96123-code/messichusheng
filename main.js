@@ -15,6 +15,7 @@ const HOTKEY = { "隐藏/显示": "F6", "切换显示模式": "F8", "暂停/继�
      core —— 状态估计内核, "1x"(稳定) 或 "v2"(试验)。只管谁来判断"被拿走了没有 / 归谁"。
    两者不耦合:测试模式不会替你换内核, 换内核也不会替你改截图策略。 */
 const cfg = { all: false, paused: false, plevel: 0, hidden: false, showPlayerScores: true, test: false, core: "1x", meSeat: "auto" };   // meSeat = "auto" 或手动指定的 "L1".."R5"(只对当前这一局有效)
+let gpuPrio = null;   // v1.33 组合版抢显卡: { level, name, admin }
 let meShown = null;   // 最近一次状态里的本人座位(托盘菜单上显示)   // plevel 0..3 = 界面上的 1~4 档;hidden = 一键隐藏(只藏显示, 识别/计算照常跑)
 const PLN = ["1 团队", "2 略偏个人", "3 偏个人", "4 贪"]; let needFull = true, phase = "idle", lastStatus = "", boardSeen = false, capN = 0, capMs = 0, capMsFull = 0, capFull = 0;
 /* ---- 日志:%APPDATA%/ADAssistant/logs/ad_YYYYMMDD_HHMMSS.log,截图也放这里 ---- */
@@ -35,6 +36,14 @@ if (settings.uploadLogs === undefined) settings.uploadLogs = true;
 settings.look = ADFrames.norm(settings.look);   // v1.23:推荐框的颜色等, 缺的补默认、坏的丢掉
 if (settings.allowCapture === undefined) settings.allowCapture = false;   // v1.24 直播模式:让直播/录屏软件能抓到覆盖层
 const saveSettings = () => { try { fs.writeFileSync(SETFILE, JSON.stringify(settings, null, 1)); } catch (e) { } }; saveSettings();
+/* v1.32 一键更新(updater.js): 启动 20 秒后查一次、之后每 3 小时查一次, 只提示不自动装;点「立即更新」才下载替换并重启 */
+const updater = require("./updater.js").create({ appDir: __dirname, dataDir: app.getPath("userData"), version: VERSION, electron: process.versions.electron, log });
+updater.onChange(u => { sendPanel(); if (tray && (u.phase === "available" || u.phase === "needFull" || u.phase === "latest")) tray.setContextMenu(buildMenu());
+  if (u.phase === "done") setTimeout(() => { log("update", "重启插件"); flushLog(); app.relaunch(); app.exit(0); }, 1200); });
+function doUpdate() { const u = updater.state();
+  if (u.phase === "needFull" && u.fullUrl) { log("update", "打开完整包下载 " + u.fullUrl); shell.openExternal(u.fullUrl); return; }
+  if (phase === "active") log("update", "选技中点了更新(面板已确认)");
+  updater.apply().then(r => { if (r.phase === "needFull") sendPanel(); }); }
 uploader = require("./logupload.js").create({ logdir: LOGDIR, logfile: LOGFILE, version: VERSION, installId: settings.installId, log, flush: () => flushLog(), enabled: () => settings.uploadLogs });
 /* ---- 托盘图标 ---- */
 function makeTrayIcon() { const { PNG } = require("pngjs"); const p = new PNG({ width: 16, height: 16 });
@@ -51,8 +60,30 @@ function createOverlay() {
     webPreferences: { preload: path.join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
   overlay.setAlwaysOnTop(true, "screen-saver"); overlay.setIgnoreMouseEvents(true); overlay.setContentProtection(true);   // 不出现在截屏里(直播模式下窗口捕获接通后才放开);不要 forward:true
   overlay.loadFile("overlay.html"); overlay.webContents.on("did-finish-load", () => { overlay.showInactive(); sendCfg(); });
+  /* v1.39 覆盖层卡死/崩溃自救。覆盖层常驻显示、置顶、鼠标穿透, "隐藏"只是让它画空白 ——
+     它的页面一旦卡住, 最后一帧就一直钉在屏幕最上层, F6 也清不掉, 只能任务管理器(09-23 飞刀反馈)。以前主进程对此没有任何监听。 */
+  const me = overlay; ovPingAt = Date.now(); ovUnresp = 0;
+  me.on("unresponsive", () => { if (overlay !== me) return; ovUnresp = Date.now(); log("error", "覆盖层无响应(页面卡住), 3 秒后还不恢复就重建");
+    setTimeout(() => { if (overlay === me && ovUnresp) recreateOverlay("无响应超过 3 秒"); }, 3000); });
+  me.on("responsive", () => { if (overlay !== me || !ovUnresp) return; log("error", `覆盖层恢复响应(卡了 ${((Date.now() - ovUnresp) / 1000).toFixed(1)}s)`); ovUnresp = 0; });
+  me.webContents.on("render-process-gone", (e, d) => { if (overlay !== me) return; recreateOverlay(`渲染进程没了(${d && d.reason} ${d && d.exitCode})`); });
+  if (ovTimer) return; ovTimer = true;
   /* 游戏切换独占全屏/别的置顶窗口出现后,置顶属性可能被顶掉,定期重申一次 */
   setInterval(() => { if (overlay && !overlay.isDestroyed()) { if (!overlay.isVisible()) overlay.showInactive(); overlay.setAlwaysOnTop(true, "screen-saver"); } }, 5000);
+  /* 报平安超时: 页面每 2 秒 ping 一次, 10 秒收不到 → 重建(unresponsive 事件有时不来, 比如页面没卡但合成/绘制停了) */
+  setInterval(() => { if (!overlay || overlay.isDestroyed() || ovRebuilding) return; const age = Date.now() - ovPingAt;
+    if (age > 10e3) recreateOverlay(`${(age / 1000).toFixed(0)} 秒没收到覆盖层报平安`); }, 2000);
+}
+let ovPingAt = 0, ovFrames = -1, ovUnresp = 0, ovTimer = false, ovRebuilding = false, ovRebuilds = [];
+ipcMain.on("ov-ping", (e, n) => { if (overlay && !overlay.isDestroyed() && e.sender === overlay.webContents) { ovPingAt = Date.now(); ovFrames = n | 0; } });
+function recreateOverlay(why) {
+  const now = Date.now(); ovRebuilds = ovRebuilds.filter(t => now - t < 600e3);
+  if (ovRebuilds.length >= 5) { if (!ovRebuilding) log("error", `覆盖层 10 分钟内已重建 5 次, 不再自动重建(原因: ${why}); 托盘"重建悬浮窗"或重启插件`); ovPingAt = now; return; }
+  ovRebuilds.push(now); ovRebuilding = true; log("error", `重建覆盖层(第 ${ovRebuilds.length} 次): ${why}`); flushLog();
+  const old = overlay; overlay = null;
+  try { if (old && !old.isDestroyed()) { old.webContents.forcefullyCrashRenderer(); old.destroy(); } } catch (e) { log("error", "关旧覆盖层出错 " + e); }
+  try { createOverlay(); } catch (e) { log("error", "建新覆盖层出错 " + (e && e.stack || e)); }
+  ovRebuilding = false; uploader && uploader.crash();
 }
 const send = (ch, m) => { if (overlay && !overlay.isDestroyed()) overlay.webContents.send(ch, m); };
 /* scale = 识别坐标(≤2560 宽) → 覆盖窗 DIP 坐标 的比例 */
@@ -80,7 +111,7 @@ function createCapture() {
       const s = src.find(x => String(x.display_id) === String(d.id)) || src[0]; log("cap", `视频流选定屏幕: ${s ? s.name : "无"}`); callback(s ? { video: s } : {});
     } catch (e) { log("cap", "选源失败 " + e); callback({}); }
   }, { useSystemPicker: false });
-  ipcMain.on("cap-ready", (e, m) => { capReady = true; capDead = false; capRestartAt = 0; log("cap", `${capMode === "window" ? "窗口" : "屏幕"}视频流已就绪 ${m.w}x${m.h}(常驻流模式)`); });
+  ipcMain.on("cap-ready", (e, m) => { capReady = true; capDead = false; capRestartAt = 0; capRetryGap = 10e3; log("cap", `${capMode === "window" ? "窗口" : "屏幕"}视频流已就绪 ${m.w}x${m.h}(常驻流模式)`); });
   ipcMain.on("cap-bench", (e, m) => log("cap", "截屏测速 " + String(m && m.msg).slice(0, 600)));
   ipcMain.on("cap-frame", (e, m) => { const w = capWait.get(m.id); if (w) { capWait.delete(m.id); w({ w: m.w, h: m.h, buf: m.buf, bgra: false }); } });
   ipcMain.on("cap-fail", (e, m) => { const w = m.id != null && capWait.get(m.id); if (w) { capWait.delete(m.id); w(null); }
@@ -99,13 +130,22 @@ function liveInfo() { return { on: !!settings.allowCapture, mode: capMode, msg: 
 function setCapMode(mode, msg) { const changed = mode !== capMode || msg !== liveMsg; capMode = mode; liveMsg = msg;
   if (overlay && !overlay.isDestroyed()) overlay.setContentProtection(!(settings.allowCapture && mode === "window"));
   if (changed) { log("live", `捕获源=${mode} 防捕获=${!(settings.allowCapture && mode === "window") ? "开" : "关"} ${msg}`); sendCfg(); } }
+/* v1.40 截屏调用加超时: desktopCapturer.getSources 偶尔一直不返回(09-23 飞刀两次卡死前截屏越来越慢), 3 秒放弃这一帧 */
+function sourcesT(opt, ms = 3000) { return Promise.race([desktopCapturer.getSources(opt), new Promise((_, rej) => setTimeout(() => rej(new Error(`getSources ${ms}ms 没返回`)), ms))]); }
 async function findGameWindow() {
-  const src = await desktopCapturer.getSources({ types: ["window"], thumbnailSize: { width: 1, height: 1 }, fetchWindowIcons: false });
+  const src = await sourcesT({ types: ["window"], thumbnailSize: { width: 1, height: 1 }, fetchWindowIcons: false });
   const own = /AD 选技助手|ADAssistant|^cap$/;
   return src.find(x => /^dota\s*2$/i.test(x.name.trim()) && !own.test(x.name)) || src.find(x => /dota\s*2/i.test(x.name) && !own.test(x.name)) || null; }
 function restartCapture(why) { if (!capWin || capWin.isDestroyed()) return; log("cap", `重开视频流: ${why}`);
   for (const [id, w] of capWait) { capWait.delete(id); w(null); }
   capReady = false; capDead = false; capRestartAt = Date.now(); blackRun = 0; capWin.webContents.reload(); armCapTimeout(); }
+/* v1.40 视频流断了(capDead)定期重连: 10s 起, 每失败一次间隔翻倍, 最多 60s; 流恢复(cap-ready)后清零。
+   以前只有直播模式的 livePoll 会重开流, 而它在 capMode==="window" 时直接跳过 —— 逐帧退路把 capMode 设成 window 后就永远回不去了。 */
+let capRetryAt = 0, capRetryGap = 10e3;
+setInterval(() => { if (!capDead) { capRetryAt = 0; return; }   // 间隔只在真正就绪(cap-ready)时复位
+  if (!capRetryAt) { capRetryAt = Date.now() + capRetryGap; return; }
+  if (Date.now() < capRetryAt) return;
+  capRetryAt = Date.now() + (capRetryGap = Math.min(60e3, capRetryGap * 2)); restartCapture("视频流断了, 定期重连"); }, 2000);
 function applyLive(why, restart = true) { liveBlocked = false; blackRun = 0;
   if (livePoll) { clearInterval(livePoll); livePoll = null; }
   if (settings.allowCapture) {
@@ -142,22 +182,21 @@ async function grabLegacy(full) {
   const d = screen.getPrimaryDisplay(); const { w: W, h: H } = capSize();
   const n = scanDiv(); const tw = full ? W : Math.round(W / n), th = full ? H : Math.round(H / n);
   let s = null;
-  if (settings.allowCapture && !liveBlocked) {   // 直播模式:逐帧路也抓游戏窗口(要给所有窗口出缩略图, 慢, 但这条路本来就是兜底)
-    const ws = await desktopCapturer.getSources({ types: ["window"], thumbnailSize: { width: tw, height: th }, fetchWindowIcons: false });
-    s = ws.find(x => /^dota\s*2$/i.test(x.name.trim())) || ws.find(x => /dota\s*2/i.test(x.name)) || null;
-    if (s && capMode !== "window") setCapMode("window", `已捕获游戏窗口「${s.name}」(逐帧截屏), 覆盖层可被直播/录屏软件抓到`);
-    if (!s && capMode !== "screen") setCapMode("screen", "没找到 Dota 2 窗口, 先抓屏幕(覆盖层暂时仍不可被抓到)"); }
-  if (!s) { const src = await desktopCapturer.getSources({ types: ["screen"], thumbnailSize: { width: tw, height: th }, fetchWindowIcons: false });
+  /* v1.40: 逐帧退路只抓屏幕。以前直播模式下每一帧都给"所有窗口"出一张全尺寸缩略图再挑 Dota —— 选技中每 0.25 秒一次,
+     09-23 飞刀两次都是视频流断掉退到这条路之后 5~8 分钟主进程卡死(截屏 5ms→40ms, 画面频繁"整块被盖住")。
+     退到这里时覆盖层暂时恢复防捕获, 视频流重连后(capWatch)直播模式自动恢复。 */
+  if (capMode !== "screen") setCapMode("screen", settings.allowCapture ? "视频流断了, 暂时逐帧抓屏幕(覆盖层暂时不可被直播软件抓到), 正在重连" : "");
+  if (!s) { const src = await sourcesT({ types: ["screen"], thumbnailSize: { width: tw, height: th }, fetchWindowIcons: false });
     s = src.find(x => String(x.display_id) === String(d.id)) || src[0]; } if (!s) return null;
   const img = s.thumbnail; const sz = img.getSize(); const buf = img.toBitmap();   // Windows/Linux: BGRA
   return { w: sz.width, h: sz.height, buf: buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.length), bgra: true };
 }
-let workerRestarts = [], quitting = false;
+let workerRestarts = [], quitting = false, workerMsgAt = 0;
 function startWorker() {
   worker = new Worker(path.join(__dirname, "worker.js"));
   worker.postMessage({ type: "logdir", dir: LOGDIR });   // 观测轨迹和日志/截图放一起
   { const cs = capSize(); worker.postMessage({ type: "display", w: cs.w, h: cs.h }); }
-  worker.on("message", m => {
+  worker.on("message", m => { workerMsgAt = Date.now();
     if (m.type === "log") return log(m.tag, m.msg);
     if (m.type === "meManualReset") { cfg.meSeat = "auto"; sync(); return; }   // 换了一局, 手动指定的座位作废
     if (m.type === "want") { if (m.full) needFull = true; if (m.phase && m.phase !== phase) { phase = m.phase; uploader.onPhase(phase); log("cap", phase === "active" ? "选技中: 每 250ms 一张半分辨率扫描帧, 需要时补全分辨率" : "空闲: 每 1.5s 一张半分辨率"); setVisible(phase === "active"); sendCfg(); } return; }
@@ -200,7 +239,7 @@ async function loop() {
     /* 鼠标位置(换算到识别用的全分辨率坐标):鼠标悬停的那一格游戏会弹介绍框/变样子, 识别端把它当"看不清" */
     let cursor = null; try { const cp = screen.getCursorScreenPoint(), d = screen.getPrimaryDisplay(), cs = capSize();
       cursor = [(cp.x - d.bounds.x) * cs.w / d.bounds.width, (cp.y - d.bounds.y) * cs.h / d.bounds.height]; } catch (e) { }
-    if (f && worker) { const snap = snapOnce; snapOnce = false; worker.postMessage({ type: "frame", ...f, full, all: cfg.all, plevel: cfg.plevel, arrive: !!settings.arrive, aimode: (["net", "combo"].includes(settings.aimode) ? settings.aimode : "mcts"), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8 }, meSeat: cfg.meSeat, snap, cursor, test: cfg.test, core: cfg.core }, [f.buf]); } }
+    if (f && worker) { const snap = snapOnce; snapOnce = false; worker.postMessage({ type: "frame", ...f, full, all: cfg.all, plevel: cfg.plevel, arrive: !!settings.arrive, aimode: (["net", "combo"].includes(settings.aimode) ? settings.aimode : "mcts"), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8, refine: settings.comboRefine !== false }, meSeat: cfg.meSeat, snap, cursor, test: cfg.test, core: cfg.core }, [f.buf]); } }
   catch (e) { needFull = needFull || full; log("error", "截屏 " + e); send("error", { msg: String(e) }); }
   finally { inflight = false; }
 }
@@ -215,14 +254,14 @@ function schedule() { if (timer) clearInterval(timer); let cur = null;
    置顶显示, 这样无边框窗口化的游戏上面也能看到;独占全屏的游戏会被切出去, 这是系统行为, 和托盘菜单一样。 ---- */
 function openPanel() {
   if (panelWin && !panelWin.isDestroyed()) { panelWin.show(); panelWin.focus(); return; }
-  panelWin = new BrowserWindow({ width: 560, height: 720, title: `AD 选技助手 v${VERSION} · 设置`, alwaysOnTop: true, autoHideMenuBar: true, resizable: true, minimizable: true, maximizable: false, backgroundColor: "#1b1f27", show: false,
+  panelWin = new BrowserWindow({ width: 560, height: 780, title: `AD 选技助手 v${VERSION} · 设置`, alwaysOnTop: true, autoHideMenuBar: true, resizable: true, minimizable: true, maximizable: false, backgroundColor: "#1b1f27", show: false,
     webPreferences: { preload: path.join(__dirname, "settings_preload.js"), contextIsolation: true, nodeIntegration: false } });
   panelWin.loadFile("settings.html"); panelWin.once("ready-to-show", () => panelWin.show());
   panelWin.on("closed", () => { panelWin = null; }); log("panel", "打开设置面板");
 }
 function sendPanel() { if (!panelWin || panelWin.isDestroyed()) return;
   panelWin.webContents.send("panel", { all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY,
-    test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, uploadLogs: settings.uploadLogs, arrive: !!settings.arrive, aimode: (["net", "combo"].includes(settings.aimode) ? settings.aimode : "mcts"), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8 }, allowCapture: settings.allowCapture, live: liveInfo(), meShown, status: lastStatus }); }
+    test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, uploadLogs: settings.uploadLogs, arrive: !!settings.arrive, aimode: (["net", "combo"].includes(settings.aimode) ? settings.aimode : "mcts"), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8, refine: settings.comboRefine !== false }, allowCapture: settings.allowCapture, live: liveInfo(), meShown, status: lastStatus, upd: updater.state(), gpuPrio }); }
 ipcMain.on("panel-ready", () => sendPanel());
 ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; const { k, v } = m;
   if (["all", "paused", "hidden", "showPlayerScores", "test"].includes(k)) cfg[k] = !!v;
@@ -233,7 +272,7 @@ ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; con
   else if (k === "arrive") { settings.arrive = !!v; saveSettings(); }
   else if (k === "aimode") { settings.aimode = ["net", "combo"].includes(v) ? v : "mcts"; saveSettings(); }
   else if (k === "combo" && v && typeof v === "object") { settings.comboK = Math.max(2, Math.min(16, v.K | 0 || 8)); settings.comboR = Math.max(8, Math.min(128, v.R | 0 || 16));
-    settings.comboSec = Math.max(2, Math.min(30, +v.sec || 8)); saveSettings(); }
+    settings.comboSec = Math.max(2, Math.min(30, +v.sec || 8)); if (typeof v.refine === "boolean") settings.comboRefine = v.refine; saveSettings(); }
   else if (k === "look") { settings.look = ADFrames.norm(v); saveSettings(); }
   else if (k === "allowCapture") { settings.allowCapture = !!v; saveSettings(); applyLive(`面板${v ? "开" : "关"}直播模式`); }
   else return;
@@ -244,10 +283,14 @@ ipcMain.on("panel-act", (e, m) => { const name = m && m.name;
   else if (name === "snap") { snapOnce = true; log("key", "面板: 保存截图"); }
   else if (name === "logs") shell.openPath(LOGDIR);
   else if (name === "upload") uploader.now();
-  else if (name === "quit") app.quit(); });
+  else if (name === "quit") app.quit();
+  else if (name === "update-check") updater.check(false);
+  else if (name === "update-apply") doUpdate(); });
 const kk = what => HOTKEY[what] ? ` (${HOTKEY[what]})` : " (快捷键被占用)";
 function buildMenu() { return Menu.buildFromTemplate([
   { label: `AD 选技助手 v${VERSION}`, enabled: false },
+  ...(() => { const u = updater.state(); return u.phase === "available" ? [{ label: `⬆ 有新版本 v${u.latest} — 点击立即更新(自动重启)`, click: () => doUpdate() }]
+    : u.phase === "needFull" ? [{ label: `⬆ 有新版本 v${u.latest} — 需下载完整包(点击打开下载)`, click: () => doUpdate() }] : [{ label: "检查更新", click: () => updater.check(false) }]; })(),
   { label: "⚙ 设置面板(颜色/模式/座位…, 双击托盘图标也能打开)", click: () => openPanel() },
   { label: (cfg.hidden ? "👁 恢复显示" : "🙈 隐藏显示(识别照常运行)") + kk("隐藏/显示"), click: () => toggleHidden() },
   { label: (cfg.all ? "● 团队模式(我方五人)" : "● 单人模式(只看我)") + " — 点击切换" + kk("切换显示模式"), click: () => { cfg.all = !cfg.all; sync(); } },
@@ -271,6 +314,7 @@ function buildMenu() { return Menu.buildFromTemplate([
   { label: "2.0  试验(证据累加, 从不硬提交)", type: "radio", checked: cfg.core === "v2", click: () => { cfg.core = "v2"; sync(); } },
   { type: "separator" },
   { label: "保存当前截图(排障用)", click: () => { snapOnce = true; log("key", "菜单: 保存截图"); } },
+  { label: "悬浮窗卡住了? 点这里重建", click: () => { log("key", "菜单: 重建悬浮窗"); ovRebuilds = []; recreateOverlay("托盘手动"); } },
   { label: "打开日志文件夹", click: () => shell.openPath(LOGDIR) },
   { label: "打完一局自动上传日志(帮作者排查问题)", type: "checkbox", checked: settings.uploadLogs, click: () => { settings.uploadLogs = !settings.uploadLogs; saveSettings(); sync(); } },
   { label: "立即上传本次日志", click: () => uploader.now() },
@@ -308,9 +352,10 @@ function logGpu() {
     { timeout: 15000, windowsHide: true }, (err, out) => log("gpu", err ? "系统显卡列表读不到 " + String(err.message || err).slice(0, 120) : "系统显卡列表: " + String(out).trim().split(/\r?\n/).filter(Boolean).join(" / ")));
 }
 app.whenReady().then(() => {
-  pruneLogs(); const d = screen.getPrimaryDisplay();
+  pruneLogs(); updater.cleanupOld(); const d = screen.getPrimaryDisplay();
   log("start", `v${VERSION} electron ${process.versions.electron} ${process.platform} ${process.arch} 主屏 ${d.bounds.width}x${d.bounds.height} 缩放 ${d.scaleFactor} 物理 ${Math.round(d.bounds.width * d.scaleFactor)}x${Math.round(d.bounds.height * d.scaleFactor)} 日志 ${LOGFILE}`);
   logGpu(); preferDiscreteGpu();
+  require("./gpuprio.js").raise(process.pid, log, r => { gpuPrio = r; sendPanel(); });
   if (Math.round(d.bounds.height * d.scaleFactor) !== 1440) log("warn", "主屏不是 1440p, 版式按高度等比缩放(16:9 可用, 带鱼屏未验证)");
   tray = new Tray(makeTrayIcon()); tray.setToolTip(`AD 选技助手 v${VERSION}`); tray.setContextMenu(buildMenu());
   tray.on("double-click", () => openPanel());
@@ -330,6 +375,9 @@ app.whenReady().then(() => {
   reg(["F12", "Alt+F12", "CommandOrControl+Alt+F12"], () => { cfg.core = cfg.core === "v2" ? "1x" : "v2"; sync(); }, "切换内核");
   tray.setContextMenu(buildMenu());
   setInterval(flushLog, 2000);
+  /* v1.39 心跳: 下次再卡死, 看日志断在哪、谁先没了消息(主进程停了 → 心跳断; 识别线程卡 → 线程那一项变大; 覆盖层卡 → 覆盖层那一项变大) */
+  setInterval(() => log("hb", `主进程正常 | 识别线程 ${workerMsgAt ? ((Date.now() - workerMsgAt) / 1000).toFixed(0) + "s 前有消息" : "还没消息"} | 覆盖层 ${((Date.now() - ovPingAt) / 1000).toFixed(0)}s 前报平安(2 秒画了 ${ovFrames} 帧) | 阶段 ${phase}`), 30e3);
+  if (app.isPackaged) { setTimeout(() => updater.check(true), 20e3); setInterval(() => updater.check(true), 3 * 3600e3); }
 });
 app.on("window-all-closed", () => {});
 app.on("before-quit", () => { quitting = true; log("stop", "退出"); flushLog(); });

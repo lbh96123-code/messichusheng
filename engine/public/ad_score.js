@@ -24,6 +24,9 @@ window.ADScore = (function () {
   /* 小样本正配合收缩(2026-09-09):同座位共现 n 少的对,正配合分乘 g=n/(n+60);负的不动。
      GK 是上三角 uint8(g×255),下标 a<b: a*(2n−a−1)/2+(b−a−1)。改总分。 */
   var GK = null;
+  /* 条件收缩(2026-09-18):一对配合的证据六成以上来自带某第三件 c 的座位时,座位缺 c 就改用"缺 c 的共现局数"算 g。
+     CCM: key(a*n+b, a<b) → {c: 条件件下标, g: g_wo}。只作用于 ic>0 的对。见 tools/build-cond.py。改总分。 */
+  var CCM = null;
   var EN = null, TQAX = null, TQMUAX, TQHMU, TQHSD, TQG = null;  // 队伍级配比项
 
   function b64f32(s) {
@@ -56,6 +59,11 @@ window.ADScore = (function () {
     /* 归因数据:rg=每件东西的"泛用配合"强度 r,rmu=全局 μ,tp=紧耦合对的收缩系数 κ 与实测值。
        见 tools/build-attr.py。非 PLAIN 模型(本体/技能分表)不适用,直接不开。 */
     if (M.gk) { var gb = atob(M.gk), gn = gb.length; GK = new Uint8Array(gn); for (var q5 = 0; q5 < gn; q5++) GK[q5] = gb.charCodeAt(q5); }
+    if (M.cck && M.ccc && M.ccg) {
+      var i32 = function (s0) { var bb = atob(s0), nb = bb.length, ub = new Uint8Array(nb); for (var q6 = 0; q6 < nb; q6++) ub[q6] = bb.charCodeAt(q6); return new Int32Array(ub.buffer); };
+      var ck = i32(M.cck), cc = i32(M.ccc), cg = b64f32(M.ccg); CCM = new Map();
+      for (var q7 = 0; q7 < ck.length; q7++) CCM.set(ck[q7], { c: cc[q7], g: cg[q7] });
+    }
     if (M.sqk && M.sqv) {
       var sb = atob(M.sqk), sn = sb.length, sbuf = new Uint8Array(sn);
       for (var q3 = 0; q3 < sn; q3++) sbuf[q3] = sb.charCodeAt(q3);
@@ -110,11 +118,16 @@ window.ADScore = (function () {
   function gOf(a, b) { if (!GK || a === b || a < 0 || b < 0) return 1; if (a > b) { var t = a; a = b; b = t; }
     return GK[a * (2 * M.n - a - 1) / 2 + (b - a - 1)] / 255; }
   /* 一对的最终配合分 = 真交互(扣泛用) + 压缩 → 正的再乘 g。返回 {v: 最终值, corr: 相对未收缩的差} */
-  function pairFinal(a, b) {
+  /* seat(可选):这对所在座位的全部下标;给了才做条件收缩 */
+  function pairFinal(a, b, seat) {
     var base = pairRaw(a, b), sq = sqOf(a, b);
     var ic = (RG ? base - RMU - RG[a] - RG[b] : base) + (sq ? sq.d : 0);
-    var g = ic > 0 ? gOf(a, b) : 1;
-    return { ic: ic, g: g, corr: (g - 1) * (ic > 0 ? ic : 0) };
+    var g = ic > 0 ? gOf(a, b) : 1, cond = null;
+    if (ic > 0 && CCM && seat) {
+      var t = CCM.get(a < b ? a * M.n + b : b * M.n + a);
+      if (t && seat.indexOf(t.c) < 0 && t.g < g) { g = t.g; cond = t.c; }
+    }
+    return { ic: ic, g: g, cond: cond, corr: (g - 1) * (ic > 0 ? ic : 0) };
   }
 
   /* 归因:μ+r_a+r_b 这部分跟"搭档是谁"无关(座位里逐项加起来就是每件各自的量),
@@ -128,6 +141,8 @@ window.ADScore = (function () {
   }
 
   /* 某个 key 在权重表里的下标;认不出来返回 -1(补位技能可能不在表里) */
+  var _rev = null;
+  function keyOfIdx(p) { if (!_rev) { _rev = []; for (var kk in idx) _rev[idx[kk]] = kk; } return _rev[p] || null; }
   function at(key) { var v = idx[key]; return v === undefined ? -1 : v; }
 
   /* 单个座位:返回 {w, fseat, sHH, sHA, sAH, sAA} */
@@ -165,7 +180,7 @@ window.ADScore = (function () {
       for (i = 0; i < all.length; i++) for (j = i + 1; j < all.length; j++) {
         fseat += cpair(all[i], all[j]);
         var sq0 = sqOf(all[i], all[j]); if (sq0) fseat += sq0.d;
-        if (GK && RG) fseat += pairFinal(all[i], all[j]).corr;
+        if (GK && RG) fseat += pairFinal(all[i], all[j], all).corr;
       }
     }
     var sHH = new Float64Array(K2), sHA = new Float64Array(K2),
@@ -318,7 +333,7 @@ window.ADScore = (function () {
     var ks = [], i, j;
     for (i = 0; i < items.length; i++) if (at(items[i]) >= 0) ks.push(items[i]);
     var main = ks.map(function (k) { return { key: k, w: W[at(k)] }; });
-    var pairs = [];
+    var pairs = [], seatIdx = ks.map(at);
     for (i = 0; i < ks.length; i++) for (j = i + 1; j < ks.length; j++) {
       var a = at(ks[i]), b = at(ks[j]), s = 0;
       /* 必须和 evaluate 里的切半口径一致:前 KS 维加分、后面减分。
@@ -331,12 +346,12 @@ window.ADScore = (function () {
         for (var t2 = 0; t2 < K; t2++) s += uA[hh * K + t2] * uH[aa * K + t2];
       }
       var tp = tpOf(a, b), sq = sqOf(a, b);
-      var pf = (GK && RG) ? pairFinal(a, b) : null;
+      var pf = (GK && RG) ? pairFinal(a, b, seatIdx) : null;
       var vv = s + cpair(a, b) + (sq ? sq.d : 0) + (pf ? pf.corr : 0);
       /* v2 = 归因修正后的"真配合":扣掉泛用强度 μ+r_a+r_b。扣掉的不会消失,已折进左边单件栏。 */
       var v2 = RG ? (vv - RMU - RG[a] - RG[b]) : vv;
       pairs.push({ a: ks[i], b: ks[j], v: vv, v2: v2, f: sq ? sq.f : null, raw2: sq ? v2 - sq.d - (pf ? pf.corr : 0) : null,
-                   g: (pf && pf.g < 0.999) ? pf.g : null, pre_g: pf ? v2 - pf.corr : null,
+                   g: (pf && pf.g < 0.999) ? pf.g : null, pre_g: pf ? v2 - pf.corr : null, cond: (pf && pf.cond != null) ? keyOfIdx(pf.cond) : null,
                    emp: tp ? tp.e : null, n: tp ? tp.n : 0,
                    pred: v2 * BREF });          // 模型预示的胜率增量,和 emp 同口径
     }

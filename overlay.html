@@ -4,6 +4,9 @@ canvas{position:absolute;left:0;top:0}
 #toast{position:absolute;left:50%;top:140px;transform:translateX(-50%);font:bold 18px/1.4 "Microsoft YaHei",system-ui,sans-serif;color:#ffcc33;background:rgba(0,0,0,.85);border:2px solid #ffcc33;padding:6px 16px;pointer-events:none;white-space:pre;display:none}
 #status{position:absolute;left:12px;top:8px;font:13px/1.4 "Microsoft YaHei",system-ui,sans-serif;color:#ffd76a;text-shadow:0 0 4px #000,0 0 2px #000;pointer-events:none;white-space:pre}
 </style></head><body><canvas id="c"></canvas><div id="status"></div><div id="toast"></div><script src="frames.js"></script><script>
+/* v1.39 报平安: 每 2 秒一次, 带上这段时间画了几帧(页面 JS 卡死 → 不发; 不重绘 → 帧数 0) */
+{ let fr = 0; const f = () => { fr++; requestAnimationFrame(f); }; requestAnimationFrame(f); setInterval(() => { try { ad.ping(fr); } catch (e) { } fr = 0; }, 2000); }
+
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),status=document.getElementById('status'),toast=document.getElementById('toast');let toastT=null;
 let scale=1,cfg={all:false,paused:false},lastState=null,adv=null,err='',busy=false;
 function fit(){cv.width=innerWidth;cv.height=innerHeight;}fit();addEventListener('resize',()=>{fit();draw();});
@@ -33,7 +36,7 @@ function drawPlayers(){
 function draw(){ctx.clearRect(0,0,cv.width,cv.height);if(cfg.hidden||(cfg.phase&&cfg.phase!=='active'))return;
  drawPlayers();if(!lastState||lastState.phase!=='active'||lastState.idle||!adv||!adv.rows)return;
  adv.rows.forEach((r,i)=>{if(!r.box)return;const [x,y,w,h]=r.box.map(v=>v/scale);
-  const txt=r.cw!=null?('组'+(100*r.cw).toFixed(1)+'% · '+(100*r.p).toFixed(1)):adv.net&&r.np>=0.01?('网'+Math.round(100*r.np)+'% · '+(100*r.p).toFixed(1)):((100*r.p).toFixed(1)+(r.d>=0?' +':' ')+(100*r.d).toFixed(1));
+  const txt=r.cw!=null?('GPU'+(100*r.cw).toFixed(1)+'% · '+(100*r.p).toFixed(1)):adv.net&&r.np>=0.01?('网'+Math.round(100*r.np)+'% · '+(100*r.p).toFixed(1)):((100*r.p).toFixed(1)+(r.d>=0?' +':' ')+(100*r.d).toFixed(1));
   ADFrames.drawRow(ctx,i,x,y,w,h,txt,look,adv.pre==='preview');
   if(adv.personal&&i<Math.max(10,look.midN)&&r.pm!=null){const t2=`个${r.pm>=0?'+':''}${r.pm.toFixed(1)}`;ctx.font='bold 11px "Segoe UI",system-ui';
    const tw2=ctx.measureText(t2).width+8,bx=x+w-tw2+2,by=y-2;ctx.fillStyle='rgba(0,0,0,.85)';ctx.fillRect(bx,by,tw2,15);
@@ -41,14 +44,20 @@ function draw(){ctx.clearRect(0,0,cv.width,cv.height);if(cfg.hidden||(cfg.phase&
  /* 顶部一行 */
  const nm=`${adv.side==='L'?'左':'右'}${(adv.seat%5)+1}${adv.my_turn?'(我)':'(队友)'}`;
  const who=adv.pre==='preview'?`${nm} 下一手 · 预估(前面还有 ${adv.ahead} 手, 每有人选都会更新)`:`${nm}${adv.pre?' 马上轮到':' 正在选 · 已锁定'}`;
- const top=adv.rows.slice(0,3).map((r,i)=>['①','②','③'][i]+r.name+' '+(r.cw!=null?'组'+(100*r.cw).toFixed(1)+'% ':adv.net&&r.np>=0.01?'网'+Math.round(100*r.np)+'% ':'')+(100*r.p).toFixed(1)).join('  ');
- const mode=adv.combo?`【🧪组合版${adv.combo.state==='pending'?' 计算中…':adv.combo.state==='done'?` ${adv.combo.K}×${adv.combo.R}`:' · '+adv.combo.state}】`:adv.net?'【🧠网络档】':adv.personal?`【${adv.plname}】`:'';
+ const top=adv.rows.slice(0,3).map((r,i)=>['①','②','③'][i]+r.name+' '+(r.cw!=null?'GPU'+(100*r.cw).toFixed(1)+'% ':adv.net&&r.np>=0.01?'网'+Math.round(100*r.np)+'% ':'')+(100*r.p).toFixed(1)).join('  ');
+ const cs=adv.combo&&adv.combo.state,mode=adv.combo?(cs==='pending'?'【⚡GPU版 计算中…】':cs==='done'?'【⚡GPU版 已算完】':/^预估/.test(cs||'')?'【🧠预估(网络档) · 轮到时再用显卡算】':`【🧠网络档 · ${cs}】`):adv.net?'【🧠网络档】':adv.personal?`【${adv.plname}】`:'';
  const t=`${mode}${who}   我方 ${(100*adv.base).toFixed(1)}%   推荐: ${top}`+(busy?'   (有新选择, 更新中…)':'');
  ctx.font='bold 20px "Microsoft YaHei",system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
  const tw=ctx.measureText(t).width,bx=cv.width/2-tw/2-16,by=84/scale;
  ctx.fillStyle='rgba(0,0,0,.82)';ctx.fillRect(bx,by,tw+32,36);
  ctx.lineWidth=2;ctx.strokeStyle='#ffcc33';ctx.strokeRect(bx,by,tw+32,36);
  ctx.fillStyle='#ffcc33';ctx.fillText(t,cv.width/2,by+18);
+ /* v1.40 推荐理由: GPU 首推不是网络首选时, 说清"高多少、不拿会被谁拿走"(断人型推荐看着怪, 让用户自己判断对面会不会拿) */
+ if(adv.pre!=='preview'&&adv.reason&&adv.rows[0]&&adv.rows[0].key===adv.reason.top){const r=adv.reason;
+  const tail=r.steps===0?`你下一手还能接着拿`:r.who&&r.pWho>=0.3?`${r.topName}在你下次轮到前 ${Math.round(100*r.p)}% 会被拿走, 最可能是${r.who}(${Math.round(100*r.pWho)}%)`:`${r.topName}多半还会留到你下次(被拿走 ${Math.round(100*r.p)}%)`;
+  const t3=`💡 推荐${r.topName}而不是${r.altName}: 胜率高 ${r.d.toFixed(1)} 点; 若改拿${r.altName}, ${tail}`;
+  ctx.font='15px "Microsoft YaHei",system-ui';const tw3=ctx.measureText(t3).width,by3=by+40;
+  ctx.fillStyle='rgba(0,0,0,.82)';ctx.fillRect(cv.width/2-tw3/2-12,by3,tw3+24,26);ctx.fillStyle='#ffe9a8';ctx.fillText(t3,cv.width/2,by3+13);}
  /* v1.28 备注行(设置面板「轮到你时」开了才有):中间几手模拟掉之后的口径, 主推荐不受它影响 */
  if(adv.pre==='preview'&&adv.arrive&&adv.arrive.top&&adv.arrive.top.length){const a=adv.arrive,b=a.top.slice().sort((x,y)=>y.first-x.first)[0];
   const t2=`备注 · 轮到你时(中间 ${adv.ahead} 手模拟 ${a.n} 遍): `+a.top.slice(0,3).map((r,i)=>['①','②','③'][i]+r.name+' 还在'+Math.round(100*r.alive)+'%').join('  ')+`   届时最可能的首选: ${b.name} ${Math.round(100*b.first)}%`;
@@ -58,7 +67,7 @@ function st(){const hk=(cfg.hotkey||{}),k=n=>hk[n]?hk[n]:'托盘菜单';
  /* 只在选技时显示:锁上池子(active)才画;没锁上时只有"真看到了棋盘"(检出格≥40, near)才提示正在识别 ——
     游戏里的画面常被粗检当成像棋盘, 以前会一直挂着"看到棋盘, 正在识别池子…"。隐藏时什么都不画 */
  if(cfg.hidden||!lastState||(lastState.idle&&!(lastState.board&&lastState.near))){status.textContent='';return;}
- const s=[];s.push(`AD 助手 v${cfg.version||''} · `+(cfg.paused?`⏸ 已暂停(${k('暂停/继续')} 继续)`:(cfg.all?`团队模式:我方五人(${k('切换显示模式')} 切换)`:`单人模式:只看我(${k('切换显示模式')} 切换)`)+` · 个人权重 ${cfg.plname||'1 团队'}(${k('团队/个人优先')} 切换)`+(cfg.aimode==='net'?' · 🧠 网络档':cfg.aimode==='combo'?' · 🧪 组合版':'')));
+ const s=[];s.push(`AD 助手 v${cfg.version||''} · `+(cfg.paused?`⏸ 已暂停(${k('暂停/继续')} 继续)`:(cfg.all?`团队模式:我方五人(${k('切换显示模式')} 切换)`:`单人模式:只看我(${k('切换显示模式')} 切换)`)+` · 个人权重 ${cfg.plname||'1 团队'}(${k('团队/个人优先')} 切换)`+(cfg.aimode==='net'?' · 🧠 网络档':cfg.aimode==='combo'?' · ⚡ GPU版':'')));
  if(cfg.live&&cfg.live.on)s.push('📺 直播模式: '+(cfg.live.msg||(cfg.live.mode==='window'?'已捕获游戏窗口':'等待游戏窗口…')));
  if(lastState&&lastState.idle)s.push(lastState.waiting?'看到棋盘, 正在识别池子…':'看到棋盘, 等待完整画面…');
  else if(lastState)s.push(`识别 ${lastState.ms}ms${lastState.skipped?'(画面未变)':''} · 池子${lastState.poolOk?'OK':`未认全(${k('重新识别')})`} · 已选走 ${lastState.taken} · 当前 ${lastState.current.side}${lastState.current.idx+1}${lastState.pre?'(已选)':''} 我 ${lastState.me?`${lastState.me.side}${lastState.me.idx+1}${lastState.meSource==='manual'?'(手动)':''}`:'未确定'}${lastState.nextIsMe?' · 下一个是我':''}`);

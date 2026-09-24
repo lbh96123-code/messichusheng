@@ -1,0 +1,5 @@
+{
+  "_doc": "硬依赖表(2026-09-17 用户定): 只保留游戏机制上真实存在的两条. 数据筛出的 天球←黑鸟/分裂箭←美杜莎/巨力重击、幽冥一击←暗影冲刺 用户判定机制上不成立, 已移除. 用于 AI 走子: 座位里没有任一 enabler 时, 拿 dependent 在候选筛选/走子抽样里扣 AI_DEP_PEN logit(默认 0.6); 裁判 z 不受影响.",
+  "luna_eclipse": ["luna_lucent_beam"],
+  "nevermore_requiem": ["npc_dota_hero_nevermore"]
+}
