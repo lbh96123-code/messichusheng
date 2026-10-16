@@ -1,0 +1,52 @@
+name: Windows draft fixes validation
+
+# Preparing locally does not run or publish anything. First authorized push to
+# this dedicated branch can validate a workflow not yet on the default branch.
+on:
+  push:
+    branches: [codex/windows-draft-validation]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Logic and observation regressions
+        run: |
+          npm run test:overcount
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run test:draft-lifecycle
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run test:overlay-lifecycle
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run test:player-scores
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run test:score-consistency
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run test:panel
+          exit $LASTEXITCODE
+      - name: Real Electron window, renderer, IPC and recovery
+        run: npm run test:overlay-native
+      - name: Build Windows application
+        run: npm run pack
+      - name: Verify packaged runtime and source files
+        run: node test/windows_package.js dist/ADAssistant-win32-x64
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-validation-results
+          path: dist/validation/*.json
+          if-no-files-found: warn
+          retention-days: 7

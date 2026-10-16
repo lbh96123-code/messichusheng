@@ -1,0 +1,471 @@
+{
+  "source": "2026-10-15 22:45:15, anonymized observation replay; 50 reported picks while R5 still has an open slot",
+  "state": {
+    "pool_heroes": [
+      "npc_dota_hero_lone_druid",
+      "npc_dota_hero_meepo",
+      "npc_dota_hero_jakiro",
+      "npc_dota_hero_silencer",
+      "npc_dota_hero_drow_ranger",
+      "npc_dota_hero_troll_warlord",
+      "npc_dota_hero_largo",
+      "npc_dota_hero_centaur",
+      "npc_dota_hero_snapfire",
+      "npc_dota_hero_grimstroke",
+      "npc_dota_hero_shredder",
+      "npc_dota_hero_axe"
+    ],
+    "taken_heroes": [
+      "npc_dota_hero_drow_ranger",
+      "npc_dota_hero_snapfire",
+      "npc_dota_hero_jakiro",
+      "npc_dota_hero_grimstroke",
+      "npc_dota_hero_largo",
+      "npc_dota_hero_silencer",
+      "npc_dota_hero_axe",
+      "npc_dota_hero_troll_warlord",
+      "npc_dota_hero_shredder",
+      "npc_dota_hero_centaur"
+    ],
+    "me": {
+      "side": "R",
+      "idx": 4
+    },
+    "current": {
+      "side": "R",
+      "idx": 4
+    },
+    "my_turn": true,
+    "skills": [
+      {
+        "key": "lone_druid_entangle",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "lone_druid_spirit_link",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "lone_druid_savage_roar",
+        "taken": false,
+        "ultslot": false
+      },
+      {
+        "key": "meepo_earthbind",
+        "taken": false,
+        "ultslot": false
+      },
+      {
+        "key": "meepo_poof",
+        "taken": false,
+        "ultslot": false
+      },
+      {
+        "key": "meepo_ransack",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "jakiro_dual_breath",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "jakiro_ice_path",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "jakiro_liquid_ice",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "silencer_curse_of_the_silent",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "silencer_glaives_of_wisdom",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "silencer_last_word",
+        "taken": false,
+        "ultslot": false
+      },
+      {
+        "key": "drow_ranger_frost_arrows",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "drow_ranger_wave_of_silence",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "drow_ranger_multishot",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "troll_warlord_fervor",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "troll_warlord_whirling_axes_melee",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "troll_warlord_berserkers_rage",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "largo_catchy_lick",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "largo_frogstomp",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "largo_croak_of_genius",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "centaur_hoof_stomp",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "centaur_double_edge",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "centaur_return",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "snapfire_scatterblast",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "snapfire_firesnap_cookie",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "snapfire_lil_shredder",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "grimstroke_dark_artistry",
+        "taken": false,
+        "ultslot": false
+      },
+      {
+        "key": "grimstroke_ink_creature",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "grimstroke_spirit_walk",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "shredder_reactive_armor",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "shredder_timber_chain",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "shredder_whirling_death",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "axe_berserkers_call",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "axe_battle_hunger",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "axe_counter_helix",
+        "taken": true,
+        "ultslot": false
+      },
+      {
+        "key": "axe_culling_blade",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "snapfire_mortimer_kisses",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "jakiro_macropyre",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "shredder_chakram",
+        "taken": false,
+        "ultslot": true
+      },
+      {
+        "key": "drow_ranger_marksmanship",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "troll_warlord_battle_trance",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "lone_druid_true_form",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "centaur_stampede",
+        "taken": false,
+        "ultslot": true
+      },
+      {
+        "key": "silencer_global_silence",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "largo_amphibian_rhapsody",
+        "taken": false,
+        "ultslot": true
+      },
+      {
+        "key": "grimstroke_soul_chain",
+        "taken": true,
+        "ultslot": true
+      },
+      {
+        "key": "?unk:2",
+        "taken": true,
+        "ultslot": true
+      }
+    ],
+    "panels": [
+      {
+        "side": "L",
+        "idx": 0,
+        "hero": "npc_dota_hero_drow_ranger",
+        "skills": [
+          {
+            "key": "drow_ranger_marksmanship"
+          },
+          {
+            "key": "snapfire_lil_shredder"
+          },
+          {
+            "key": "drow_ranger_multishot"
+          },
+          {
+            "key": "lone_druid_spirit_link"
+          }
+        ]
+      },
+      {
+        "side": "L",
+        "idx": 1,
+        "hero": "npc_dota_hero_troll_warlord",
+        "skills": [
+          {
+            "key": "axe_counter_helix"
+          },
+          {
+            "key": "troll_warlord_berserkers_rage"
+          },
+          {
+            "key": "troll_warlord_fervor"
+          },
+          {
+            "key": "jakiro_macropyre"
+          }
+        ]
+      },
+      {
+        "side": "L",
+        "idx": 2,
+        "hero": "npc_dota_hero_largo",
+        "skills": [
+          {
+            "key": "troll_warlord_whirling_axes_melee"
+          },
+          {
+            "key": "?unk:2"
+          },
+          {
+            "key": "centaur_double_edge"
+          },
+          {
+            "key": "silencer_curse_of_the_silent"
+          }
+        ]
+      },
+      {
+        "side": "L",
+        "idx": 3,
+        "hero": "npc_dota_hero_snapfire",
+        "skills": [
+          {
+            "key": "shredder_whirling_death"
+          },
+          {
+            "key": "axe_culling_blade"
+          },
+          {
+            "key": "snapfire_scatterblast"
+          },
+          {
+            "key": "largo_croak_of_genius"
+          }
+        ]
+      },
+      {
+        "side": "L",
+        "idx": 4,
+        "hero": "npc_dota_hero_shredder",
+        "skills": [
+          {
+            "key": "grimstroke_soul_chain"
+          },
+          {
+            "key": "largo_catchy_lick"
+          },
+          {
+            "key": "lone_druid_entangle"
+          },
+          {
+            "key": "jakiro_dual_breath"
+          }
+        ]
+      },
+      {
+        "side": "R",
+        "idx": 0,
+        "hero": "npc_dota_hero_jakiro",
+        "skills": [
+          {
+            "key": "silencer_glaives_of_wisdom"
+          },
+          {
+            "key": "troll_warlord_battle_trance"
+          },
+          {
+            "key": "meepo_ransack"
+          },
+          {
+            "key": "shredder_timber_chain"
+          }
+        ]
+      },
+      {
+        "side": "R",
+        "idx": 1,
+        "hero": "npc_dota_hero_grimstroke",
+        "skills": [
+          {
+            "key": "grimstroke_ink_creature"
+          },
+          {
+            "key": "jakiro_ice_path"
+          },
+          {
+            "key": "largo_frogstomp"
+          },
+          {
+            "key": "silencer_global_silence"
+          }
+        ]
+      },
+      {
+        "side": "R",
+        "idx": 2,
+        "hero": "npc_dota_hero_axe",
+        "skills": [
+          {
+            "key": "axe_berserkers_call"
+          },
+          {
+            "key": "centaur_hoof_stomp"
+          },
+          {
+            "key": "centaur_return"
+          },
+          {
+            "key": "lone_druid_true_form"
+          }
+        ]
+      },
+      {
+        "side": "R",
+        "idx": 3,
+        "hero": "npc_dota_hero_silencer",
+        "skills": [
+          {
+            "key": "snapfire_firesnap_cookie"
+          },
+          {
+            "key": "snapfire_mortimer_kisses"
+          },
+          {
+            "key": "grimstroke_spirit_walk"
+          },
+          {
+            "key": "axe_battle_hunger"
+          }
+        ]
+      },
+      {
+        "side": "R",
+        "idx": 4,
+        "hero": null,
+        "skills": [
+          {
+            "key": "shredder_reactive_armor"
+          },
+          {
+            "key": "drow_ranger_frost_arrows"
+          },
+          {
+            "key": "jakiro_liquid_ice"
+          }
+        ]
+      }
+    ]
+  }
+}

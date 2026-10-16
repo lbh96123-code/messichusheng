@@ -5,10 +5,10 @@ canvas{position:absolute;left:0;top:0}
 #status{position:absolute;left:12px;top:8px;font:13px/1.4 "Microsoft YaHei",system-ui,sans-serif;color:#ffd76a;text-shadow:0 0 4px #000,0 0 2px #000;pointer-events:none;white-space:pre}
 </style></head><body><canvas id="c"></canvas><div id="status"></div><div id="toast"></div><script src="frames.js"></script><script>
 /* v1.39 报平安: 每 2 秒一次, 带上这段时间画了几帧(页面 JS 卡死 → 不发; 不重绘 → 帧数 0) */
-{ let fr = 0; const f = () => { fr++; requestAnimationFrame(f); }; requestAnimationFrame(f); setInterval(() => { try { draw(); ad.ping({frames:fr,...renderHealth,phase:lastState?.phase,idle:!!lastState?.idle,hidden:!!cfg.hidden,hasAdvice:!!adv,rows:adv?.rows?.length||0,stamp:adv?.stamp,width:cv.width,height:cv.height}); } catch (e) { } fr = 0; }, 2000); }
+{ let fr = 0; const f = () => { fr++; requestAnimationFrame(f); }; requestAnimationFrame(f); setInterval(() => { try { draw(); ad.ping({frames:fr,...renderHealth,presentationVisible,phase:lastState?.phase,idle:!!lastState?.idle,hidden:!!cfg.hidden,hasAdvice:!!adv,rows:adv?.rows?.length||0,stamp:adv?.stamp,width:cv.width,height:cv.height}); } catch (e) { } fr = 0; }, 2000); }
 
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),status=document.getElementById('status'),toast=document.getElementById('toast');let toastT=null;
-let scale=1,cfg={all:false,paused:false},lastState=null,adv=null,err='',busy=false;
+let scale=1,cfg={all:false,paused:false},lastState=null,adv=null,err='',busy=false,presentationVisible=true;
 let renderHealth={draws:0,lastDrawAt:0,error:null,advicePainted:false};
 function fit(){cv.width=innerWidth;cv.height=innerHeight;}fit();addEventListener('resize',()=>{fit();draw();});
 /* 推荐框的画法和配色都在 frames.js(和设置面板的预览共用一份);颜色/名次范围/粗细来自 cfg.look(设置面板改, 存盘) */
@@ -39,10 +39,10 @@ function drawPlayers(){
  }
 }
 function draw(){try{paint();renderHealth.draws++;renderHealth.lastDrawAt=Date.now();renderHealth.error=null;}catch(e){renderHealth.error=String(e?.stack||e).slice(0,1600);}}
-function paint(){renderHealth.advicePainted=false;ctx.clearRect(0,0,cv.width,cv.height);if(cfg.hidden||(cfg.phase&&cfg.phase!=='active'))return;
- drawPlayers();
+function paint(){renderHealth.advicePainted=false;ctx.clearRect(0,0,cv.width,cv.height);if(!presentationVisible||cfg.paused||cfg.hidden||(cfg.phase&&cfg.phase!=='active'))return;
  if(lastState?.advicePaused){const text=lastState.notice||'选技信息复核中';ctx.font='bold 18px "Microsoft YaHei",system-ui';ctx.textAlign='center';ctx.textBaseline='middle';const tw=ctx.measureText(text).width,by=84/scale;ctx.fillStyle='rgba(0,0,0,.82)';ctx.fillRect(cv.width/2-tw/2-16,by,tw+32,34);ctx.fillStyle='#cfe8ff';ctx.fillText(text,cv.width/2,by+17);return;}
  if(!lastState||lastState.phase!=='active'||lastState.idle||!adv||!adv.rows)return;
+ drawPlayers();
  adv.rows.forEach((r,i)=>{if(!r.box)return;const [x,y,w,h]=r.box.map(v=>v/scale);
   const txt=r.cw!=null?(100*r.cw).toFixed(1)+'%':((100*r.p).toFixed(1)+(r.d>=0?' +':' ')+(100*r.d).toFixed(1));
   ADFrames.drawRow(ctx,i,x,y,w,h,txt,look,adv.pre==='preview');
@@ -76,7 +76,7 @@ function paint(){renderHealth.advicePainted=false;ctx.clearRect(0,0,cv.width,cv.
 function st(){const hk=(cfg.hotkey||{}),k=n=>hk[n]?hk[n]:'托盘菜单';
  /* 只在选技时显示:锁上池子(active)才画;没锁上时只有"真看到了棋盘"(检出格≥40, near)才提示正在识别 ——
     游戏里的画面常被粗检当成像棋盘, 以前会一直挂着"看到棋盘, 正在识别池子…"。隐藏时什么都不画 */
- if(cfg.hidden||!lastState||(lastState.idle&&!(lastState.board&&lastState.near))){status.textContent='';return;}
+ if(!presentationVisible||cfg.paused||cfg.hidden||!lastState||(cfg.phase==='idle'&&!lastState.idle)||(lastState.idle&&!(lastState.board&&lastState.near))){status.textContent='';return;}
  const s=[];s.push(`AD 助手 v${cfg.version||''} · `+(cfg.paused?`⏸ 已暂停(${k('暂停/继续')} 继续)`:(cfg.all?`团队模式:我方五人(${k('切换显示模式')} 切换)`:`单人模式:只看我(${k('切换显示模式')} 切换)`)+` · 个人权重 ${cfg.plname||'1 团队'}(${k('团队/个人优先')} 切换)`));
  if(cfg.live&&cfg.live.on)s.push('📺 直播模式: '+(cfg.live.msg||(cfg.live.mode==='window'?'已捕获游戏窗口':'等待游戏窗口…')));
  if(lastState?.notice)s.push(lastState.notice);
@@ -89,9 +89,10 @@ function st(){const hk=(cfg.hotkey||{}),k=n=>hk[n]?hk[n]:'托盘菜单';
   if(cfg.core==='v2')t.push(`⚗ 状态估计内核 = 2.0 试验版(${k('切换内核')} 切回 1.x)`);
   s.push(t.join(' · '));}
  if(err)s.push('⚠ '+err);status.textContent=s.join('\n');}
-function flash(t){toast.textContent=t;toast.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>{toast.style.display='none';},2000);}
+function flash(t){if(!presentationVisible||cfg.paused)return;toast.textContent=t;toast.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>{toast.style.display='none';},2000);}
+ad.on('presentation',m=>{presentationVisible=!!m.visible;if(!presentationVisible){clearTimeout(toastT);toast.style.display='none';}st();draw();});
 ad.on('cfg',m=>{scale=m.scale||1;const was=cfg.hidden;cfg=m;look=ADFrames.norm(m.look);const k=(m.hotkey||{})['隐藏/显示']||'托盘菜单';
  if(was!==undefined&&was!==m.hidden)flash(m.hidden?`AD 助手已隐藏 · 保留识别，暂停推荐计算(${k} 恢复显示)`:`AD 助手恢复显示(${k} 隐藏)`);
- st();draw();});ad.on('state',m=>{lastState=m;if(m.advicePaused){adv=null;busy=false;}err='';st();draw();});
-ad.on('advice',m=>{if(lastState?.advicePaused)return;adv=m;busy=false;draw();});ad.on('computing',m=>{if(lastState?.advicePaused)return;busy=true;draw();});ad.on('clear',()=>{adv=null;draw();});ad.on('error',m=>{err=(m.msg||'').slice(0,160);st();});
+ st();draw();});ad.on('state',m=>{lastState=m;if(m.advicePaused||m.idle||m.phase!=='active'){adv=null;busy=false;}err='';st();draw();});
+ad.on('advice',m=>{if(lastState&&(lastState.advicePaused||lastState.idle||lastState.phase!=='active'))return;adv=m;busy=false;draw();});ad.on('computing',m=>{if(lastState&&(lastState.advicePaused||lastState.idle||lastState.phase!=='active'))return;busy=true;draw();});ad.on('clear',()=>{adv=null;draw();});ad.on('error',m=>{err=(m.msg||'').slice(0,160);st();});
 </script></body></html>

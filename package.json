@@ -7,11 +7,15 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "test:draft-lifecycle": "node test/draft_lifecycle.js && node test/draft_scene.js && node test/draft_worker.js && node test/draft_checkpoint.js && node test/manual_recovery.js && node test/manual_recovery_main.js && node test/overlay_recovery.js",
+    "test:draft-lifecycle": "node test/draft_lifecycle.js && node test/draft_scene.js && node test/draft_worker.js && node test/draft_checkpoint.js && node test/manual_recovery.js && node test/manual_recovery_main.js && node test/overlay_recovery.js && node test/oct15_turn_advice.js",
     "test:draft-robustness": "node test/draft_interactions.js && node test/draft_photometric.js && node test/draft_robustness.js",
     "test:player-scores": "node test/player_scores.js && node test/player_scores_overlay.js && node test/player_scores_guard.js && node test/overlay_hide.js",
+    "test:score-consistency": "node test/player_scores.js && node test/player_scores_consistency.js",
     "test:panel": "node test/overlay_look.js && node test/panel.js && node test/overlay_me.js",
-    "pack": "electron-packager . ADAssistant --platform=win32 --arch=x64 --out=dist --overwrite --asar=false --prune=true --ignore='^/dist' --ignore='^/test($|/)' --ignore='^/test_.*' --ignore='^/prof\\.js' --ignore='^/old($|/)' --ignore='^/data/lib\\.bin$' --ignore='^/tools($|/)' --ignore='\\.v0[0-9]$' --ignore='\\.bak$'",
+    "test:overlay-lifecycle": "node test/overlay_match_lifecycle.js && node test/overlay_content_visibility.js && node test/overlay_hide.js && node test/overlay_recovery.js && node test/player_scores_overlay.js && node test/live_capture_lifecycle.js && node test/runtime_regressions.js",
+    "test:overlay-native": "node test/run_native_overlay.js",
+    "test:overcount": "node test/unpaired_dark_recovery.js && node test/pending_progress.js",
+    "pack": "electron-packager . ADAssistant --platform=win32 --arch=x64 --out=dist --overwrite --prune=true --ignore=\"^/dist\" --ignore=\"^/test($|/)\" --ignore=\"^/test_.*\" --ignore=\"^/prof\\.js\" --ignore=\"^/old($|/)\" --ignore=\"^/data/lib\\.bin$\" --ignore=\"^/tools($|/)\" --ignore=\"\\.v0[0-9]$\" --ignore=\"\\.bak$\"",
     "test:f21": "node test/f21_model.js"
   },
   "devDependencies": {

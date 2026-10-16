@@ -301,6 +301,8 @@ Estimator.prototype.applyTo = function (S, opt) {
   S.taken_heroes = this.items.filter(x => x.kind === "hero" && takenSet.has(x.key)).map(x => x.hero);
   for (const p of S.panels) { const b = bySeat[p.side + p.idx]; p.hero = b.hero; p.skills = b.skills; }
   S.extraPicks = extra; S.pending = pending;
+  // 1.x's provisional queue does not qualify 2.0's independent estimates.
+  S.pendingKeys = []; S.pendingPair = 0;
   S.suspects = st.taken.filter(k => !k.startsWith("hero:") && !st.owner[k]);
   S.turn = st.taken.length;
   S.v2 = { p: st.p, margin: st.margin, lowConf: Object.keys(st.margin).filter(k => st.margin[k] < 0.3) };

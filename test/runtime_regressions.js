@@ -19,18 +19,20 @@ vm.runInContext(worker.slice(worker.indexOf('  const cbRows ='),worker.indexOf('
 assert.equal(vm.runInContext('cbRows().length',ctx),0);
 console.log('✓ 空 GPU 结果不再触发 Object.entries(null)');
 const main=fs.readFileSync(path.join(__dirname,'../main.js'),'utf8');let visible=false,throttled=false;
-const m=vm.createContext({crashDiag:{record(){}},liveWaiting:false,recognitionNotice:false,visibilityNoticeUntil:0,cfg:{paused:false,hidden:false},phase:'idle',ovPingAt:0,Date,
- overlay:{isDestroyed:()=>false,hide:()=>visible=false,showInactive:()=>visible=true,isVisible:()=>visible,setAlwaysOnTop(){},webContents:{setBackgroundThrottling:v=>throttled=v}},send(){}});
+let contentVisible;
+const m=vm.createContext({crashDiag:{record(){}},liveWaiting:false,recognitionNotice:false,visibilityNoticeUntil:0,cfg:{paused:false,hidden:false},phase:'idle',ovPingAt:0,ovContentVisible:null,Date,
+ overlay:{isDestroyed:()=>false,hide(){throw Error('native overlay must stay mapped');},showInactive:()=>visible=true,isVisible:()=>visible,setAlwaysOnTop(){},webContents:{setBackgroundThrottling:v=>throttled=v}},send(ch,m){if(ch==='presentation')contentVisible=m.visible;}});
 vm.runInContext(main.slice(main.indexOf('function overlayWanted()'),main.indexOf('/* ---- 截屏')),m);
-vm.runInContext('setVisible(false)',m);assert(!visible&&throttled);
-m.phase='active';vm.runInContext('setVisible(true)',m);assert(visible&&!throttled);
-m.cfg.hidden=true;vm.runInContext('setVisible(true)',m);assert(!visible&&throttled);
-m.cfg.hidden=false;m.liveWaiting=true;vm.runInContext('setVisible(true)',m);assert(!visible&&throttled);
-m.liveWaiting=false;m.phase='idle';m.recognitionNotice=true;vm.runInContext('setVisible(false)',m);assert(visible&&!throttled);
-m.recognitionNotice=false;vm.runInContext('setVisible(false)',m);assert(!visible&&throttled);
-m.cfg.hidden=true;m.visibilityNoticeUntil=Date.now()+2000;vm.runInContext('setVisible(false)',m);assert(visible&&!throttled);
-m.visibilityNoticeUntil=0;vm.runInContext('setVisible(false)',m);assert(!visible&&throttled);
-console.log('✓ 空闲、手动隐藏、游戏退出均隐藏覆盖窗，选技恢复显示');
+vm.runInContext('setVisible(false)',m);assert(visible&&!throttled&&!contentVisible);
+m.phase='active';vm.runInContext('setVisible(true)',m);assert(contentVisible);
+m.cfg.hidden=true;vm.runInContext('setVisible(true)',m);assert(!contentVisible);
+m.cfg.hidden=false;m.liveWaiting=true;vm.runInContext('setVisible(true)',m);assert(!contentVisible);
+m.liveWaiting=false;m.phase='idle';m.recognitionNotice=true;vm.runInContext('setVisible(false)',m);assert(contentVisible);
+m.recognitionNotice=false;vm.runInContext('setVisible(false)',m);assert(!contentVisible);
+m.cfg.hidden=true;m.visibilityNoticeUntil=Date.now()+2000;vm.runInContext('setVisible(false)',m);assert(contentVisible);
+m.visibilityNoticeUntil=0;vm.runInContext('setVisible(false)',m);assert(!contentVisible);
+assert(visible&&!throttled);
+console.log('✓ 空闲、手动隐藏、游戏退出均清空内容，原生窗常驻且保留绘制心跳');
 // Completion needs ten unique heroes and forty unique known skills with one ultimate per seat.
 const panels=Array.from({length:10},(_,i)=>({side:i<5?'L':'R',idx:i%5,hero:'hero'+i,skills:Array.from({length:4},(_,j)=>({key:`s${i*4+j}`}))}));
 const skills=Array.from({length:40},(_,i)=>({key:'s'+i,ultslot:i%4===3}));

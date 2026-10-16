@@ -204,7 +204,7 @@ function holdDraft(mode, reason) {
     taken: previous.taken == null ? Math.max(0, lastTaken) : previous.taken, ms: previous.ms || 0,
     current: previous.current || { side: "L", idx: 0 }, me: previous.me || null,
     playerScores: previous.playerScores || [], draftStage: mode, advicePaused: true, manualRecovery: lifecycle.manual,
-    notice: (lifecycle.manual ? "人工恢复 · " : "") + reason + "（评分为上次确认）" };
+    notice: (lifecycle.manual ? "人工恢复 · " : "") + reason };
   parentPort.postMessage(cachedState);
   const now = Date.now(); if (now - lastHoldFull >= 900) { lastHoldFull = now; want(true); }
 }
@@ -572,8 +572,13 @@ let turnLock = null;   // {cur: 当前选人座位, j: 目标下标, keys: 显�
 function isTarget(seat, S) { const side = seat < 5 ? "L" : "R"; return ALL ? side === S.me.side : (side === S.me.side && seat % 5 === S.me.idx); }
 function chooseAdvice(S, startIdx, picked, ms) {
   if (suppressAdvice || lifecycle.advicePaused) return;
-  const n = R.pickedCount(S);
-  if (n >= 50) { if (lastSig !== "finished") { cancelComputations(); lastSig = "finished"; parentPort.postMessage({ type: "clear" }); } return; }
+  // Unpaired dark cells can make the global count reach 50 before the final
+  // player has picked. Completion belongs to the lifecycle / actual seat slots,
+  // never to this count-only shortcut (Oct 15 R5 last-turn disappearance).
+  if (DraftState.fullRoster(S)) {
+    if (lastSig !== "finished") { cancelComputations(); lastSig = "finished"; parentPort.postMessage({ type: "clear" }); }
+    return;
+  }
   /* 还没认出本人座位(v1.22):不猜, 不出推荐 —— 状态行提示"未确定你是几号位", 托盘可以手动指定 */
   if (!S.me) { if (lastSig !== null) { seq++; if (POOL) POOL.cancel(); lastSig = null; lastAdvice = null; parentPort.postMessage({ type: "clear" }); } turnLock = null; return; }
   /* 目标座位在识别里已经选满时, buildState 排剩余顺序会跳过他, 真正被算的是顺序里下一个还有空位的人 ——
@@ -581,7 +586,7 @@ function chooseAdvice(S, startIdx, picked, ms) {
   let j = startIdx; while (j < FULL_ORDER.length && !(isTarget(FULL_ORDER[j], S) && isTarget(buildState(S, j).cur, S))) j++;
   if (j >= FULL_ORDER.length) {
     /* v1.46: 我(或团队模式下我方)已选满而这局还没结束 → 不清空, 顶上留一句提示, 小卡上的位置建议继续每手更新(09-28 真机: 满员后推荐框空, 被当成"消失") */
-    const nT = S.skills.filter(x => x.taken).length + (S.taken_heroes || []).length, meFull = panelCount(S, seatIdx(S.me)) >= 5;
+    const nT = R.pickedCount(S), meFull = panelCount(S, seatIdx(S.me)) >= 5;
     if (meFull && nT < 50) { if (lastSig !== "full") { seq++; if (POOL) POOL.cancel(); lastSig = "full"; lastAdvice = null; turnLock = null;
         parentPort.postMessage({ type: "advice", note: `${S.me.side === "L" ? "左" : "右"}${S.me.idx + 1}(我) 已选满 · 各座位小卡上有「预计 / 建议」位置行, 每落一手都会更新`, rows: [], side: S.me.side, seat: seatIdx(S.me), base: 0.5, my_turn: false }); log("advice", `我已选满(已选走 ${nT}) → 显示提示, 不再算推荐`); } return; }
     if (lastSig !== null) { seq++; if (POOL) POOL.cancel(); lastSig = null; lastAdvice = null; parentPort.postMessage({ type: "clear" }); } return; }
@@ -601,6 +606,18 @@ function chooseAdvice(S, startIdx, picked, ms) {
 /* 该给谁算:当前高亮这位还没落子 → 给他算;已经落子(高亮还没移走但格子已经黑了) → 提前给下一位算。
    nTaken = 已经落子的手数(含刚刚这一手)。返回顺序表下标。 */
 function startIdxOf(S, picked, nTaken) { let i0 = orderIndex(seatIdx(S.current), nTaken - (picked ? 1 : 0));
+  // At a snake boundary the highlight does not move between the two picks.
+  // A delayed / extra dark cell must not move us back and forth between them.
+  // Resolve this local pair using the target panel's completed picks. In team
+  // mode the target can be an ally rather than the observing player's own seat.
+  if (S.me && isTarget(seatIdx(S.current), S)) {
+    const seat = seatIdx(S.current), n = panelCount(S, seat);
+    const first = FULL_ORDER[i0 - 1] === seat ? i0 - 1 : FULL_ORDER[i0 + 1] === seat ? i0 : -1;
+    if (n != null && first >= 0) {
+      const done = Math.max(0, Math.min(2, n - seatPicksBefore(seat, first)));
+      return Math.min(first + done, FULL_ORDER.length - 1);
+    }
+  }
   /* 高亮慢一拍:他这一手已经算进已选手数(第 nTaken 手就是他那格), 高亮还停在他身上 → 他已经选完了, 不是"还在选"。
      v1.35 及以前会接着给他算下一手(09-18 日志 7 次, 例: 左2 刚选完又被推荐大招, 其实该算左1) */
   if (!picked && i0 === nTaken - 1) picked = true;
@@ -677,7 +694,7 @@ function fastTick(img) {
   const S = JSON.parse(JSON.stringify(lastS));
   /* 这是第几手就归第几手的那个座位 —— 顺序是死的(L1 R1 L2 R2…, 逐轮倒转), 比"当时高亮在谁那儿"可靠:
      完整识别 1~2 秒才一次, 高亮可能已经挪走了。实测有两个英雄被记到同一个 L1, 就是这么来的。 */
-  const nBefore = tracker.turn != null ? tracker.turn : S.skills.filter(x => x.taken).length + S.taken_heroes.length;
+  const nBefore = tracker.turn != null ? tracker.turn : R.pickedCount(S);
   const os = FULL_ORDER[Math.min(nBefore, FULL_ORDER.length - 1)], oseat = [os < 5 ? "L" : "R", os % 5];
   const cs = tracker.curSeat, seat = oseat;
   if (cs && (cs[0] !== seat[0] || cs[1] !== seat[1])) log("fast", `注意:高亮在 ${cs[0]}${cs[1] + 1} 但按顺序这是第 ${nBefore + 1} 手 → 归 ${seat[0]}${seat[1] + 1}`);

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>反复重启与跨局显示调查 · 2026-10-16</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f1f5f7;color:#173647;font:16px/1.8 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1060px;margin:auto;padding:38px 24px 64px}h1{font-size:30px;line-height:1.4}h2{font-size:21px;margin-top:0}section{background:white;border:1px solid #dce5e9;border-radius:12px;padding:24px;margin:20px 0}p{margin:12px 0}.meta{color:#526976}.lead{border-left:5px solid #008b82}.limit{background:#fff7e8;border-color:#f0d3a0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;border-bottom:1px solid #dce5e9;padding:11px;vertical-align:top}th{background:#eef5f7}code,pre{font-family:ui-monospace,monospace;font-size:13px}code{overflow-wrap:anywhere}pre{background:#eff4f6;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:8px}.scroll{overflow:auto}.pass{color:#00786c}li{margin:9px 0}svg{width:100%;height:auto}.small{font-size:13px;color:#526976}@media print{body{background:white}section{break-inside:avoid}main{padding:0}}
+</style></head><body><main>
+<div class="meta">2026-10-16 · 菜鱼张某 / C06 · 10 月 15 日日志 · 本地分支 codex/debug-oct15-logs</div>
+<h1>新开一局就要重启：定位到跨局隐藏原生窗口的回归</h1>
+<section class="lead"><h2>结论与置信边界</h2>
+<p><strong>已确认一个每局都会触发的代码问题：</strong>上一局结束进入 idle 时，主进程调用 <code>overlay.hide()</code>；新一局开始再调用 <code>showInactive()</code>。这违反了项目此前保留的“透明窗口常驻、只清空内容”的显示策略。原代码注释明确记载过：隐藏后重新显示可能无法回到独占全屏游戏上方。</p>
+<p>你在 23:22 重启之前，程序已恢复选技状态，并有 60 行推荐、无画布错误。因此，这次“看不到”主要指向窗口显示层，而不是一直没识别到新局或一直没算出推荐。<strong>跨局 hide/show 是目前证据最强的原因，已经修复；Windows 实际层级丢失仍未在本机直接复现。</strong></p>
+<p>这段逻辑由 <code>dd5fe7a</code>（v1.48.5，2026-10-15 11:23，北京时间）引入，早于我们的 PR #2。此前报告没有确定重启问题的归因；本次新增的是代码历史与跨局时间线证据。</p>
+</section>
+<section><h2>同一个进程跨两局的证据</h2><p>下表时间均为北京时间。来源为 C06 的 <code>diag_main_20261015_224046.jsonl</code>，启动时间 22:40:46。</p>
+<div class="scroll"><table><thead><tr><th>时间</th><th>日志事实</th><th>能说明什么</th></tr></thead><tbody>
+<tr><td>22:46:16.765</td><td><code>overlay-visibility: visible=false, reason=idle</code></td><td>上一局结束后，原生窗口确实被隐藏。</td></tr>
+<tr><td>23:21:58.584</td><td><code>phase=idle, hasAdvice=false, error=null</code></td><td>进程仍活着，等待下一局；没有停在一张旧的选技画面。</td></tr>
+<tr><td>23:22:05.982</td><td><code>visible=true, reason=active</code></td><td>下一局已经进入 active，主进程已走重新显示路径。</td></tr>
+<tr><td>23:22:28.585</td><td><code>hasAdvice=true, rows=60, advicePainted=true, error=null</code></td><td>推荐已生成，渲染代码已执行绘制；这不能证明 Windows 合成器最终把它显示在游戏上方。</td></tr>
+<tr><td>23:22:34.993</td><td><code>normal-exit: before-quit</code></td><td>退出发生在上述结果之后；不是此刻已经崩溃。</td></tr>
+<tr><td>23:22:38.578</td><td>新的 C06 进程启动，日志名 <code>ad_20261015_232238.log</code></td><td>与“必须反复重启才能看见”的反馈时间吻合。</td></tr>
+</tbody></table></div>
+<p>更早一次进程在 22:40:12 也回报过 <code>rows=52, advicePainted=true, error=null</code>，随后于 22:40:42 退出；期间有多次 F6 / 托盘显隐操作。相同的 hide/show 风险不限于跨局，手动隐藏也会触发。</p>
+</section>
+<section><h2>为何每新开一局都可能重现</h2>
+<svg viewBox="0 0 920 164" role="img" aria-label="上一局结束导致原生窗口隐藏，下一局重新显示，推荐虽已绘制仍可能被游戏遮住">
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#718998"/></marker></defs>
+<g fill="#eff5f7" stroke="#bcced8"><rect x="4" y="24" width="190" height="112" rx="10"/><rect x="240" y="24" width="190" height="112" rx="10"/><rect x="476" y="24" width="190" height="112" rx="10"/><rect x="712" y="24" width="204" height="112" rx="10"/></g>
+<g stroke="#718998" stroke-width="2" marker-end="url(#arrow)"><path d="M198 80 H233"/><path d="M434 80 H469"/><path d="M670 80 H705"/></g>
+<g fill="#173647" font-size="17" text-anchor="middle"><text x="99" y="66">上一局进入 idle</text><text x="99" y="103">原生窗口 hide</text><text x="335" y="66">下一局进入 active</text><text x="335" y="103">窗口重新 show</text><text x="571" y="66">识别与推荐正常</text><text x="571" y="103">canvas 已画出</text><text x="814" y="66">可能仍被游戏遮住</text><text x="814" y="103">现有心跳无法发现</text></g>
+</svg>
+<p><code>isVisible()</code> 只报告窗口的显示状态；<code>advicePainted</code> 只报告渲染代码完成推荐绘制。两者都不能证明覆盖层实际在游戏上方。原有自动恢复主要检查进程、心跳和画布错误，因此遇到“窗口还活着、内容也画了、只是看不见”的情况，不会自动重建。</p>
+<p>历史差异中，<code>dd5fe7a</code> 将空闲处理由“显示原生窗、发送 clear”改成了“hide、开启后台节流、发送 clear”，并把置顶维护与健康检查都限定为需要显示时运行。常驻窗口的说明仍保留在代码里，实际实现却已经相反。</p>
+</section>
+<section><h2>其他假设的核对</h2><table><thead><tr><th>假设</th><th>本次判断</th></tr></thead><tbody>
+<tr><td>上一局生命周期卡住，无法识别新局</td><td>不能解释这次 23:22 的故障：重启前已经 active、有 60 行推荐。其他局面下的识别失败不因此被全部排除。</td></tr>
+<tr><td>GPU 不可用，推荐始终未完成</td><td>不能解释这次故障：重启前已有推荐。此前 GPU0 预热成功，GPU1 的失败是另一设备探测；第一局池子为 12/36/11 导致算法回退也不是窗口不可见的直接证据。</td></tr>
+<tr><td>渲染进程崩溃或画布绘制异常</td><td>上述重启前的报告没有画布错误，仍有绘制和心跳，缺少支持该假设的证据。</td></tr>
+<tr><td>遮挡导致启动时短暂读不到棋盘</td><td>新进程 23:22:42 截图有资源管理器遮挡，确实能造成识别延迟；不能解释重启前已经成功生成并绘制推荐后仍看不见。</td></tr>
+</tbody></table></section>
+<section><h2>本次修改</h2><ol>
+<li><strong>原生覆盖窗常驻：</strong>启动页面加载完成即显示透明窗口；局间空闲、暂停、F6 隐藏和捕获等待均不再调用原生 <code>hide()</code>，避免反复撤销与重建显示层级。</li>
+<li><strong>显式控制内容：</strong>主进程通过 <code>presentation</code> 消息控制绘制。关闭内容时立即清空 canvas、状态文字和提示；迟到的旧 state/advice 也不能把它们画回来。F6 的两秒提示保留，结束后清空。</li>
+<li><strong>保留健康检查：</strong>不再对透明覆盖窗开启后台节流；空闲和隐藏期间也处理无响应、心跳超时和画布错误，避免旧分数卡卡在实战画面上。</li>
+<li><strong>日志区分两种显示：</strong><code>overlay-visibility.visible</code> 记录内容开关，新增 <code>nativeVisible</code> 记录原生窗状态；渲染健康记录新增 <code>presentationVisible</code>。它们仍不是最终屏幕可见性的证明。</li>
+</ol><p>本次没有调整“何时判定选技结束”的视觉规则，也没有修改推荐模型。进入游戏后分数卡何时隐藏，仍依赖现有游戏阶段确认；本修复保证收到隐藏指令后能清空内容。</p></section>
+<section><h2>验证结果</h2><table><thead><tr><th>验证</th><th>结果与覆盖范围</th></tr></thead><tbody>
+<tr><td><code>node test/overlay_match_lifecycle.js</code></td><td class="pass">通过。实际 main 显隐函数与实际 overlay 脚本；100 次暂停、捕获断开、F6、识别提示及新局循环；跨局无 hide/show，空闲时迟到消息不显示。</td></tr>
+<tr><td>原生窗创建与故障恢复路径</td><td class="pass">通过。实际 createOverlay / recreateOverlay；空闲启动、无响应、心跳超时、画布失败、销毁后的旧渲染 IPC。Electron 原生窗口接口为桩。</td></tr>
+<tr><td><code>OVERLAY_MAIN_REF=dd5fe7a node test/overlay_match_lifecycle.js</code></td><td>预期失败：<code>between matches must clear pixels without hiding the native window</code>。证明历史主进程确实触发了不应有的原生隐藏调用。</td></tr>
+<tr><td><code>npm run test:overlay-lifecycle</code></td><td class="pass">6 个测试脚本全部通过：跨局显示、F6、渲染重建、分数卡、捕获生命周期及已有运行时回归。</td></tr>
+<tr><td><code>npm run test:draft-lifecycle</code></td><td class="pass">8 个测试脚本全部通过，包含末轮、保留原池、人工恢复和连选调度。</td></tr>
+<tr><td><code>npm run test:panel</code></td><td class="pass">3 个测试脚本全部通过；显示设置、座位与面板功能正常。</td></tr>
+<tr><td>语法与差异检查</td><td class="pass"><code>node --check main.js</code>、新增测试语法检查、<code>git diff --check</code> 均通过。</td></tr>
+</tbody></table>
+<p>这里的“100 次”是程序状态循环，不是 100 场 Windows 游戏；测试没有模拟 Windows 合成器，也没有凭桩接口制造“实际全屏可见”的结论。</p></section>
+<section class="limit"><h2>还需要的真机确认与当前兜底</h2>
+<p>在 Windows 上连续玩两局、不退出插件，确认第二局直接显示；中间再执行一次 F6 隐藏/恢复，以及一次切出/切回游戏。核对新日志：空闲时应为 <code>visible=false, nativeVisible=true</code>；新局应为两者均 true，随后有推荐绘制回报。还应观察透明窗口常驻后的空闲 CPU / GPU 占用，本机尚未测量 Windows 实际资源变化。</p>
+<p>如果推荐已经产生、仍看不见，可使用现有托盘入口 <strong>“悬浮窗卡住了? 点这里重建”</strong>。该入口只重建覆盖窗口，识别线程和当前池子继续保留。它和 F10 的“恢复本局（保留池子）”不同：前者处理窗口，后者处理选技状态。健康但层级异常仍可能需要这个人工入口；本次未声称自动检测到所有 Windows 显示异常。</p>
+</section><p class="small">报告为独立 HTML，示意图直接嵌入，无外部字体、脚本或图片依赖。范围：本次反复重启调查与显示修复；没有发布或推送远端。</p>
+</main></body></html>

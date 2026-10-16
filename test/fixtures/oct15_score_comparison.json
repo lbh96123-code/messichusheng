@@ -1,0 +1,248 @@
+{
+  "description": "2026-10-15 20:24同局三个客户端的末尾完整阵容；历史识别器回放缺口均为0。只有公开英雄/技能和匿名客户端编号。",
+  "commonRef": "c8e8391",
+  "commonMode": "optimalBoth",
+  "panels": [
+    {
+      "side": "L",
+      "idx": 0,
+      "hero": "npc_dota_hero_windrunner",
+      "skills": [
+        {
+          "key": "tinker_laser"
+        },
+        {
+          "key": "undying_flesh_golem"
+        },
+        {
+          "key": "windrunner_powershot"
+        },
+        {
+          "key": "windrunner_windrun"
+        }
+      ],
+      "filled": 4
+    },
+    {
+      "side": "L",
+      "idx": 1,
+      "hero": "npc_dota_hero_medusa",
+      "skills": [
+        {
+          "key": "grimstroke_ink_creature"
+        },
+        {
+          "key": "grimstroke_soul_chain"
+        },
+        {
+          "key": "pugna_decrepify"
+        },
+        {
+          "key": "pugna_nether_blast"
+        }
+      ],
+      "filled": 4
+    },
+    {
+      "side": "L",
+      "idx": 2,
+      "hero": "npc_dota_hero_night_stalker",
+      "skills": [
+        {
+          "key": "night_stalker_midnight_feast"
+        },
+        {
+          "key": "night_stalker_void"
+        },
+        {
+          "key": "sven_great_cleave"
+        },
+        {
+          "key": "terrorblade_sunder"
+        }
+      ],
+      "filled": 4
+    },
+    {
+      "side": "L",
+      "idx": 3,
+      "hero": "npc_dota_hero_undying",
+      "skills": [
+        {
+          "key": "keeper_of_the_light_chakra_magic"
+        },
+        {
+          "key": "pugna_life_drain"
+        },
+        {
+          "key": "undying_decay"
+        },
+        {
+          "key": "undying_soul_rip"
+        }
+      ],
+      "filled": 4
+    },
+    {
+      "side": "L",
+      "idx": 4,
+      "hero": "npc_dota_hero_tinker",
+      "skills": [
+        {
+          "key": "grimstroke_dark_artistry"
+        },
+        {
+          "key": "medusa_gorgon_grasp"
+        },
+        {
+          "key": "terrorblade_reflection"
+        },
+        {
+          "key": "tinker_rearm"
+        }
+      ],
+      "filled": 4
+    },
+    {
+      "side": "R",
+      "idx": 0,
+      "hero": "npc_dota_hero_sven",
+      "skills": [
+        {
+          "key": "huskar_berserkers_blood"
+        },
+        {
+          "key": "night_stalker_crippling_fear"
+        },
+        {
+          "key": "night_stalker_darkness"
+        },
+        {
+          "key": "sven_warcry"
+        }
+      ],
+      "filled": 4
+    },
+    {
+      "side": "R",
+      "idx": 1,
+      "hero": "npc_dota_hero_pugna",
+      "skills": [
+        {
+          "key": "medusa_split_shot"
+        },
+        {
+          "key": "sven_gods_strength"
+        },
+        {
+          "key": "terrorblade_conjure_image"
+        },
+        {
+          "key": "terrorblade_metamorphosis"
+        }
+      ],
+      "filled": 4
+    },
+    {
+      "side": "R",
+      "idx": 2,
+      "hero": "npc_dota_hero_ringmaster",
+      "skills": [
+        {
+          "key": "huskar_life_break"
+        },
+        {
+          "key": "ringmaster_tame_the_beasts"
+        },
+        {
+          "key": "ringmaster_the_box"
+        },
+        {
+          "key": "undying_tombstone"
+        }
+      ],
+      "filled": 2
+    },
+    {
+      "side": "R",
+      "idx": 3,
+      "hero": "npc_dota_hero_terrorblade",
+      "skills": [
+        {
+          "key": "grimstroke_spirit_walk"
+        },
+        {
+          "key": "huskar_burning_spear"
+        },
+        {
+          "key": "windrunner_focusfire"
+        },
+        {
+          "key": "windrunner_shackleshot"
+        }
+      ],
+      "filled": 2
+    },
+    {
+      "side": "R",
+      "idx": 4,
+      "hero": "npc_dota_hero_keeper_of_the_light",
+      "skills": [
+        {
+          "key": "medusa_mystic_snake"
+        },
+        {
+          "key": "pugna_nether_ward"
+        },
+        {
+          "key": "ringmaster_wheel"
+        },
+        {
+          "key": "sven_storm_bolt"
+        }
+      ],
+      "filled": 4
+    }
+  ],
+  "clients": [
+    {
+      "client": "C01",
+      "version": "1.48.5",
+      "scoreRef": "dd5fe7a",
+      "mode": "expect",
+      "res": [
+        2560,
+        1440
+      ],
+      "trace": "trace_20261015122448.jsonl",
+      "traceMs": 390386,
+      "traceStart": 1792067088250
+    },
+    {
+      "client": "C02",
+      "version": "1.49.0",
+      "scoreRef": "c8e8391",
+      "mode": "optimalBoth",
+      "res": [
+        1920,
+        1080
+      ],
+      "trace": "trace_20261015122422.jsonl",
+      "traceMs": 425310,
+      "traceStart": 1792067062901
+    },
+    {
+      "client": "C03",
+      "version": "1.49.0",
+      "scoreRef": "c8e8391",
+      "mode": "optimalBoth",
+      "res": [
+        2560,
+        1440
+      ],
+      "trace": "trace_20261015122423.jsonl",
+      "traceMs": 3129779,
+      "traceStart": 1792067063619
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>末轮、多计与分数卡显隐修复 · 2026-10-16</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f2f5f7;color:#173647;font:16px/1.8 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1080px;margin:auto;padding:36px 24px 64px}h1{font-size:30px;line-height:1.4}h2{font-size:21px;margin-top:0}section{background:#fff;border:1px solid #dce6eb;border-radius:12px;padding:24px;margin:20px 0}.lead{border-left:5px solid #008b82}.limit{background:#fff8ea}.meta{color:#526976;font-size:14px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;border-bottom:1px solid #dce6eb;text-align:left;vertical-align:top}th{background:#eef5f7}.scroll{overflow:auto}code,pre{font:13px/1.7 ui-monospace,monospace}code{overflow-wrap:anywhere}pre{padding:16px;background:#edf3f6;white-space:pre-wrap;border-radius:8px}li{margin:8px 0}svg{max-width:100%;height:auto}details{margin-top:18px}summary{cursor:pointer;font-weight:600}@media print{body{background:#fff}main{padding:0}section{break-inside:avoid}}
+</style></head><body><main><div class="meta">2026-10-16 · codex/debug-oct15-logs · 10 月 15 日真实观测回放与本地回归</div>
+<h1>末轮清空已修；多计修复一条主要路径；分数卡随推荐显隐</h1>
+<section class="lead"><h2>这次处理了什么</h2><table><thead><tr><th>问题</th><th>当前结果</th></tr></thead><tbody>
+<tr><td>报到 50 就清空推荐</td><td><strong>已修。</strong>当前分支的 <code>1888179</code> 已移除只凭总数清空的路径。本次再次验证真实“总数 50、本人未选满”输入继续请求推荐，并新增“十人确实选满才清空”的正向测试。</td></tr>
+<tr><td>超过 50，进入复核暂停</td><td><strong>已定位并修复一条主要路径，尚未全部解决。</strong>没有面板配对的暗格也被永久锁为已选，即使后来清晰变亮也不撤销。本次允许这类技能在 6 次清晰亮观测后撤销；已确认技能继续受保护。25 条轨迹的超计帧从 27 降到 7。</td></tr>
+<tr><td>进入游戏后分数卡留下</td><td><strong>已按要求绑定。</strong>推荐清空或暂停时，分数卡同步隐藏；有新推荐时再一起显示。策略阶段不再独立展示分数卡，不再为了隐藏卡片而等待游戏 HUD 确认。</td></tr>
+</tbody></table><p>原池、归属和评分数据仍保留在内存。隐藏显示内容不等于删除本局信息；跨局透明窗口常驻的上次修复继续保留。</p></section>
+<section><h2>第一项：保留真正的末轮，不取消正常结束</h2><p>旧条件 <code>pickedCount ≥ 50 → clear</code> 会在暗格或英雄多计时提前清空。现在检查十人的完整合法阵容：十个不同英雄、四十个不同已知技能、每人四技能且恰有一个大招。缺英雄、未知占位、重复技能或本人未选满均不靠总数 50 判定完成。</p>
+<p><code>test/oct15_turn_advice.js</code> 运行实际 worker 调度，替换昂贵的推荐计算：真实末轮输入继续请求推荐；构造的合法完整阵容触发清空。这两项同时通过，连选手次的 72 个组合也通过。</p></section>
+<section><h2>第二项：持续多计的原因</h2><p>追踪器对同一格连续暗满 12 次后，直接永久返回“已选”，不会再累计亮帧撤销。这个保护原本用于避免已选卡片被鼠标重新照亮后误撤销；但它同时作用于<strong>从未在任何玩家面板中确认的技能</strong>。随后 <code>pickedKeys()</code> 又把这些长期未配对的暗格加入已选集合，<code>pickedCount()</code> 将其与英雄一起计数，超过 50 后触发推荐复核。</p>
+<pre>长时间暗格 → stable + darkRun ≥ 12
+          → 无面板归属，也被永久锁为已选
+          → 实际观测恢复为 N（亮），累计状态仍为 T（已选）
+          → 多计 → 超过 50 → 推荐暂停</pre>
+<p>这条永久锁定逻辑在仓库可见的最早提交 <code>5a14ef9</code> 中已经存在，属于旧问题。具体何种遮挡或画面变化造成最初误判，不能仅凭观测轨迹确定。</p>
+<p>你的最后一局，旧识别器第 259 帧（轨迹相对时间 365820ms）首次报 51：39 个已配对技能 + 3 个未配对技能 + 9 个英雄。三个未配对技能此时都已经被原始判据判为 N：</p>
+<table><thead><tr><th>技能</th><th>保留的暗计数</th><th>当帧平均亮度 / 本格参考</th><th>面板归属</th></tr></thead><tbody>
+<tr><td>烈火精灵</td><td>18</td><td>137.3 / 137.25</td><td>无</td></tr>
+<tr><td>烈日炙烤</td><td>17</td><td>124.8 / 124.82</td><td>无</td></tr>
+<tr><td><code>sandking_scorpion_strike</code></td><td>18</td><td>114.7 / 114.72</td><td>无</td></tr>
+</tbody></table><p>这两个 C06 溢出样本的未知占位均为 0，因此这次不是未知槽位与暗格重复计数造成的。问题在追踪层独立回放中已出现，未经过 worker 快扫暂存追加，说明这两次溢出也不需要快扫路径才会触发。</p>
+<h2>修复约束</h2><ul>
+<li>只对<strong>没有玩家面板配对</strong>的技能放开长期锁定；仍需累计 6 次清晰的 N 观测才撤销。</li>
+<li>前 5 次亮观测继续视为不可选，并请求完整观测，避免短暂亮回就推荐出去；O（看不清）不作为撤销证据，新的 T 会重置亮观测计数。</li>
+<li>已在玩家面板中确认的技能继续保持原有保护；英雄的长期保护不变。</li>
+<li>沿用现有亮/暗判据和六次撤销门槛，没有修改分辨率或亮度阈值，没有把总数强行截为 50。</li>
+</ul></section>
+<section><h2>真实观测回放：改善程度与剩余问题</h2><p>比较上次本地提交 <code>c022891</code> 的识别器与本次修改，输入相同的 10 月 15 日轨迹。共 <strong>25 条轨迹、5397 个完整观测帧</strong>；前后观测缺口均为 0。轨迹包含不同客户端及重启片段，不能视为 25 局独立对局。</p>
+<table><thead><tr><th>范围</th><th>超过 50 的帧数</th><th>峰值</th></tr></thead><tbody>
+<tr><td>菜鱼张某第一局 <code>144109</code></td><td>2 → 2</td><td>51 → 51</td></tr>
+<tr><td>菜鱼张某最后一局 <code>152252</code></td><td><strong>21 → 1</strong></td><td><strong>54 → 51</strong></td></tr>
+<tr><td>全部 25 条轨迹</td><td><strong>27 → 7</strong></td><td>没有轨迹增加超计帧数</td></tr>
+</tbody></table>
+<svg viewBox="0 0 760 122" role="img" aria-label="全部轨迹超计帧，修复前27帧，修复后7帧"><text x="0" y="29" font-size="16" fill="#173647">修复前</text><rect x="85" y="9" width="540" height="30" rx="4" fill="#c15e54"/><text x="638" y="30" font-size="16" fill="#173647">27 帧</text><text x="0" y="89" font-size="16" fill="#173647">修复后</text><rect x="85" y="69" width="140" height="30" rx="4" fill="#008b82"/><text x="240" y="90" font-size="16" fill="#173647">7 帧仍待处理</text></svg>
+<p>各轨迹最终配对技能数量前后相同。这是连续性检查，不是对每一项归属都正确的独立标注证明；回放也不等于 Windows 真机运行。</p>
+<div class="limit"><p><strong>剩余 7 帧不能写成已修完：</strong>6 帧涉及暂存待配对技能进入计数，另 1 帧涉及多计第 11 个英雄。C06 第一局仍有 2 帧“两栖狂想曲”处于待配对，被加进 40 技能 + 10 英雄之后；最后一局剩余 1 帧是“锯齿飞轮”仍在待配对队列。后者出现时，十人面板已经完整。其他客户端还存在多个待配对格同时进入计数和孤立英雄的情况。</p>
+<p>这些情况仍会进入保留原池的复核暂停；本次只处理已验证的长期锁死路径。人工恢复的超计回滚保护也没有在本次取消，因此不能保证所有已经超计的状态都能靠本次亮帧撤销路径恢复。</p></div>
+<details><summary>展开全部 25 条轨迹结果</summary><div class="scroll"><table><thead><tr><th>客户端</th><th>轨迹</th><th>完整帧</th><th>超计帧 前→后</th><th>峰值 前→后</th><th>回放缺口</th></tr></thead><tbody><tr><td>C01</td><td><code>trace_20261015090535.jsonl</code></td><td>252</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C01</td><td><code>trace_20261015095458.jsonl</code></td><td>5</td><td>0 → 0</td><td>0 → 0</td><td>0</td></tr><tr><td>C01</td><td><code>trace_20261015095520.jsonl</code></td><td>261</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C01</td><td><code>trace_20261015122448.jsonl</code></td><td>245</td><td>1 → 1</td><td>51 → 51</td><td>0</td></tr><tr><td>C01</td><td><code>trace_20261015131638.jsonl</code></td><td>258</td><td>3 → 3</td><td>53 → 53</td><td>0</td></tr><tr><td>C01</td><td><code>trace_20261015135429.jsonl</code></td><td>284</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C02</td><td><code>trace_20261015122422.jsonl</code></td><td>244</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C02</td><td><code>trace_20261015131643.jsonl</code></td><td>240</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C02</td><td><code>trace_20261015135424.jsonl</code></td><td>254</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C02</td><td><code>trace_20261015143830.jsonl</code></td><td>241</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C02</td><td><code>trace_20261015152215.jsonl</code></td><td>242</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C03</td><td><code>trace_20261015122423.jsonl</code></td><td>267</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C03</td><td><code>trace_20261015131635.jsonl</code></td><td>4</td><td>0 → 0</td><td>0 → 0</td><td>0</td></tr><tr><td>C03</td><td><code>trace_20261015131700.jsonl</code></td><td>240</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C03</td><td><code>trace_20261015135417.jsonl</code></td><td>251</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C03</td><td><code>trace_20261015143813.jsonl</code></td><td>340</td><td>0 → 0</td><td>27 → 27</td><td>0</td></tr><tr><td>C04</td><td><code>trace_20261015143832.jsonl</code></td><td>313</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C05</td><td><code>trace_20261015131641.jsonl</code></td><td>6</td><td>0 → 0</td><td>0 → 0</td><td>0</td></tr><tr><td>C05</td><td><code>trace_20261015131715.jsonl</code></td><td>241</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C05</td><td><code>trace_20261015135417.jsonl</code></td><td>245</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C05</td><td><code>trace_20261015143812.jsonl</code></td><td>397</td><td>0 → 0</td><td>50 → 50</td><td>0</td></tr><tr><td>C06</td><td><code>trace_20261015143928.jsonl</code></td><td>53</td><td>0 → 0</td><td>12 → 12</td><td>0</td></tr><tr><td>C06</td><td><code>trace_20261015144109.jsonl</code></td><td>217</td><td>2 → 2</td><td>51 → 51</td><td>0</td></tr><tr><td>C06</td><td><code>trace_20261015152212.jsonl</code></td><td>18</td><td>0 → 0</td><td>1 → 1</td><td>0</td></tr><tr><td>C06</td><td><code>trace_20261015152252.jsonl</code></td><td>279</td><td>21 → 1</td><td>54 → 51</td><td>0</td></tr></tbody></table></div></details>
+</section>
+<section><h2>第三项：分数卡与推荐共用显示条件</h2><table><thead><tr><th>状态</th><th>推荐与分数卡</th></tr></thead><tbody>
+<tr><td>新局尚未收到推荐</td><td>都不画；识别状态提示仍可显示。</td></tr>
+<tr><td>已有推荐，后台继续优化</td><td>保留已有推荐与卡片，避免计算期间反复闪灭。</td></tr>
+<tr><td>收到 clear</td><td>一起隐藏；后续仅到达评分 state 不能单独把卡片画回来。</td></tr>
+<tr><td>复核 / 策略阶段 / 阵容选满暂停</td><td>一起隐藏；简短状态提示保留。评分和原池数据继续保留在内存。</td></tr>
+<tr><td>恢复识别</td><td>等新推荐到达，再一起出现。</td></tr>
+<tr><td>空闲阶段收到迟到推荐，或重建覆盖窗</td><td>渲染器与重放缓存都拒收空闲阶段的迟到结果，避免带到下一局。</td></tr>
+<tr><td>F6、暂停、进入游戏、捕获等待</td><td>服从共同显示开关；“显示玩家分数”设置仍允许单独关闭分数卡。</td></tr>
+</tbody></table><p>本次没有再加新的结束判定。即使游戏 HUD 的确认迟到，只要推荐已经因为策略阶段、完整阵容或 clear 而隐藏，分数卡也随之隐藏。</p></section>
+<section><h2>验证与复现入口</h2><ul>
+<li><code>npm run test:draft-lifecycle</code>：通过；包含真实报 50 未选满、合法满阵容清空、72 个连选组合、原池保留及人工恢复异常注入。</li>
+<li><code>npm run test:overlay-lifecycle</code>：通过；包含清空、复核、策略、满阵容、迟到消息、重放、恢复、F6，以及此前 100 次跨局显示状态循环。</li>
+<li><code>npm run test:overcount</code>：通过；实际 Tracker.observe 路径，包含匿名历史亮度值、短暂亮回、遮挡、重新变暗、已配对技能、恢复中配对和英雄保护。</li>
+<li><code>npm run test:panel</code>、语法与差异检查：通过。</li>
+</ul><pre>node tools/debug_draft/audit_overcount.js /绝对路径/trace.jsonl
+OVERCOUNT_RECOG_REF=c022891 node tools/debug_draft/audit_overcount.js /绝对路径/trace.jsonl</pre><p>添加 <code>--assert-valid</code> 可要求“全程不超过 50、无观测缺口”；由于上述残余问题，这个严格诊断目前仍会失败。它与通过的回归测试分开报告，没有把失败结果算作通过。</p>
+<p>异常注入与回放中未发现本次修改导致的异常；这不是对所有真实运行场景“绝不崩溃”的证明。Windows 真机连续两局的显示确认仍沿用上次报告的待验证项。</p></section>
+<p class="meta">独立 HTML，图形直接内嵌，无外部图片、脚本或字体依赖。仅本地修改与提交，未发布。</p></main></body></html>

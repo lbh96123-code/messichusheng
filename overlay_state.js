@@ -5,8 +5,9 @@ function create() {
   return {
     accept(ch, m) {
       if (ch === "state") { state = m; if (m.idle || m.phase !== "active" || m.advicePaused) { advice = null; computing = null; } }
-      if (ch === "advice" && !state?.advicePaused) { advice = m; computing = null; }
-      if (ch === "computing" && !state?.advicePaused) computing = m;
+      const blocked = state && (state.advicePaused || state.idle || state.phase !== "active");
+      if (ch === "advice" && !blocked) { advice = m; computing = null; }
+      if (ch === "computing" && !blocked) computing = m;
       if (ch === "clear") { advice = null; computing = null; }
     },
     replay(send) {

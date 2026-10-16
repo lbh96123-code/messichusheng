@@ -281,10 +281,14 @@ function quickPresence(img) {
 // After a completed draft, brightness changes alone also match menus and gameplay.
 // Verify a few bright ability icons before attempting expensive alignment/pool reads.
 function pickedCount(state) {
-  const board = new Set(state.skills.filter(s => s.taken).map(s => s.key));
+  const slots = (state.panels || []).flatMap(p => p.skills || []);
+  const known = new Set(slots.filter(s => s.key !== '?pick').map(s => s.key));
+  // Pending dark cells are temporarily unavailable to the engine, not completed
+  // picks. A panel confirmation (including fast-path placement) takes priority.
+  const pending = new Set(state.pendingKeys || []);
+  const board = new Set(state.skills.filter(s => s.taken && (!pending.has(s.key) || known.has(s.key))).map(s => s.key));
   const heroes = new Set(state.taken_heroes || []);
   if (!state.panels) return board.size + heroes.size + (state.extraPicks || 0);
-  const slots = state.panels.flatMap(p => p.skills || []), known = new Set(slots.filter(s => s.key !== '?pick').map(s => s.key));
   const unknown = slots.filter(s => s.key === '?pick').length;
   const unassigned = [...board].filter(k => !known.has(k)).length;
   return board.size + heroes.size + Math.max(0, unknown - unassigned);
@@ -765,7 +769,14 @@ class Tracker {
          按"连续暗了多久"而不是"确认了多久":误判(暗图标/遮挡)通常暗几帧就亮回来, 那种要照常撤销。
          09-11 那局:左2 第一手拿了美杜莎(认对了), 两分钟后左2 自己回合用鼠标在这张卡上晃, 卡面短暂"亮回来" → 被撤销、
          还把美杜莎推荐给左2, 随后美杜莎被当成右1 选的, 两人英雄对调。撤销只该用来纠正刚认错的(提示框瞬间盖黑之类), 那都在几秒内 */
-      if (this.stable[k] && (this.darkRun[k] || 0) >= 12) { if (st3 === 'T') this.darkRun[k]++; return true; }
+      if (this.stable[k] && (this.darkRun[k] || 0) >= 12) {
+        if (st3 === 'T') { this.darkRun[k]++; this.brightRun[k] = 0; return true; }
+        // A prolonged occlusion can also last twelve frames. Only panel-paired
+        // skills deserve the permanent lock; unpaired ones must recover after
+        // six clear bright observations. Keep them unavailable during the vote.
+        if (k.startsWith('hero:') || this.owner[k]) return true;
+        if ((this.brightRun[k] || 0) + 1 < 6) { this.brightRun[k] = (this.brightRun[k] || 0) + 1; pending = true; return true; }
+      }
       const d = st3 === 'T';
       this.darkRun[k] = d ? (this.darkRun[k] || 0) + 1 : 0; this.brightRun[k] = d ? 0 : (this.brightRun[k] || 0) + 1;
       this.firstT = this.firstT || {}; if (d && this.darkRun[k] === 1 && !this.stable[k]) this.firstT[k] = this.frameNo;   // 这一格开始变暗的时刻(英雄按时间顺序排座位用)
@@ -808,6 +819,9 @@ class Tracker {
     const F = this.frameNo, seatKey = q => q[0] + q[1], ORDER = this.fullOrder || [];
     this.pc = this.pc || {}; this.pcRaw = this.pcRaw || {}; this.pcRun = this.pcRun || {}; this.incs = this.incs || [];
     this.known = this.known || new Set(); this.suspect = this.suspect || {}; this.pend = this.pend || {}; this.orphan = this.orphan || {};
+    // observe() already debounces bright recovery. Once it retracts a cell,
+    // newSk no longer visits it, so leaving it in pend would block it forever.
+    for (const k of Object.keys(this.pend)) if (!ob.taken[k] || this.owner[k]) delete this.pend[k];
     if (this.turn == null) this.turn = 0;
     const cur = ob.current;
     /* A. 面板格子数去抖(同一个数连续 2 帧才算)。
@@ -922,6 +936,11 @@ class Tracker {
           this.log.push(['skill', k, pq(q), `按时间配:只剩这一格暗格和他那一个"没认出", 时间相差 ${Math.abs(q.t - this.firstT[k])} 帧(图标吻合 ${sc.toFixed(2)})`]); } } }
     /* D. 英雄:按回合填空 —— 当前回合是 turn(被技能配对不断重新锚定);该座位已有英雄就试前后一手 */
     for (const h of newHero) { let q = null;
+      // A new dark card cannot be an eleventh pick when all ten seats already
+      // have heroes. Panel-name evidence below may still correct a guessed hero.
+      // Do not confuse this with only the nearby turns being occupied: a real
+      // unseated hero must survive while any of the ten seats remains vacant.
+      if (seats.length === 10 && new Set(seats.map(seatKey)).size === 10 && seats.every(hasHero)) continue;
       // Existing heroes in a mid-draft join have no reliable pick timestamps.
       // Keep them unavailable, but let panel names establish their seats.
       if (this.joinedMidDraft && ((this.firstT || {})['hero:' + h] || 0) <= (this.lockFrame || 1)) {
@@ -1041,10 +1060,11 @@ class Tracker {
     this.attribute(img, ob, pq, same);
     this.prev = ob; return this.state(ob);
   }
-  /* 给引擎的局面:**只算配对确认过的**。光棋盘变暗、还在等面板配对的不算(一两帧内就会配上);被判"不是落子"的暗图标不算;
+  /* 给引擎的局面:待配对暗格保留为临时禁选，但由 pendingKeys 排除在完成手数之外;
      认不出图标的那一手占住那个人的名额(占位 key '?pick', 引擎不评它但会扣掉那个座位一个空槽)。 */
   state(ob) {
     const pk = this.pickedKeys(); const unk = this.unknownBy || [];
+    const pendingKeys = Object.keys(this.pend || {}).filter(k => !this.owner[k]);
     const panels = ob.panels.map(p => { const q = [p.side, p.idx]; let hero = null; for (const h in this.heroOf) if (this.heroOf[h][0] === q[0] && this.heroOf[h][1] === q[1]) hero = h;
       const sk = Object.keys(this.owner).filter(k => this.owner[k][0] === q[0] && this.owner[k][1] === q[1]).map(k => ({ key: k }));
       for (const u of unk) if (u[0] === q[0] && u[1] === q[1]) sk.push({ key: '?pick' });
@@ -1054,7 +1074,7 @@ class Tracker {
     // picks. Count only placeholders not already represented on the board.
     const unassigned = this.pool.skills.filter(r => pk.has(r.key) && !this.owner[r.key]).length;
     return { pool_heroes: this.pool.poolHeroes, skills: this.pool.skills.map(r => ({ key: r.key, taken: pk.has(r.key), ultslot: !!r.ultslot })), taken_heroes: takenHeroes, panels,
-      extraPicks: Math.max(0, unk.length - unassigned), pendingPair: Object.keys(this.pend || {}).length, suspects: Object.keys(this.suspect || {}), turn: this.turn,
+      extraPicks: Math.max(0, unk.length - unassigned), pendingKeys, pendingPair: pendingKeys.length, suspects: Object.keys(this.suspect || {}), turn: this.turn,
       current: { side: ob.current[0], idx: ob.current[1] }, me: ob.me ? { side: ob.me[0], idx: ob.me[1] } : null, my_turn: !!ob.me && ob.current[0] === ob.me[0] && ob.current[1] === ob.me[1], boxes: this.boxesNow, align: this.pool.align,
       pending: ob.pending || Object.keys(this.pend || {}).length > 0 || Object.keys(this.surSince || {}).length > 0, bulkMsg: ob.bulkMsg, flakyMsg: ob.flakyMsg, occluded: ob.occluded, offScreen: ob.offScreen, offMsg: ob.offMsg, rawDark: ob.rawDark }; }
   /* 引擎看到的"已被拿走" = 配对确认的 + 正在等面板配对的(一两帧内就会确认, 先算上免得局面来回变);被判"不是落子"的不算 */

@@ -73,6 +73,7 @@ function makeTrayIcon() { const { PNG } = require("pngjs"); const p = new PNG({ 
    隐藏后再 show 抢不回独占全屏游戏之上(用户实测:切出去再回来插件就"消失"了)。
    不需要显示时画空内容即可,一个全透明窗口几乎不花钱。 */
 function createOverlay() {
+  ovContentVisible = null;
   const d = screen.getPrimaryDisplay(); const b = d.bounds;
   /* 覆盖上方 90%：第五位玩家旁的竖向评分明细底部约在 89%。 */
   const ovH = Math.round(b.height * 0.9);
@@ -84,23 +85,23 @@ function createOverlay() {
      它的页面一旦卡住, 最后一帧就一直钉在屏幕最上层, F6 也清不掉, 只能任务管理器(09-23 飞刀反馈)。以前主进程对此没有任何监听。 */
   const me = overlay; ovPingAt = Date.now(); ovUnresp = 0;
   me.on("unresponsive", () => { if (overlay !== me) return; ovUnresp = Date.now(); log("error", "覆盖层无响应(页面卡住), 3 秒后还不恢复就重建");
-    setTimeout(() => { if (overlay === me && ovUnresp && overlayWanted()) recreateOverlay("无响应超过 3 秒"); }, 3000); });
+    setTimeout(() => { if (overlay === me && ovUnresp) recreateOverlay("无响应超过 3 秒"); }, 3000); });
   me.on("responsive", () => { if (overlay !== me || !ovUnresp) return; log("error", `覆盖层恢复响应(卡了 ${((Date.now() - ovUnresp) / 1000).toFixed(1)}s)`); ovUnresp = 0; });
   me.webContents.on("render-process-gone", (e, d) => { if (overlay !== me) return; recreateOverlay(`渲染进程没了(${d && d.reason} ${d && d.exitCode})`); });
   if (ovTimer) return; ovTimer = true;
   /* 游戏切换独占全屏/别的置顶窗口出现后,置顶属性可能被顶掉,定期重申一次 */
-  setInterval(() => { if (overlayWanted() && overlay && !overlay.isDestroyed()) { if (!overlay.isVisible()) overlay.showInactive(); overlay.setAlwaysOnTop(true, "screen-saver"); } }, 5000);
+  setInterval(() => { if (overlay && !overlay.isDestroyed()) { if (!overlay.isVisible()) overlay.showInactive(); overlay.setAlwaysOnTop(true, "screen-saver"); } }, 5000);
   /* 报平安超时: 页面每 2 秒 ping 一次, 10 秒收不到 → 重建(unresponsive 事件有时不来, 比如页面没卡但合成/绘制停了) */
-  setInterval(() => { if (!overlayWanted() || !overlay || overlay.isDestroyed() || ovRebuilding) return; const age = Date.now() - ovPingAt;
+  setInterval(() => { if (!overlay || overlay.isDestroyed() || ovRebuilding) return; const age = Date.now() - ovPingAt;
     if (age > 10e3) recreateOverlay(`${(age / 1000).toFixed(0)} 秒没收到覆盖层报平安`); }, 2000);
 }
-let ovPingAt = 0, ovFrames = -1, ovUnresp = 0, ovTimer = false, ovRebuilding = false, ovRebuilds = [], ovRender = null, ovRenderLogAt = 0;
+let ovPingAt = 0, ovFrames = -1, ovUnresp = 0, ovTimer = false, ovRebuilding = false, ovRebuilds = [], ovRender = null, ovRenderLogAt = 0, ovContentVisible = null;
 ipcMain.on("ov-ping", (e, n) => { if (overlay && !overlay.isDestroyed() && e.sender === overlay.webContents) {
   ovPingAt = Date.now(); ovFrames = (typeof n === "object" ? n.frames : n) | 0;
   if (n && typeof n === "object") {
     ovRender = n;
     if (Date.now() - ovRenderLogAt > 30e3 || n.error) { ovRenderLogAt = Date.now(); crashDiag.record("overlay-render", n, !!n.error); }
-    if (n.error && overlayWanted() && !ovRebuilding) { log("error", "覆盖层绘制失败: " + n.error); recreateOverlay("绘制失败: " + n.error); }
+    if (n.error && !ovRebuilding) { log("error", "覆盖层绘制失败: " + n.error); recreateOverlay("绘制失败: " + n.error); }
   }
 } });
 function recreateOverlay(why) {
@@ -120,11 +121,15 @@ function overlayWanted() { return !liveWaiting && !cfg.paused && (Date.now() < v
 function setVisible(v) {
   if (!overlay || overlay.isDestroyed()) return;
   const wanted=overlayWanted();
-  if(overlay.isVisible()!==wanted)crashDiag.record("overlay-visibility",{visible:wanted,reason:liveWaiting?"capture-waiting":cfg.paused?"paused":Date.now()<visibilityNoticeUntil?"visibility-toast":cfg.hidden?"hidden":recognitionNotice?"recognition-pending":phase,hidden:cfg.hidden,phase,waiting:liveWaiting},true);
-  if (!wanted) { overlay.hide(); overlay.webContents.setBackgroundThrottling(true); send("clear", {}); return; }
+  // Keep the native window mapped across matches. hide -> show can lose its place
+  // above exclusive fullscreen even when isVisible() and canvas health look fine.
+  send("presentation", { visible: wanted });
+  if (!wanted) send("clear", {});
   overlay.webContents.setBackgroundThrottling(false);
   if (!overlay.isVisible()) { ovPingAt = Date.now(); overlay.showInactive(); }
   overlay.setAlwaysOnTop(true, "screen-saver");
+  if(ovContentVisible!==wanted)crashDiag.record("overlay-visibility",{visible:wanted,nativeVisible:overlay.isVisible(),reason:liveWaiting?"capture-waiting":cfg.paused?"paused":Date.now()<visibilityNoticeUntil?"visibility-toast":cfg.hidden?"hidden":recognitionNotice?"recognition-pending":phase,hidden:cfg.hidden,phase,waiting:liveWaiting},true);
+  ovContentVisible=wanted;
 }
 /* ---- 截屏 ----
    首选:常驻屏幕视频流(隐藏窗口里的 getDisplayMedia,和 OBS/Discord 一样),取一帧只是一次 GPU 缩放 + 像素读回。
