@@ -493,7 +493,7 @@ function extFill(sim, own, seat, buf, b) {
   for (let i = 0; i < 60; i++) { kind[i] = it[i].kind; pp[i] = it[i].p; }
   const openJ = []; for (let j = 0; j < 60; j++) if (own[j] < 0 && pp[j] >= 0) openJ.push(j);
   const MK = new Float32Array(180);
-  for (let i = 0; i < 60; i++) { if (pp[i] < 0) continue; const row = pp[i] * PN;
+  for (let i = 0; i < 60; i++) { if (pp[i] < 0 || !buf.legal[b * 60 + i]) continue; const row = pp[i] * PN;
     for (const j of openJ) { if (j === i) continue; const v = PAIR[row + pp[j]]; if (v > 0) { const q = i * 3 + kind[j]; if (v > MK[q]) MK[q] = v; } } }
   const pot = (st, i) => { const ki = kind[i], sl = st * 3; let m = 0;
     for (let k = 0; k < 3; k++) { if (!(sim.slot[sl + k] + (k === ki ? 1 : 0) < CAP3[k])) continue; const v = MK[i * 3 + k]; if (v > m) m = v; } return m; };
