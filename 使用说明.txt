@@ -1,4 +1,15 @@
-选技助手 v1.49.0  (阵容胜率提示)
+选技助手 v1.49.3  (阵容胜率提示)
+
+【v1.49.3：团队资源分配加速与详细日志】
+  · 双方推演 + 团队资源分配使用合法分配的精确枚举，减少重复计算。评分模型和网络权重保持一致。
+  · 托盘“打开日志目录”可查看 diag_combo_时间戳.jsonl；通常位于 %APPDATA%/ADAssistant/logs（以托盘打开的位置为准）。每行是一条 JSON，按 context.running.id 关联同一任务。
+  · diagnostic-config：插件版本、平台、算法标识。model-init-end：实际推断后端和设备。context.shareMode=optimalBoth 表示双方团队资源分配。
+  · search-profile：每次搜索的小结。rootCandidateMs 为根候选准备；encodeMs 为续选输入构造；logitsMs 为续选网络调用的墙钟时间（含等待、拷贝等，不等于纯GPU内核时间）；priorPostMs 为续选先验整理；backpropMs 为终局回传与经验记录；otherMs 为选路、状态推进、资源评分等剩余时间。这些分项相加约等于 elapsedMs。
+  · priorBatches/priorStates/batchSizes：续选网络批数、输入状态数和实际批大小分布，不含根候选准备中的调用。cachedLookups 为树中已有先验的查询；uncachedLookups 为未命中查询，其中 deduplicatedLookups 是同批重复查询，不能当作独立状态数。
+  · completedPaths 只统计已走到终局并回传的路径；reusedSamples 是本次目标内复用的旧路径；suspendedPaths/resumedSteps 表示预算用尽保存的未完成路径及恢复深度。候选均值、rolloutStd 和 topGap 是搜索统计，不是真实胜率或置信区间。
+  · search-wave：长搜索按秒记录累计进度。search-result/job-end：中间与最终候选、首选、排队/初始化/计算耗时、推断次数及搜索超时。inferenceMs 包括根与续选的原生调用墙钟时间，与 search-profile 的 logitsMs 有重叠，不可相加。
+  · job-cancel/job-dropped：抢占或撤销原因；native-start/native-end/native-error 和 checkpoint：用于排查卡顿、设备错误及线程退出。详细日志写文件，不逐批显示。
+  · 计算线程日志每份约8 MiB，保留当前文件及 .previous.jsonl 上一份；若需排查一整局，结束后及时复制或上传日志，以免轮转覆盖。Windows DirectML 实际游戏速度仍需日志验证。
 
 【v1.49.0】新网络与新版评分已接入；F10 用于保留原池恢复本局。人工恢复后自动结束判断会暂停，可在设置中恢复自动判断，或在下一局重新识别池子。
 

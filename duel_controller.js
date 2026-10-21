@@ -3,12 +3,13 @@ const assert=require("assert/strict"),{Planner,T}=require("./duel_search"),D=req
 const clone=s=>JSON.parse(JSON.stringify(s));
 const apply=(s,key)=>{const n=clone(s);assert(D.pick(n,key).ok);return n;};
 class DuelController {
-  constructor({diagnostic=()=>{},remember=true}={}){this.diagnostic=diagnostic;this.remember=remember;this.reset('initialize');}
-  report(event,details){try{this.diagnostic(event,details);}catch(_){}}
-  reset(reason='configuration'){this.report('search-reset',{reason,nodes:this.planner?.tree.size||0});this.planner=new Planner({remember:this.remember});this.mode=null;}
+  constructor({diagnostic=null,remember=true}={}){this.diagnostic=diagnostic;this.remember=remember;this.reset('initialize');}
+  report(event,details){try{this.diagnostic?.(event,details);}catch(_){}}
+  makePlanner(compact=false){return new Planner({compact,remember:this.remember,diagnostic:this.diagnostic?(event,details)=>this.report(event,details):null});}
+  reset(reason='configuration'){this.report('search-reset',{reason,nodes:this.planner?.tree.size||0});this.planner=this.makePlanner();this.mode=null;}
   select(mode,state){
     const namespace=JSON.stringify([state.pool,state.order]);
-    if(this.mode!==mode||(this.planner.namespace!==null&&this.planner.namespace!==namespace)){this.report('search-namespace-change',{reason:this.mode!==mode?'mode':JSON.stringify(JSON.parse(this.planner.namespace)[0])!==JSON.stringify(state.pool)?'pool':'order',fromMode:this.mode,toMode:mode,step:state.step,order:state.order});this.reset();this.planner=new Planner({compact:mode==="duel-fast",remember:this.remember});}
+    if(this.mode!==mode||(this.planner.namespace!==null&&this.planner.namespace!==namespace)){this.report('search-namespace-change',{reason:this.mode!==mode?'mode':JSON.stringify(JSON.parse(this.planner.namespace)[0])!==JSON.stringify(state.pool)?'pool':'order',fromMode:this.mode,toMode:mode,step:state.step,order:state.order});this.reset();this.planner=this.makePlanner(mode==="duel-fast");}
     this.mode=mode;const advanced=this.planner.advance(state);this.report('search-advance',{step:state.step,...advanced});
   }
   async background(state,{mode,targetSeat,budgetMs=6000,cancelled=()=>false}={}){

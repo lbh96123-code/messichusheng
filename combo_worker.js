@@ -6,7 +6,7 @@ let FE = null; try { FE = require(require("path").join(__dirname, "engine", "ser
 let ready = null, readyB = 0;
 let duel = null, shareMode = "expect";
 function duelController() {
-  if (!duel) { const { DuelController } = require(workerData.duel || "./duel_controller.js"); duel = new DuelController({diagnostic:(event,details)=>jobDiag?.record(event,details)}); duel.setShareMode(shareMode); }
+  if (!duel) { const { DuelController } = require(workerData.duel || "./duel_controller.js"); duel = new DuelController({diagnostic:jobDiag?(event,details)=>jobDiag.record(event,details):null}); duel.setShareMode(shareMode); }
   return duel;
 }
 /* v1.30: 预热(开组合版就在后台建会话+逐块显卡测速)、新任务来了取消旧任务(旧任务不再占着显卡跑到超时) */
@@ -22,9 +22,9 @@ function pickModel(shareMode) { const fs0 = require("fs"); const want = (shareMo
    · 跟随类 fate/planfinal(理由/两步补算): 谁也不取消, 排在后面按序跑, 同类只留最新一个。 */
 const PRE = new Set(["final", "refine", "job", "duel"]), BG = new Set(["screen", "plan", "duelbg"]);
 let running = null, warming = false, pendingWarm = null, pendingCfg = null, stopping = false, closing = false; const queue = [];
-const jobDiag = workerData.diagnosticFile ? require("./crash_diagnostics.js").create(workerData.diagnosticFile, { rotate: true, context: () => ({ model: require("path").basename(MODEL || ""), shareMode, warming, stopping, running: running ? { id: running.m.id, type: running.m.type, step: running.m.st && running.m.st.step, cancel: running.cancel, cancelReason: running.cancelReason, elapsedMs: Date.now()-running.startedAt, initMs: running.initMs } : null, queued: queue.length, native: C.nativeSnapshot?.() }) }) : null;
+const jobDiag = workerData.diagnosticFile ? require("./crash_diagnostics.js").create(workerData.diagnosticFile, { rotate: true, cap:8*1024*1024, context: () => ({ model: require("path").basename(MODEL || ""), shareMode, warming, stopping, running: running ? { id: running.m.id, type: running.m.type, mode:running.m.mode, step: running.m.st && running.m.st.step, cancel: running.cancel, cancelReason: running.cancelReason, elapsedMs: Date.now()-running.startedAt, initMs: running.initMs } : null, queued: queue.length, native: C.nativeSnapshot?.() }) }) : null;
 if (C.setDiagnosticHook) C.setDiagnosticHook((event, details, critical) => jobDiag?.record(event, details, critical));
-if (jobDiag) { jobDiag.start(); process.on("uncaughtExceptionMonitor", e => jobDiag.record("uncaught-exception", { stack: String(e && e.stack || e) }, true)); process.on("exit", code => jobDiag.record("worker-exit", { code }, true)); }
+if (jobDiag) { jobDiag.start();jobDiag.record('diagnostic-config',{schema:2,version:require('./package.json').version,platform:process.platform,arch:process.arch,node:process.versions.node,resourceAllocation:'exact-16-per-template',file:workerData.diagnosticFile,capBytes:8*1024*1024,waveLogIntervalMs:1000}); process.on("uncaughtExceptionMonitor", e => jobDiag.record("uncaught-exception", { stack: String(e && e.stack || e) }, true)); process.on("exit", code => jobDiag.record("worker-exit", { code }, true)); }
 const runOne = async m => {
   const job = { m, cancel: false, startedAt: Date.now(), queueMs: Date.now()-(m.queuedAt||Date.now()), initMs: 0 }; running = job; jobDiag && jobDiag.record("job-start", { id: m.id, type: m.type, mode: m.mode, step: m.st && m.st.step, budget: m.budget, queueMs: job.queueMs, context: m.context, state: m.st });
   const initialize = async b => { const t=Date.now();const info=await ensure(b);job.initMs+=Date.now()-t;job.nativeBefore=C.nativeSnapshot?.();job.device={ep:info.ep,dev:info.dev,med:info.med,bfix:info.bfix};return info; };
@@ -37,7 +37,8 @@ const runOne = async m => {
       const info = await initialize(32), controller = duelController();
       const o = { ...m.o, mode: m.mode, cancelled: () => job.cancel, budgetMs: m.budget || (m.type === "duelbg" ? 6000 : 8000) };
       o.onReady = r => { if (!job.cancel) parentPort.postMessage({ type: "duelready", id: m.id, r, ep: info.ep }); };
-      o.onResult = r => { if (!job.cancel) {jobDiag?.record("search-result",{id:m.id,complete:r.complete,newSamples:r.newSamples,reusedSamples:r.reusedSamples,top:r.rows?.slice(0,8)});parentPort.postMessage({type:"duelready",id:m.id,r,ep:info.ep});} };
+      let resultLogAt=-Infinity;
+      o.onResult = r => { if (!job.cancel) {const now=Date.now();if(now-resultLogAt>=1000||r.complete){resultLogAt=now;jobDiag?.record("search-result",{id:m.id,complete:r.complete,newSamples:r.newSamples,reusedSamples:r.reusedSamples,elapsedMs:r.ms,top:r.rows?.slice(0,8)});}parentPort.postMessage({type:"duelready",id:m.id,r,ep:info.ep});} };
       let progressAt=0;o.onProgress = r => { if(Date.now()-progressAt>=1000){progressAt=Date.now();jobDiag?.record("search-progress",{id:m.id,...r});} };
       const r = m.type === "duelbg" ? (m.o?.continuous ? await controller.maintain(m.st, o) : await controller.background(m.st, o)) : await controller.decide(m.st, o);
       respond({ type: "done", id: m.id, r, cancelled: job.cancel, ep: info.ep + (info.dev != null ? "#" + info.dev : "") });
@@ -54,7 +55,8 @@ const runOne = async m => {
     }
   } catch (e) { jobDiag && jobDiag.record("job-error", { id: m.id, stack: String(e && e.stack || e) }, true); ready = null; if (duel) duel.reset(); parentPort.postMessage({ type: "err", id: m.id, msg: String(e && e.stack || e) }); }
   const r=job.result,native=C.nativeSnapshot?.(),before=job.nativeBefore;
-  jobDiag && jobDiag.record("job-end", { id: m.id, cancelled: job.cancel, cancelReason:job.cancelReason, device:job.device, queueMs:job.queueMs, initMs:job.initMs, elapsedMs:Date.now()-job.startedAt, computeMs:Date.now()-job.startedAt-job.initMs, inferenceCalls:native&&before?native.calls-before.calls:null, inferenceMs:native&&before?native.runMs-before.runMs:null, lifetimeMaxInferenceMs:native?.maxMs, result:r?{reason:r.reason,failure:r.failure,complete:r.complete,partial:r.partial,newSamples:r.newSamples,reusedSamples:r.reusedSamples,requestedSamples:r.requestedSamples,legalCandidates:r.legalCandidates,searchedCandidates:r.searchedCandidates,suspendedSteps:r.suspendedSteps,resumedSteps:r.resumedSteps,calls:r.calls,top:r.rows?.slice(0,8),rounds:r.rounds}:null }); running = null; pump();
+  const budgetMs=m.type==='duel'?(m.budget||8000):null;
+  jobDiag && jobDiag.record("job-end", { id: m.id, cancelled: job.cancel, cancelReason:job.cancelReason, device:job.device, queueMs:job.queueMs, initMs:job.initMs, elapsedMs:Date.now()-job.startedAt, computeMs:Date.now()-job.startedAt-job.initMs, budgetMs,searchMs:r?.ms,searchOverrunMs:budgetMs&&r?.ms!=null?Math.max(0,r.ms-budgetMs):null,inferenceCalls:native&&before?native.calls-before.calls:null, inferenceMs:native&&before?native.runMs-before.runMs:null, lifetimeMaxInferenceMs:native?.maxMs, result:r?{reason:r.reason,failure:r.failure,complete:r.complete,partial:r.partial,chosen:r.chosen,topGap:r.rows?.length>=2&&r.rows[0].win!=null&&r.rows[1].win!=null?r.rows[0].win-r.rows[1].win:null,nodes:r.nodes,newSamples:r.newSamples,reusedSamples:r.reusedSamples,requestedSamples:r.requestedSamples,legalCandidates:r.legalCandidates,searchedCandidates:r.searchedCandidates,suspendedSteps:r.suspendedSteps,resumedSteps:r.resumedSteps,calls:r.calls,top:r.rows?.slice(0,8),rounds:r.rounds}:null }); running = null; pump();
 };
 const applyCfg = m => { if (m.shareMode && FE && FE.setShareMode) FE.setShareMode(m.shareMode); if (m.shareMode) { pickModel(m.shareMode); if (shareMode !== m.shareMode && duel) duel.setShareMode(m.shareMode); shareMode = m.shareMode; } if (m.resetSearch && duel) duel.reset(); jobDiag?.record("config-applied",m); };
 const close = async () => { if(closing)return;closing=true;jobDiag?.record("shutdown-drained",{},true);try{await C.dispose?.();jobDiag?.close("shutdown");parentPort.postMessage({type:"shutdown-ready"});parentPort.close();}catch(e){jobDiag?.record("shutdown-error",{stack:String(e?.stack||e)},true);parentPort.postMessage({type:"shutdown-error",msg:String(e)});} };

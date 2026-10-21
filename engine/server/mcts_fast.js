@@ -255,11 +255,22 @@ function shareTeam0(s, t, addSeat, addB, addD, addP) {
     /* v1.47.1 提速: 模板号位的份额档预先算好; 最优派法用 32 状态子集 DP 代替 120 种排列逐个试(结果逐位相同) */
     if (!G.TPLB) G.TPLB = TPL.map(L => L.map(x => scBin(G, x)));
     let best = -1e300;
-    for (let ti = 0; ti < TPL.length; ti++) { const TB = G.TPLB[ti];
-      _DP.fill(-1e300); _DP[0] = 0;
-      for (let m = 0; m < 31; m++) { const dv = _DP[m]; if (dv <= -1e299) continue; const q = _POP[m], lo = _cr[q] - 1, kb = q * 10;
-        for (let r = 0; r < 5; r++) { if (m & (1 << r) || r < lo) continue; const nm = m | (1 << r), v = dv + _KC[kb + TB[r]]; if (v > _DP[nm]) _DP[nm] = v; } }
-      if (_DP[31] > best) best = _DP[31]; }
+    // Exact enumeration of legal allocations. Rank constraints leave16 permutations.
+    if (!G.TPLPATH) G.TPLPATH = new Array(3125);
+    const rankKey = _cr[0] + 5*_cr[1] + 25*_cr[2] + 125*_cr[3] + 625*_cr[4];
+    let paths = G.TPLPATH[rankKey];
+    if (!paths) {
+      const positions = [], visit = (q, used, row) => {
+        if(q===5){positions.push(row);return;}
+        for(let r=0;r<5;r++)if(!(used&(1<<r))&&r>=_cr[q]-1)visit(q+1,used|(1<<r),[...row,r]);
+      };visit(0,0,[]);
+      const flat=[];for(const TB of G.TPLB)for(const row of positions)for(let q=0;q<5;q++)flat.push(q*10+TB[row[q]]);
+      paths=G.TPLPATH[rankKey]=Uint8Array.from(flat);
+    }
+    for(let j=0;j<paths.length;j+=5){
+      let v=0;v+=_KC[paths[j]];v+=_KC[paths[j+1]];v+=_KC[paths[j+2]];v+=_KC[paths[j+3]];v+=_KC[paths[j+4]];
+      if(v>best)best=v;
+    }
     tot += Math.max(0, best - (_VE[0] + _VE[1] + _VE[2] + _VE[3] + _VE[4])) * G.SCS / 25;   // 09-29: 最优不低于自然分配
   }
   return tot;

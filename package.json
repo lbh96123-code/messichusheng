@@ -1,7 +1,7 @@
 {
   "name": "ad-assistant",
   "productName": "ADAssistant",
-  "version": "1.49.2",
+  "version": "1.49.3",
   "description": "Dota 2 Ability Draft pick assistant: screen capture + model win-rate overlay",
   "main": "main.js",
   "private": true,
