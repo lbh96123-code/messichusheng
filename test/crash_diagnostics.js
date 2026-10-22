@@ -7,6 +7,7 @@ assert.equal(options.uploadToServer,false);
 const wc=new EventEmitter();wc.id=7;app.emit("web-contents-created",null,wc);wc.emit("render-process-gone",null,{reason:"crashed",exitCode:-1073741819});
 app.emit("child-process-gone",null,{type:"GPU",reason:"oom",exitCode:1});proc.emit("uncaughtExceptionMonitor",Error("native-boundary"));proc.emit("unhandledRejection",Error("async-fault"));
 app.emit("before-quit");const rows=fs.readFileSync(file,"utf8").trim().split("\n").map(JSON.parse);
+assert.equal(diag.stats().records,rows.length);assert(diag.stats().writeMs>=0);assert.equal(diag.stats().errors,0);
 for(const kind of ["render-process-gone","child-process-gone","uncaught-exception","unhandled-rejection","normal-exit"])assert(rows.some(r=>r.event===kind),kind);
 assert.equal(rows.find(r=>r.event==="render-process-gone").details.exitCode,-1073741819);assert(rows.every(r=>r.context.mode==="duel"&&r.memory.rss>0));assert(messages.some(r=>r[0]==="flush"));
 const capped=D.create(path.join(dir,"cap.jsonl"),{cap:1});capped.record("initial");capped.record("routine");capped.record("fatal",{},true);assert.equal(fs.readFileSync(path.join(dir,"cap.jsonl"),"utf8").trim().split("\n").length,2);

@@ -10,7 +10,9 @@ let ort = null, sess = null, EP = null, DEV = null, BFIX = 0, INFO = null, MED =
 let sessionModel = null, sessionPreference = null;
 const native = require('./native_monitor').create();
 const nativeRun = (session, feeds) => native.call('infer', { batch: feeds.ids.dims[0] }, () => session.run(feeds));
-const nativeCreate = (model, options) => native.call('session-create', { model: path.basename(model), providers: options.executionProviders, batch: options.freeDimensionOverrides.B }, () => ort.InferenceSession.create(model, options));
+const modelFingerprints=new Map();
+function modelFingerprint(model){try{if(!modelFingerprints.has(model)){const fs=require('fs'),bytes=fs.readFileSync(model);modelFingerprints.set(model,{sha256:require('crypto').createHash('sha256').update(bytes).digest('hex'),bytes:bytes.length});}return modelFingerprints.get(model);}catch(e){return {unavailable:String(e.message||e).slice(0,160)};}}
+const nativeCreate = (model, options) => native.call('session-create', { model: path.basename(model), fingerprint:modelFingerprint(model), providers: options.executionProviders, batch: options.freeDimensionOverrides.B,graphOptimizationLevel:options.graphOptimizationLevel,executionMode:options.executionMode,enableMemPattern:options.enableMemPattern,intraOpNumThreads:options.intraOpNumThreads??null,runtimeVersion:(()=>{try{return require('onnxruntime-node/package.json').version;}catch(_){return null;}})() }, () => ort.InferenceSession.create(model, options));
 const nativeRelease = session => native.call('session-release', {}, () => session.release());
 /* v1.30: ① 批大小固定(freeDimensionOverrides B=BFIX): 模型里 20 个 Shape/34 个 Concat 等"现算形状"的节点在建会话时就折叠掉
    (369→209 节点), DirectML 上这些节点落在 CPU, 每次调用中途要显卡↔CPU 来回倒;不够一批的补齐(复制第 0 行, 结果丢掉)。
@@ -18,9 +20,9 @@ const nativeRelease = session => native.call('session-release', {}, () => sessio
 function dummyBuf(B) { const b = mkBuf(B); for (let i = 0; i < B * 60; i++) { b.ids[i] = (i * 7) % 600; b.legal[i] = 1; b.delta[i] = ((i % 13) - 6) / 10; } b.t.fill(10); return b; }
 async function benchSess(s, B) {
   HAS_EXT = (s.inputNames || []).includes("ext");
-  const b = dummyBuf(B), f = feedsOf(b, B), t0 = Date.now(); await nativeRun(s, f); const first = Date.now() - t0, a = [];
-  for (let i = 0; i < 5; i++) { const q = Date.now(); await nativeRun(s, f); a.push(Date.now() - q); }
-  a.sort((x, y) => x - y); return { first, med: a[2] };
+  const b = dummyBuf(B), f = feedsOf(b, B), beforeFirst=native.snapshot().runMs,t0 = Date.now(); await nativeRun(s, f); const first = Date.now() - t0, firstInferenceMs=native.snapshot().runMs-beforeFirst,a = [],inferenceRuns=[];
+  for (let i = 0; i < 5; i++) { const before=native.snapshot().runMs,q = Date.now(); await nativeRun(s, f); a.push(Date.now() - q);inferenceRuns.push(native.snapshot().runMs-before); }
+  const runs=[...a];a.sort((x, y) => x - y); return { first, med: a[2],runs,inferenceRuns,firstInferenceMs,mean:a.reduce((n,x)=>n+x,0)/a.length,min:a[0],max:a[a.length-1] };
 }
 async function init(modelPath, prefer, bfix) {
   await native.waitIdle();
@@ -39,6 +41,8 @@ async function init(modelPath, prefer, bfix) {
       catch (e) { if (d === 0) notes.push(`${gpu}显卡0 建不起来: ${String(e && e.message || e).slice(0, 120)}`); break; }
       const tc = Date.now() - q; let b = null;
       try { b = await benchSess(s, bfix); } catch (e) { notes.push(`显卡${d} 试跑出错 ${String(e && e.message || e).slice(0, 80)}`); try { await nativeRelease(s); } catch (e2) { } continue; }
+      // Reuse the existing five fixed-input runs; no extra benchmark workload.
+      native.record('fixed-input-benchmark',{model:path.basename(modelPath),fingerprint:modelFingerprint(modelPath),ep:gpu,dev:d,batch:bfix,precision:'fp32',firstMs:b.first,runsMs:b.runs,inferenceRunsMs:b.inferenceRuns,firstInferenceMs:b.firstInferenceMs,meanMs:b.mean,minMs:b.min,medianMs:b.med,maxMs:b.max,scope:'startup fixed input; inferenceRunsMs excludes diagnostic hooks; runsMs retains legacy selection timing; includes runtime/driver/scheduling',samples:5});
       notes.push(`显卡${d}: 建会话${tc}ms 首跑${b.first}ms 每次${b.med}ms`);
       if (!best || b.med < best.med) { if (best) try { await nativeRelease(best.s); } catch (e) { } best = { s, d, med: b.med }; } else try { await nativeRelease(s); } catch (e) { }
       if (gpu === "cuda") break;
@@ -51,6 +55,7 @@ async function init(modelPath, prefer, bfix) {
         let s16 = null;
         try { s16 = await nativeCreate(m16, { ...base, executionProviders: [{ name: gpu, deviceId: best.d }], enableMemPattern: false, executionMode: "sequential" });
           const b16 = await benchSess(s16, bfix); notes.push(`半精度: 每次${b16.med}ms`);
+          native.record('fixed-input-benchmark',{model:path.basename(m16),fingerprint:modelFingerprint(m16),ep:gpu,dev:best.d,batch:bfix,precision:'fp16',firstMs:b16.first,runsMs:b16.runs,inferenceRunsMs:b16.inferenceRuns,firstInferenceMs:b16.firstInferenceMs,meanMs:b16.mean,minMs:b16.min,medianMs:b16.med,maxMs:b16.max,scope:'startup fixed input; inferenceRunsMs excludes diagnostic hooks; runsMs retains legacy selection timing; includes runtime/driver/scheduling',samples:5});
           if (b16.med < best.med * 0.9) { await nativeRelease(sess); sess = s16; MED = b16.med; FP16 = true; notes.push("选用半精度"); s16 = null; }
           else notes.push("半精度不够快, 留单精度");
         } catch (e) { notes.push(`半精度建不起来, 留单精度: ${String(e && e.message || e).slice(0, 100)}`); }

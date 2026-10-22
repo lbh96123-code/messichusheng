@@ -18,8 +18,8 @@ const input=require('../../research/rubick_full_draft_20261008/input.json');
   assert.equal(profiles.length,2);const [first,reused]=profiles;
   assert.equal(first.completedPaths,actual.newSamples);assert.equal(first.waves,4);assert(first.priorBatches>0&&first.priorStates>=first.priorBatches);
   assert.equal(Object.values(first.batchSizes).reduce((a,n)=>a+n,0),first.priorBatches);
-  for(const key of ['encodeMs','logitsMs','priorPostMs','rootCandidateMs','backpropMs','otherMs','elapsedMs'])assert(Number.isFinite(first[key])&&first[key]>=0,key);
-  assert(Math.abs(first.elapsedMs-first.encodeMs-first.logitsMs-first.priorPostMs-first.rootCandidateMs-first.backpropMs-first.otherMs)<1e-6);
+  for(const key of ['encodeMs','logitsMs','priorPostMs','rootCandidateMs','simulationMs','backpropMs','otherMs','elapsedMs'])assert(Number.isFinite(first[key])&&first[key]>=0,key);
+  assert(Math.abs(first.elapsedMs-first.encodeMs-first.logitsMs-first.priorPostMs-first.rootCandidateMs-first.simulationMs-first.backpropMs-first.otherMs)<1e-6);
   assert.equal(reused.completedPaths,0);assert.equal(reused.priorBatches,0);assert.equal(reused.reusedSamples,actual.requestedSamples);
   // Broken diagnostic consumers must not change selection or crash a search.
   const broken=new DuelController({diagnostic:()=>{throw Error('disk unavailable');}});broken.setShareMode('optimalBoth');

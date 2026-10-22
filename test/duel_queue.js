@@ -12,10 +12,12 @@ function send(type,extra={}){const key=++id;const p=new Promise(resolve=>pending
  a=send("duel");b=send("duelbg");w.postMessage({type:"cancel"});[x,y]=await Promise.all([a,b]);assert(x.cancelled&&y.cancelled);
  a=send('duelbg',{budget:0,o:{continuous:true}}); await new Promise(resolve=>setTimeout(resolve,160)); b=send('duel'); [x,y]=await Promise.all([a,b]); assert(x.cancelled&&x.r.rounds>=10&&!y.cancelled);
  const logs=fs.readFileSync(diagnosticFile,'utf8').trim().split('\n').map(JSON.parse);
- for(const event of ['diagnostic-config','job-enqueue','job-start','model-init-end','job-cancel','job-dropped','job-end'])assert(logs.some(r=>r.event===event),event);
+ for(const event of ['diagnostic-config','job-enqueue','job-start','model-init-end','job-cancel','job-dropped','job-end','job-performance'])assert(logs.some(r=>r.event===event),event);
  assert.equal(logs.find(r=>r.event==='diagnostic-config').details.schema,2);
  const ends=logs.filter(r=>r.event==='job-end');assert(ends.some(r=>r.details.cancelled&&r.details.cancelReason));
  assert(ends.every(r=>r.details.queueMs>=0&&r.details.initMs>=0&&r.details.computeMs>=0));
+ const profiles=logs.filter(r=>r.event==='job-performance');
+ assert.equal(profiles.length,ends.length);assert(profiles.every(r=>r.details.resources.cpuUserMs>=0&&r.details.diagnosticWriteMs>=0));
  console.log('通过：双方推演排队/抢占/取消，详细任务日志、初始化、取消原因与耗时落盘。');
  await w.terminate();
  fs.rmSync(dir,{recursive:true,force:true});

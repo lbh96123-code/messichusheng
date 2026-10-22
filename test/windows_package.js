@@ -7,6 +7,7 @@ assert.equal(exe.toString("ascii",0,2),"MZ");const pe=exe.readUInt32LE(0x3c);
 assert.equal(exe.toString("ascii",pe,pe+4),"PE\0\0");assert.equal(exe.readUInt16LE(pe+4),0x8664,"Windows x64 executable");
 const required=["main.js","worker.js","recog.js","v2.js","overlay.html","overlay_state.js","preload.js","frames.js",
   "draft_lifecycle.js","draft_scene.js","draft_checkpoint.js","player_scores.js","trace.js","worker_lifecycle.js",
+  "performance_diagnostics.js","native_monitor.js","crash_diagnostics.js","combo_local.js","combo_worker.js","duel_search.js",
   "data/lib_i8.bin","data/lib_scale.bin","data/lib_keys.json","data/meta.json","data/layout_2560x1440.json",
   "data/names.json","data/names.bin","data/draft_scene.json","data/netS_f21_60.bin","data/netS_f21_60.json","data/netS_f21_60.onnx","data/pairP.bin",
   "engine/public/ad_model.js","engine/public/ad_score.js","engine/public/ad_data.js","engine/public/ad_trio.js"];

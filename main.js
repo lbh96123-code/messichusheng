@@ -526,6 +526,8 @@ app.whenReady().then(() => {
   pruneLogs(); updater.cleanupOld(); const d = screen.getPrimaryDisplay();
   log("start", `v${VERSION} electron ${process.versions.electron} ${process.platform} ${process.arch} 主屏 ${d.bounds.width}x${d.bounds.height} 缩放 ${d.scaleFactor} 物理 ${Math.round(d.bounds.width * d.scaleFactor)}x${Math.round(d.bounds.height * d.scaleFactor)} 日志 ${LOGFILE}`);
   logGpu(); preferDiscreteGpu();
+  const hardwareSampler=require('./performance_diagnostics').createHardwareSampler({record:(event,details)=>crashDiag.record(event,details),active:()=>phase==='active'&&!cfg.paused});
+  hardwareSampler.start();app.on('before-quit',()=>hardwareSampler.stop());
   require("./gpuprio.js").configure(process.pid, log, r => { gpuPrio = r; crashDiag.record("gpu-priority", r || { supported: false }, true); sendPanel(); }, { target: process.env.AD_GPU_PRIORITY === "normal" ? 2 : 3 });
   if (Math.round(d.bounds.height * d.scaleFactor) !== 1440) log("warn", "主屏不是 1440p, 版式按高度等比缩放(16:9 可用, 带鱼屏未验证)");
   tray = new Tray(makeTrayIcon()); tray.setToolTip(`AD 选技助手 v${VERSION}`); tray.setContextMenu(buildMenu());

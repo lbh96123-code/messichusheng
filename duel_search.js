@@ -94,7 +94,7 @@ class Planner{
   }
   async decideMany(states,{samples=128,batch=32,K=8,rootKeys=null,cancelled=()=>false,budgetExpired=()=>false,verifyTerminal=null,onTerminal=null,onWave=null}={}){
     const began=performance.now();assert(states.length&&states.every(s=>s.step===states[0].step));
-    const profile=this.diagnostic?{step:states[0].step,roots:states.length,samplesPerRoot:samples,batch,K,nodesBefore:this.tree.size,rootCandidateMs:0,encodeMs:0,logitsMs:0,priorPostMs:0,priorBatches:0,priorStates:0,batchSizes:{},cachedLookups:0,uncachedLookups:0,deduplicatedLookups:0,waves:0,completedPaths:0,backpropMs:0,maxWaveMs:0}:null;this.profile=profile;
+    const profile=this.diagnostic?{step:states[0].step,roots:states.length,samplesPerRoot:samples,batch,K,nodesBefore:this.tree.size,rootCandidateMs:0,encodeMs:0,logitsMs:0,priorPostMs:0,simulationMs:0,priorBatches:0,priorStates:0,batchSizes:{},cachedLookups:0,uncachedLookups:0,deduplicatedLookups:0,waves:0,completedPaths:0,backpropMs:0,maxWaveMs:0}:null;this.profile=profile;
     let lastWaveLog=began;
     states.forEach(s=>this.check(s));let calls=0;
     const descriptors=states.map(s=>{const sim=AI._simFrom(s),own=C.ownerOf(s,sim,sim.order[sim.step]),key=identity(sim,own);return {sim,own,key};});
@@ -133,17 +133,20 @@ class Planner{
         F.applySim(sim,edge.i);own[edge.i]=q.sim.order[q.sim.step];
         trajectories.push({q,sim,own,path:[{node:q.node,edge}]});
       }
+      if(profile)profile.simulationMs+=performance.now()-waveStart;
       if(!trajectories.length)break;
       while(!F.simDone(trajectories[0].sim)){
         if(cancelled()){stopped=true;break;}
         if(budgetExpired()){stopped=true;reason='budget';break;}
         const missing=new Map();for(const t of trajectories){t.key=identity(t.sim,t.own);const cached=this.tree.has(t.key);if(profile){if(cached)profile.cachedLookups++;else{profile.uncachedLookups++;if(missing.has(t.key))profile.deduplicatedLookups++;}}if(!cached&&!missing.has(t.key))missing.set(t.key,{sim:t.sim,own:t.own,key:t.key});}
         if(missing.size){await this.priors([...missing.values()]);calls++;}
+        const simulationStart=profile?performance.now():0;
         for(const t of trajectories){
           const node=this.tree.get(t.key);let edge=this.selectContinuation(node,t.sim,t.own,K);
           if(!edge){stopped=true;reason='no-legal-continuation';failure=node.failure||noLegalDetails(t.sim);break;}
           edge.pending++;node.pending++;t.path.push({node,edge});const seat=t.sim.order[t.sim.step];F.applySim(t.sim,edge.i);t.own[edge.i]=seat;
         }
+        if(profile)profile.simulationMs+=performance.now()-simulationStart;
         if(stopped)break;
       }
       if(stopped){for(const t of trajectories)for(const {node,edge}of t.path){node.pending--;edge.pending--;}if(reason==='budget')this.suspended={signature,trajectories};break;}
@@ -160,7 +163,7 @@ class Planner{
       if(onWave)onWave(queries.map(resultFor));
     }
     const results=queries.map(resultFor);
-    if(profile){const elapsedMs=performance.now()-began;this.report('search-profile',{...profile,elapsedMs,nodesAfter:this.tree.size,otherMs:Math.max(0,elapsedMs-profile.rootCandidateMs-profile.encodeMs-profile.logitsMs-profile.priorPostMs-profile.backpropMs),reason:reason||(stopped?'cancelled':'finished'),reusedSamples:queries.reduce((n,q)=>n+q.reused,0),requestedSamples:queries.reduce((n,q)=>n+q.keys.length*q.goal,0),complete:results.every(r=>r.complete),suspendedPaths:this.suspended?.trajectories.length||0,resumedSteps});this.profile=null;}
+    if(profile){const elapsedMs=performance.now()-began;this.report('search-profile',{...profile,elapsedMs,nodesAfter:this.tree.size,otherMs:Math.max(0,elapsedMs-profile.rootCandidateMs-profile.encodeMs-profile.logitsMs-profile.priorPostMs-profile.simulationMs-profile.backpropMs),reason:reason||(stopped?'cancelled':'finished'),reusedSamples:queries.reduce((n,q)=>n+q.reused,0),requestedSamples:queries.reduce((n,q)=>n+q.keys.length*q.goal,0),complete:results.every(r=>r.complete),suspendedPaths:this.suspended?.trajectories.length||0,resumedSteps});this.profile=null;}
     return {results,ms:performance.now()-began,calls,nodes:this.tree.size,cancelled:stopped&&reason!=='budget',suspendedSteps:this.suspended?this.suspended.trajectories[0].sim.step-this.suspended.trajectories[0].q.sim.step:0,resumedSteps};
   }
 }
