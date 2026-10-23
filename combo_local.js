@@ -8,11 +8,12 @@ const AI = require(E + "/ai.js"), F = require(E + "/mcts_fast.js");
 const CAPK = [1, 3, 1];
 let ort = null, sess = null, EP = null, DEV = null, BFIX = 0, INFO = null, MED = null, FP16 = false;
 let sessionModel = null, sessionPreference = null;
+let cudaRuntime = null, ortKind = null;
 const native = require('./native_monitor').create();
 const nativeRun = (session, feeds) => native.call('infer', { batch: feeds.ids.dims[0] }, () => session.run(feeds));
 const modelFingerprints=new Map();
 function modelFingerprint(model){try{if(!modelFingerprints.has(model)){const fs=require('fs'),bytes=fs.readFileSync(model);modelFingerprints.set(model,{sha256:require('crypto').createHash('sha256').update(bytes).digest('hex'),bytes:bytes.length});}return modelFingerprints.get(model);}catch(e){return {unavailable:String(e.message||e).slice(0,160)};}}
-const nativeCreate = (model, options) => native.call('session-create', { model: path.basename(model), fingerprint:modelFingerprint(model), providers: options.executionProviders, batch: options.freeDimensionOverrides.B,graphOptimizationLevel:options.graphOptimizationLevel,executionMode:options.executionMode,enableMemPattern:options.enableMemPattern,intraOpNumThreads:options.intraOpNumThreads??null,runtimeVersion:(()=>{try{return require('onnxruntime-node/package.json').version;}catch(_){return null;}})() }, () => ort.InferenceSession.create(model, options));
+const nativeCreate = (model, options) => native.call('session-create', { model: path.basename(model), fingerprint:modelFingerprint(model), providers: options.executionProviders, batch: options.freeDimensionOverrides.B,graphOptimizationLevel:options.graphOptimizationLevel,executionMode:options.executionMode,enableMemPattern:options.enableMemPattern,intraOpNumThreads:options.intraOpNumThreads??null,runtimeVersion:(()=>{if(ortKind==='cuda')return '1.23.2 (private Python)';try{return require('onnxruntime-node/package.json').version;}catch(_){return null;}})() }, () => ort.InferenceSession.create(model, options));
 const nativeRelease = session => native.call('session-release', {}, () => session.release());
 /* v1.30: ① 批大小固定(freeDimensionOverrides B=BFIX): 模型里 20 个 Shape/34 个 Concat 等"现算形状"的节点在建会话时就折叠掉
    (369→209 节点), DirectML 上这些节点落在 CPU, 每次调用中途要显卡↔CPU 来回倒;不够一批的补齐(复制第 0 行, 结果丢掉)。
@@ -29,11 +30,13 @@ async function init(modelPath, prefer, bfix) {
   bfix = bfix || 128;
   if (sess && BFIX === bfix && sessionModel === modelPath && sessionPreference === prefer) return INFO;
   if (sess) { await nativeRelease(sess); sess = null; } FP16 = false;
-  ort = ort || require("onnxruntime-node");
+  const privateCuda = process.platform === 'win32' && prefer === 'cuda';
+  const kind = privateCuda ? 'cuda' : 'node';
+  if (!ort || ortKind !== kind) { ort = privateCuda ? require('./cuda_bridge').create(cudaRuntime) : require('onnxruntime-node'); ortKind = kind; }
   const T0 = Date.now(), base = { graphOptimizationLevel: "all", freeDimensionOverrides: { B: bfix } }, notes = [];
   if (process.env.AD_COMBO_THREADS) base.intraOpNumThreads = +process.env.AD_COMBO_THREADS;
   if (prefer !== "cpu") {
-    const gpu = process.platform === "win32" ? "dml" : "cuda";
+    const gpu = privateCuda ? 'cuda' : process.platform === "win32" ? "dml" : "cuda";
     let best = null;
     for (let d = 0; d < 4; d++) {
       let s = null; const q = Date.now();
@@ -62,6 +65,10 @@ async function init(modelPath, prefer, bfix) {
         if (s16) try { await nativeRelease(s16); } catch (e) { }
       }
     }
+  }
+  if (!sess && privateCuda) {
+    const why=notes.join(' | ');const info=await init(modelPath,undefined,bfix);sessionPreference=prefer;
+    return INFO={...info,cudaFallback:true,detail:'CUDA 不可用，已恢复原计算路径: '+why+' | '+info.detail};
   }
   if (!sess) { sess = await nativeCreate(modelPath, { ...base, executionProviders: ["cpu"] }); EP = "cpu"; DEV = null;
     const b = await benchSess(sess, bfix); MED = b.med; notes.push(`CPU: 首跑${b.first}ms 每次${b.med}ms`); }
@@ -515,4 +522,4 @@ async function dispose() {
   if(sess){await nativeRelease(sess);sess=null;}INFO=null;BFIX=0;sessionModel=null;
   await Promise.all([...(SUBS||[]),...(SUB2||[]).map(s=>s.w)].map(w=>w.terminate()));SUBS=null;SUB2=null;
 }
-module.exports = { dispose, setDiagnosticHook: native.setHook, nativeSnapshot: native.snapshot, _setPair: (P, n) => { PAIR = P; PN = n; HAS_EXT = true; }, extFill, fate, plan, planFinal, gainsFor, init, decide, decideMT, ownerOf, encodeRange, views, rng, logits, statReset, statOut, rollouts, screen, final, refine, myCands, LAST, info: () => INFO, simRng, ownKey, mkBuf };
+module.exports = { dispose, setCudaRuntime: dir => { cudaRuntime=dir; }, setDiagnosticHook: native.setHook, nativeSnapshot: native.snapshot, _setPair: (P, n) => { PAIR = P; PN = n; HAS_EXT = true; }, extFill, fate, plan, planFinal, gainsFor, init, decide, decideMT, ownerOf, encodeRange, views, rng, logits, statReset, statOut, rollouts, screen, final, refine, myCands, LAST, info: () => INFO, simRng, ownKey, mkBuf };

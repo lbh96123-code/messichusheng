@@ -55,7 +55,7 @@ function paint(){renderHealth.advicePainted=false;ctx.clearRect(0,0,cv.width,cv.
  const nm=`${adv.side==='L'?'左':'右'}${(adv.seat%5)+1}${adv.my_turn?'(我)':'(队友)'}`;
  const who=adv.pre==='preview'?`${nm} 下一手 · 预估(前面还有 ${adv.ahead} 手, 每有人选都会更新)`:`${nm}${adv.pre?' 马上轮到':' 正在选 · 已锁定'}`;
  const top=adv.rows.slice(0,3).map((r,i)=>['①','②','③'][i]+r.name+' '+(100*(r.cw!=null?r.cw:r.p)).toFixed(1)+'%').join('  ');
- const mode=adv.resultState==='final'&&!busy?'【最终结果】':'【预算结果】';
+ const mode=adv.resultState==='final'&&!busy?(adv.sampleTarget?`【最终结果 · ${adv.sampleTarget}档】`:'【最终结果】'):'【预算结果】';
  const t=`${mode}${who}   我方 ${(100*adv.base).toFixed(1)}%   推荐: ${top}`+(busy?'   (有新选择, 更新中…)':'');
  ctx.font='bold 20px "Microsoft YaHei",system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
  const tw=ctx.measureText(t).width,bx=cv.width/2-tw/2-16,by=84/scale;

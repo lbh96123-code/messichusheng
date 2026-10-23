@@ -50,6 +50,10 @@ button.go{background:#8a6a1f;border-color:#d4a73c;color:#fff;font-weight:bold}bu
  <div class="row" id="combo-row"><label class="k">计算参数</label><label class="sw">每手取前 <input id="cb-K" type="number" min="2" max="16" style="width:48px"> 个候选, 各推演 <input id="cb-R" type="number" min="8" max="128" style="width:56px"> 局, 每手最多 <input id="cb-sec" type="number" min="2" max="30" style="width:48px"> 秒(超时自动减半推演局数, 太慢或显卡不可用就改用网络档)</label></div>
  <div class="row" id="combo-row2"><label class="k">后续补算</label><label class="sw"><input id="cb-refine" type="checkbox"> 轮到我时先显示决赛结果, 再用准确局面把全部候选重算一遍、更新一次(一般 1~2 秒后; 关掉则回合内推荐不再变)</label></div>
  <div class="note" id="gp-note"></div>
+ <div class="row"><label class="k">计算后端</label><div class="seg"><button id="gpu-dml">DirectML</button><button id="gpu-cuda">CUDA</button></div><button id="b-gpu-apply">应用并重启</button></div>
+ <div class="row"><label class="k"></label><button id="b-gpu-test">CUDA / DirectML 对比测速</button><button id="b-gpu-cancel">取消测试</button></div>
+ <div class="note" id="gpu-state" style="white-space:pre-line"></div>
+ <div class="note" id="gpu-results" style="white-space:pre-line"></div>
  <div class="row"><label class="k">给谁看推荐</label><div class="seg"><button id="m-solo">单人:只看我</button><button id="m-all">团队:我方五人</button></div></div>
  <div class="row"><label class="k">组合明细</label><label class="sw"><input type="checkbox" id="c-ps">显示双方十人的组合明细小卡</label></div>
  <div class="row"><label class="k">轮到你时</label><label class="sw"><input type="checkbox" id="c-arr">预估下一手时, 在推荐条下面加一行备注:把中间那几手模拟掉, 每件推荐「轮到你时还在」的概率(主推荐不变)</label></div>
@@ -110,6 +114,7 @@ function preview(){const cv=$("pv"),ctx=cv.getContext("2d");ctx.clearRect(0,0,cv
  ctx.fillText(`前 3 名粗框 · 4~${look.midN} 名细框 · ${look.midN+1} 名以后${look.showRest?"只写胜率":"什么都不画"}`,8,cv.height-16);}
 /* ---- 主进程推来的完整状态 → 刷新所有控件 ---- */
 function render(m){S=m;look=ADFrames.norm(m.look);
+ renderGpu(m.gpuCompute,m.phase);
  $("ver").textContent=`v${m.version}`+(m.phase==="active"?" · 选技中":"")+(m.meShown?` · 认出你是 ${m.meShown}`:"");
  $("b-hidden").textContent=m.hidden?"👁 已隐藏 — 点击恢复显示":"🙈 正在显示 — 点击隐藏";$("b-hidden").className=m.hidden?"":"on";
  const modes=["mcts","net","combo","combo-team","duel","duel-fast"],mode=modes.includes(m.aimode)?m.aimode:"mcts";for(const id of modes)$("ai-"+id).className=mode===id?"on":"";
@@ -129,6 +134,17 @@ function render(m){S=m;look=ADFrames.norm(m.look);
  const lv=m.live||{};$("live-note").textContent=m.allowCapture?("📺 "+(lv.msg||(lv.mode==="window"?"已捕获游戏窗口, 覆盖层可被抓到":"等待游戏窗口…"))+"  ·  游戏独占全屏会黑屏, 请用无边框窗口"):"默认关:覆盖层对所有截屏/录屏隐身(视频号直播助手、OBS 都抓不到)。开了以后插件改抓游戏窗口而不是整个屏幕, 接通后才放开隐身;游戏要是独占全屏会抓到黑屏, 请用无边框窗口。";
  const hk=m.hotkey||{};$("keys").innerHTML=Object.keys(hk).map(k=>`<div>${k}:<b>${hk[k]||"(被占用, 用面板)"}</b></div>`).join("");
  $("st").textContent=m.status||"";renderUpd(m.upd||{});preview();}
+function renderGpu(g,phase){
+ g=g||{};const working=['installing','testing','cancelling'].includes(g.phase),r=g.result;
+ $('gpu-dml').className=g.selected==='cuda'?'':'on';$('gpu-cuda').className=g.selected==='cuda'?'on':'';
+ $('gpu-dml').disabled=working;$('gpu-cuda').disabled=working||!g.installed||!r;
+ $('b-gpu-test').disabled=working||phase==='active'||!g.supported;
+ $('b-gpu-cancel').style.display=working?'':'none';$('b-gpu-cancel').disabled=g.phase==='cancelling';
+ $('b-gpu-apply').disabled=working||phase==='active'||g.selected===g.active;
+ const progress=g.phase==='installing'&&g.total?` ${(100*g.downloaded/g.total).toFixed(0)}%`:'';
+ $('gpu-state').textContent=`当前：${g.active==='cuda'?'CUDA':'DirectML'}${g.selected&&g.selected!==g.active?'（已选择 '+(g.selected==='cuda'?'CUDA':'DirectML')+'，重启生效）':''}\n${g.message||'确认后安装 CUDA 组件并与 DirectML 比较，测速完成后自行选择。'}${progress}\n${g.dir||''}`;
+ $('gpu-results').textContent=r?`${r.model} · ${r.precision} · 每批预热后测 ${r.runs} 次\n`+r.results.map(x=>`批量 ${x.batch}：DirectML ${x.dml.medianMs.toFixed(2)} ms（P90 ${x.dml.p90Ms.toFixed(2)}） / CUDA ${x.cuda.medianMs.toFixed(2)} ms（P90 ${x.cuda.p90Ms.toFixed(2)}）\nCUDA 速度为 DirectML 的 ${x.speedup.toFixed(2)} 倍 · 首选一致率 ${(x.validation.top1Agreement*100).toFixed(1)}%`).join('\n')+'\n'+r.scope:'';
+}
 function renderUpd(u){const busy=["checking","downloading","installing","done"].includes(u.phase);
  const cur=`当前 v${S.version}`,ago=u.checkedAt?` · ${new Date(u.checkedAt).toLocaleTimeString()} 查过`:"";
  $("u-msg").textContent=u.phase&&u.phase!=="idle"?`${cur} · ${u.msg||""}${u.phase==="latest"?ago:""}`:cur;
@@ -142,6 +158,10 @@ function renderUpd(u){const busy=["checking","downloading","installing","done"].
  const ns=(u.phase==="available"||u.phase==="needFull")&&u.notes?u.notes:[];$("u-notes").innerHTML="";for(const n of ns){const li=document.createElement("li");li.textContent=n;$("u-notes").append(li);}}
 /* ---- 控件 → 主进程 ---- */
 $("b-hidden").onclick=()=>panel.set("hidden",!S.hidden);
+$("b-gpu-test").onclick=()=>{const g=S?.gpuCompute;if(!g)return;const gb=(g.downloadBytes/1e9).toFixed(2);if(confirm(g.installed?'使用相同模型和输入对比 DirectML / CUDA（批量 32、128），完成后可选择后端。现在开始？':`下载约 ${gb} GB CUDA 运行组件到：\n${g.dir}\n\n安装磁盘至少需要 7 GB 空间，不修改系统驱动。安装后会与 DirectML 对比测速。确认开始？`))panel.act('gpu-test');};
+$("b-gpu-cancel").onclick=()=>panel.act('gpu-test-cancel');
+$("gpu-dml").onclick=()=>panel.set('gpuBackend','dml');$("gpu-cuda").onclick=()=>panel.set('gpuBackend','cuda');
+$("b-gpu-apply").onclick=()=>{if(confirm('重启插件以应用所选计算后端？'))panel.act('gpu-apply');};
 for(const mode of ["mcts","net","combo","combo-team","duel","duel-fast"])$("ai-"+mode).onclick=()=>panel.set("aimode",mode);
 for(const id of ["cb-K","cb-R","cb-sec","cb-refine"])$(id).onchange=()=>panel.set("combo",{K:+$("cb-K").value,R:+$("cb-R").value,sec:+$("cb-sec").value,refine:$("cb-refine").checked});
 $("m-solo").onclick=()=>panel.set("all",false);$("m-all").onclick=()=>panel.set("all",true);

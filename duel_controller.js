@@ -39,7 +39,7 @@ class DuelController {
     const stop=()=>cancelled();
     // One unknown pick: spend work on our possible next states rather than
     // first completing an opponent's recommendation that we cannot control.
-    const root=mode==="duel-fast"&&gap===1?{complete:true,rows:[]}:await p.decide(state,{samples:128,batch:32,cancelled:stop,onWave:rs=>{if(gap===0&&!stop())onResult({...rs[0],ms:performance.now()-start});}});account(root);
+    const root=mode==="duel-fast"&&gap===1?{complete:true,rows:[]}:await p.decide(state,{samples:128,batch:32,cancelled:stop,onWave:rs=>{if(gap===0&&!stop())onResult({...rs[0],sampleTarget:128,ms:performance.now()-start});}});account(root);
     if(root.reason?.startsWith('no-legal'))return root;
     if(root.complete&&!stop()&&gap===0)onReady({...root,chosen:root.rows[0].key});
     if(root.complete&&!stop()&&gap<=2){
@@ -84,6 +84,7 @@ class DuelController {
       }else{rootGoal+=128;result=await p.decide(state,{samples:rootGoal,batch:32,cancelled:stop});}
       account(result);rounds++;pruned+=p.limitNodes();
       if(result.reason?.startsWith('no-legal'))return result;
+      if(gap===0&&result.complete&&!stop()&&Number.isInteger(Math.log2(rootGoal)))onResult({...result,sampleTarget:rootGoal,ms:performance.now()-start});
       onProgress({rounds,newSamples,profiledChoices,legalChoices,nodes:p.tree.size,elapsedMs:performance.now()-start});
     }
     return {cancelled:stop(),rounds,newSamples,profiledChoices,legalChoices,pruned,nodes:p.tree.size,elapsedMs:performance.now()-start};
@@ -92,7 +93,7 @@ class DuelController {
     this.select(mode,state);const p=this.planner,start=performance.now();
     if(previousMove===null&&p.effectPlans?.before){const taken=new Set(p.effectPlans.before.taken);const moves=state.taken.filter(k=>!taken.has(k));if(moves.length===1)previousMove=moves[0];}
     const proposal=p.effectPlans&&previousMove!==null?p.effectPlans.resolve(state,previousMove):null;
-    const r=await p.decide(state,{samples:128,batch:32,cancelled,budgetExpired:()=>performance.now()-start>=budgetMs,onWave:rs=>{if(!cancelled())onResult({...rs[0],ms:performance.now()-start});}});
+    const r=await p.decide(state,{samples:128,batch:32,cancelled,budgetExpired:()=>performance.now()-start>=budgetMs,onWave:rs=>{if(!cancelled())onResult({...rs[0],sampleTarget:128,ms:performance.now()-start});}});
     const chosen=r.rows.find(row=>row.n>0)?.key??r.rows[0]?.key;
     return {...r,chosen,proposal,partial:!r.complete,ms:performance.now()-start};
   }

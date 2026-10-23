@@ -7,10 +7,10 @@ const ctx = new Proxy({ measureText: () => ({ width: 10 }), createLinearGradient
 function mk(id) { const e = { id, children: [], style: {}, value: "", checked: false, textContent: "", innerHTML: "", className: "", append(...c) { this.children.push(...c); }, getContext: () => ctx, width: 640, height: 150 }; return e; }
 const els = {}; const $ = id => els[id] || (els[id] = mk(id));
 const document = { getElementById: $, createElement: tag => mk(tag) };
-const sent = [], acts = []; let ready = false, onPanel = null;
+const sent = [], acts = []; let ready = false, onPanel = null, confirmation=true;
 const panel = { on: (ch, f) => { if (ch === "panel") onPanel = f; }, set: (k, v) => sent.push([k, v]), act: n => acts.push(n), ready: () => { ready = true; } };
 const timers = []; const setTimeout = f => { timers.push(f); return timers.length; }, clearTimeout = id => { if (id) timers[id - 1] = null; };
-new Function("document", "panel", "setTimeout", "clearTimeout", "confirm", code)(document, panel, setTimeout, clearTimeout, () => true);
+new Function("document", "panel", "setTimeout", "clearTimeout", "confirm", code)(document, panel, setTimeout, clearTimeout, () => confirmation);
 let ok = true; const check = (what, cond) => { console.log(`${cond ? "✓" : "✗"} ${what}`); ok = ok && cond; };
 check("启动即向主进程要状态", ready && typeof onPanel === "function");
 check("座位下拉 11 项 / 个人权重 4 档 / 画到第几名 3~10", $("s-me").children.length === 11 && $("seg-pl").children.length === 4 && $("k-midN").children.length === 8);
@@ -42,6 +42,18 @@ onPanel({ version: "1.23.0", look: null, hotkey: null });
 check("普通状态不提供释放人工恢复", $("b-auto-end").disabled);
 check("残缺状态(look/hotkey 为空)不炸", $("k-c1").value === "#ff4d4f");
 /* v1.32 更新区 */
+const gpu={supported:true,installed:false,selected:'dml',active:'dml',dir:'C:/AD data/compute',downloadBytes:1.81e9,phase:'idle'};
+onPanel({...st,phase:'idle',gpuCompute:gpu});acts.length=0;confirmation=false;$('b-gpu-test').onclick();
+check('CUDA 取消确认不启动安装',acts.length===0);
+confirmation=true;$('b-gpu-test').onclick();check('CUDA 确认后请求对比测试',acts.join()==='gpu-test');
+onPanel({...st,gpuCompute:gpu});check('选技中禁用 GPU 测试',$('b-gpu-test').disabled);
+onPanel({...st,phase:'idle',gpuCompute:{...gpu,phase:'installing',downloaded:1,total:2}});
+check('CUDA 安装进度与禁用状态',/50%/.test($('gpu-state').textContent)&&$('gpu-dml').disabled&&$('b-gpu-test').disabled);
+const comparison={model:'model.onnx',precision:'FP32',runs:9,scope:'固定输入',results:[{batch:32,dml:{medianMs:10,p90Ms:12},cuda:{medianMs:5,p90Ms:6},speedup:2,validation:{top1Agreement:1}}]};
+onPanel({...st,phase:'idle',gpuCompute:{...gpu,installed:true,phase:'done',selected:'cuda',result:comparison}});
+check('GPU 对比显示 DML/CUDA 数值及倍率',/DirectML 10.00/.test($('gpu-results').textContent)&&/CUDA 5.00/.test($('gpu-results').textContent)&&/2.00 倍/.test($('gpu-results').textContent));
+check('CUDA 选择等待重启',!$('gpu-cuda').disabled&&!$('b-gpu-apply').disabled&&/重启生效/.test($('gpu-state').textContent));
+$('gpu-dml').onclick();check('DirectML 选择发给主进程',sent.at(-1)[0]==='gpuBackend'&&sent.at(-1)[1]==='dml');
 acts.length = 0;
 onPanel({ ...st, phase: "idle", upd: { phase: "latest", msg: "已是最新版 v1.32.0", checkedAt: Date.now() } });
 check("更新: 已是最新 → 只有检查更新按钮", $("u-apply").style.display === "none" && $("u-full").style.display === "none" && /已是最新/.test($("u-msg").textContent) && $("upd").className === "");

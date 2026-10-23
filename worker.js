@@ -6,8 +6,10 @@
                                  多黑 ≥2 格 = 多半是鼠标悬停的提示框盖住了一片 ⇒ 不认, 要一张全图确认。
      慢通道(全分辨率, 数百毫秒) —— 完整识别:对齐、面板技能、英雄名、当前选人/我, 用来纠正快通道的记账。
    开局自动:棋盘出现 → 读池子 → 12 英雄齐就锁定, 不需要按键。中途加入也能在设置中重新识别池子(黑格用库亮度回退)。 */
-const { parentPort } = require("worker_threads"); const fs = require("fs"), path = require("path");
+const { parentPort, workerData } = require("worker_threads"); const fs = require("fs"), path = require("path");
 const AIModes = require("./ai_modes.js");
+const { RefinementGate } = require("./advice_refinement.js");
+const targetTurnStarts = new Map();
 const DraftState = require("./draft_lifecycle.js"), DraftScene = require("./draft_scene.js");
 const { createHash } = require("crypto");
 const R = require("./recog.js"); const D = path.join(__dirname, "data");
@@ -180,6 +182,7 @@ function tryLock(img, pres) {
   t.fullOrder = FULL_ORDER; t.orderSeat = n => { const x = FULL_ORDER[Math.max(0, Math.min(n, FULL_ORDER.length - 1))]; return [x < 5 ? "L" : "R", x % 5]; };   // 第 n 手归谁
   lifecycle.reset(); lastGoodState = null; draftHoldMode = "";
   tracker = t; draftComplete = false; completedFrames = 0; phase = "active"; forceReset = false; lastSig = null; lockSig = null; fastPicks.clear(); lastCal = -999; if (!samePool) endSnapped = false; lastQuick = null; lastCur = ""; lastTaken = -1; seq++; pendingNext = true;
+  if(!samePool)targetTurnStarts.clear();curCtx?.refinement?.close();
   lastSeat = -1; pickedAtCur = false; lastAdvice = null; curCtx = null; myTurn = null; myEv.clear(); SCREEN = null; lastS = null; turnLock = null; fastDarkPrev = null; sinceFull = 0;
   log("pool", "池子: " + poolSummary(t));
   if (REC) { try { REC.save(); } catch (e) { } REC = null; }   // 只收掉轨迹文件, EST 交给 trStart 决定留不留
@@ -187,6 +190,7 @@ function tryLock(img, pres) {
   snapshot(img, q.darkCells > 3 ? "pool_mid" : "pool"); want(true); return true;
 }
 function cancelComputations(reason = "state-reset", resetSearch = true) {
+  curCtx?.refinement?.close();
   seq++; SCREEN_RUN++; SCREEN = null; lastSig = null; turnLock = null;
   lastAdvice = null; curCtx = null;
   try { if (POOL) POOL.cancel(); } catch (e) { POOL = null; log("error", "取消推演失败，停用线程池: " + e.message); }
@@ -293,11 +297,13 @@ function comboWorker() {
   if (COMBO_OFF === "broken") return null;
   if (COMBO_W) return COMBO_W;
   try { const { Worker } = require("worker_threads");
-    COMBO_W = new Worker(path.join(D, "..", "combo_worker.js"), { workerData: { model: path.join(D, COMBO_NET + ".onnx"), modelTeam: path.join(D, COMBO_NET_TEAM + ".onnx"), prefer: process.env.AD_COMBO_EP || "", diagnosticFile: TRDIR ? path.join(TRDIR, `diag_combo_${Date.now()}.jsonl`) : null } });
+    COMBO_W = new Worker(path.join(D, "..", "combo_worker.js"), { workerData: { model: path.join(D, COMBO_NET + ".onnx"), modelTeam: path.join(D, COMBO_NET_TEAM + ".onnx"), prefer: workerData?.gpuBackend === 'cuda' ? 'cuda' : process.env.AD_COMBO_EP || "", cudaRuntime:workerData?.cudaRuntime, diagnosticFile: TRDIR ? path.join(TRDIR, `diag_combo_${Date.now()}.jsonl`) : null } });
     const launchedCombo = COMBO_W;
-    launchedCombo.on("exit", code => { log("crash", `计算线程退出 code=${code} pending=${COMBO_CB.size} mode=${AIMODE} share=${SHARE_MODE}`); if (COMBO_W !== launchedCombo) return; COMBO_OFF = "broken"; COMBO_W = null; for (const cb of COMBO_CB.values()) cb({ type: "err", msg: "计算线程退出 " + code }); COMBO_CB.clear(); COMBO_READY.clear(); });
+    launchedCombo.on("exit", code => { log("crash", `计算线程退出 code=${code} pending=${COMBO_CB.size} mode=${AIMODE} share=${SHARE_MODE}`); if (COMBO_W !== launchedCombo) return;parentPort.postMessage({type:'gpu-benchmark-result',error:'计算线程退出，测速已取消'}); COMBO_OFF = "broken"; COMBO_W = null; for (const cb of COMBO_CB.values()) cb({ type: "err", msg: "计算线程退出 " + code }); COMBO_CB.clear(); COMBO_READY.clear(); });
     COMBO_W.postMessage({ type: "cfg", shareMode: SHARE_MODE });
     COMBO_W.on("message", m => {
+      if(m.type==='gpu-backend'){if(workerData)workerData.gpuBackend='dml';parentPort.postMessage(m);return;}
+      if(m.type==='gpu-benchmark-progress'||m.type==='gpu-benchmark-result'){parentPort.postMessage(m);return;}
       if (m.type === "duelready") { const cb = COMBO_READY.get(m.id); if (cb) cb(m); return; }
       if (m.type === "log") { log(m.tag || "engine", m.msg); return; }   // v1.47 组合版线程的日志(换网络等)
       if (m.type === "warm") { if (m.err) log("error", "组合版预热失败: " + m.err); else { COMBO_MED = m.info.med; const t = comboTier();
@@ -305,7 +311,7 @@ function comboWorker() {
           log("engine", `显卡测速: 每次 ${m.info.bfix} 局 ${COMBO_MED}ms → ${t.name}档(后台筛选 全部×${t.R1}→前${t.N2}×${t.R2}, 轮到时决赛前5×32${COMBO_CFG.refine ? ", 之后准确局面全部重算更新一次" : ""})`); } return; }
       const cb = COMBO_CB.get(m.id); if (cb) { COMBO_CB.delete(m.id); COMBO_READY.delete(m.id); cb(m); } });
     COMBO_W.postMessage({ type: "warm", bfix: AIModes.isDuel(AIMODE) ? 32 : COMBO_CFG.K * COMBO_CFG.R });
-    COMBO_W.on("error", e => { log("error", "组合版线程崩了, 退回网络档: " + String(e && e.message || e)); COMBO_OFF = "broken"; COMBO_W = null; for (const cb of COMBO_CB.values()) cb({ type: "err", msg: "线程崩溃" }); COMBO_CB.clear(); COMBO_READY.clear(); });
+    COMBO_W.on("error", e => { log("error", "组合版线程崩了, 退回网络档: " + String(e && e.message || e));parentPort.postMessage({type:'gpu-benchmark-result',error:'计算线程出错: '+String(e.message||e)}); COMBO_OFF = "broken"; COMBO_W = null; for (const cb of COMBO_CB.values()) cb({ type: "err", msg: "线程崩溃" }); COMBO_CB.clear(); COMBO_READY.clear(); });
   } catch (e) { log("error", "组合版线程起不来, 退回网络档: " + String(e && e.message || e)); COMBO_OFF = "broken"; COMBO_W = null; }
   return COMBO_W;
 }
@@ -382,6 +388,7 @@ function advise(S, startIdx, pre, ms, ahead, lockInfo) {
     if (curCtx && curCtx.pre && !pre) { curCtx.pre = false;
       if (lastAdvice && lastAdvice.stamp === seq) { lastAdvice = { ...lastAdvice, pre: false }; parentPort.postMessage(lastAdvice); } log("advice", `轮到 ${effSeat < 5 ? "左" : "右"}${effSeat % 5 + 1} 了, 继续当前局面的计算`); } return; }
   if(curCtx?.input) { const old=curCtx.input;log("compute",JSON.stringify({event:"advice-replaced",stamp:curCtx.stamp,nextStamp:seq+1,elapsedMs:Date.now()-curCtx.startedAt,fromStep:old.step,toStep:startIdx,fromPreview:old.preview,toPreview:pre==="preview",fromMode:old.mode,toMode:AIMODE,added:takenKeys.filter(k=>!old.taken.includes(k)).slice(0,8),removed:old.taken.filter(k=>!takenKeys.includes(k)).slice(0,8),highlight:S.current,selfPanel:panelCount(S,seatIdx(S.me))})); }
+  curCtx?.refinement?.close();
   lastSig = sigStr; const stamp = ++seq; const ctx = curCtx = { pre, lockInfo, resultFinal: false,stamp,startedAt:Date.now(),input:{step:startIdx,preview:pre==="preview",mode:AIMODE,taken:takenKeys} }; const { st, cur } = buildState(S, startIdx); const side = cur < 5 ? "L" : "R", sg = side === "L" ? 1 : -1;
   const gpuPool = st.pool && st.pool.heroKeys.length === 12 && st.pool.basics.length === 36 && st.pool.ults.length === 12 && new Set([...st.pool.heroKeys, ...st.pool.basics, ...st.pool.ults]).size === 60;
   const mySg = S.me.side === "L" ? 1 : -1;   // 数字一律按**我方**视角
@@ -416,7 +423,7 @@ function advise(S, startIdx, pre, ms, ahead, lockInfo) {
     const takenNow = lastS ? new Set(lastS.skills.filter(x => x.taken).map(x => x.key).concat(lastS.taken_heroes)) : new Set();
     for(const k of fastPicks.keys())takenNow.add(k.startsWith("hero:")?k.slice(5):k);
     const shown = rows.filter(r => !takenNow.has(r.key));   // 发出前再过滤此刻已经被拿走的
-    lastAdvice = { type: "advice", stamp, side, seat: cur, base, stage: "done", resultState: ctx.pre === "preview" || !ctx.resultFinal ? "budget" : "final", n: rows.length, N: rows.length, rows: shown, my_turn: effIsMe, reason: ctx.reason || null, mine: S.me, pre: ctx.pre, ahead, team: ALL, personal: personal && !NP, net: !!NP && !CB, combo: AIModes.isGpu(AIMODE) ? { state: comboState, K: COMBO_CFG.K, R: COMBO_R_EFF || COMBO_CFG.R } : null, plevel, plname: PLEVELS[plevel].name, delta: DELTA };
+    lastAdvice = { type: "advice", stamp, side, seat: cur, base, stage: "done", resultState: ctx.pre === "preview" || !ctx.resultFinal ? "budget" : "final", sampleTarget:ctx.resultFinal?ctx.sampleTarget:null, samples:ctx.shownSamples, n: rows.length, N: rows.length, rows: shown, my_turn: effIsMe, reason: ctx.reason || null, mine: S.me, pre: ctx.pre, ahead, team: ALL, personal: personal && !NP, net: !!NP && !CB, combo: AIModes.isGpu(AIMODE) ? { state: comboState, K: COMBO_CFG.K, R: COMBO_R_EFF || COMBO_CFG.R } : null, plevel, plname: PLEVELS[plevel].name, delta: DELTA };
     if (ARRIVE && ctx.pre === "preview" && ahead > 0 && shown.length) { try { const t1 = Date.now(), a = arriveNote(S, startIdx - ahead, cur, shown, seed0);
       if (a) { lastAdvice.arrive = a; const best = a.top.slice().sort((x, y) => y.first - x.first)[0];
         log("advice", `  └ 轮到你时(模拟中间 ${ahead} 手 ×${a.n}): ${a.top.slice(0, 3).map(r => `${r.name} 还在${Math.round(100 * r.alive)}%`).join(" | ")} → 届时最可能的首选 ${best.name}(${Math.round(100 * best.first)}%) 用时${Date.now() - t1}ms`); } }
@@ -448,11 +455,24 @@ function advise(S, startIdx, pre, ms, ahead, lockInfo) {
     } else {
       comboState = "pending";
       const exact = treeState(S, startIdx), budget = mode === "duel-fast" ? Math.min(900, COMBO_CFG.sec * 1000) : COMBO_CFG.sec * 1000;
+      ctx.refinement=new RefinementGate({turnStart:()=>targetTurnStarts.get(startIdx),onPublish:(result,update)=>{
+        if(stamp!==seq)return;const rows=result.rows.filter(row=>row.n>0&&Number.isFinite(row.win));
+        const samples=update.samples;ctx.shownSamples=samples;ctx.sampleTarget=update.target;
+        CB={};rows.forEach((row,i)=>CB[row.key]={win:row.win,rank:i});ctx.resultFinal=result.complete===true;comboState=ctx.resultFinal?"done":"pending";
+        evMe(startIdx,`显示GPU${ctx.resultFinal?"最终":"阶段"}结果 ${samples}条`);log("advice",`${mode} 阶段结果 完成${samples}/${result.requestedSamples}条 ${ctx.resultFinal?"完整计算":"仍在续算"} 从发起${Date.now()-ctx.startedAt}ms`);
+        if(result.complete)log("compute",JSON.stringify({event:"refinement-milestone",step:startIdx,seat:cur,target:update.target,samples,turnElapsedMs:update.turnElapsedMs}));
+        pubCB(ctx.resultFinal?" +最终结果":" +阶段结果");
+      }});
       const onSearchResult = ready => {
-        if(stamp!==seq||ctx.resultFinal||!ready.r?.rows?.length)return;const rows=ready.r.rows.filter(row=>row.n>0&&Number.isFinite(row.win));if(!rows.length)return;
-        const samples=rows.reduce((n,row)=>n+row.n,0);if(samples<=(ctx.shownSamples||0))return;ctx.shownSamples=samples;
-        CB={};rows.forEach((row,i)=>CB[row.key]={win:row.win,rank:i});ctx.resultFinal=ready.r.complete===true;comboState=ctx.resultFinal?"done":"pending";
-        evMe(startIdx,`显示GPU${ctx.resultFinal?"最终":"阶段"}结果 ${samples}条`);log("advice",`${mode} 阶段结果 完成${samples}/${ready.r.requestedSamples}条 ${ctx.resultFinal?"完整计算":"仍在续算"} 从发起${Date.now()-ctx.startedAt}ms`);pubCB(ctx.resultFinal?" +最终结果":" +阶段结果");
+        if(stamp!==seq||!ready.r)return;
+        if(ready.r.complete){
+          const target=ready.r.sampleTarget||128;ctx.computedTargets ||= new Set();
+          if(!ctx.computedTargets.has(target)){
+            ctx.computedTargets.add(target);const started=targetTurnStarts.get(startIdx),ns=ready.r.rows.map(r=>r.n);
+            log("compute",JSON.stringify({event:"refinement-computed",step:startIdx,seat:cur,stamp,target,samples:ns.reduce((a,b)=>a+b,0),candidateSamples:ns,turnElapsedMs:started==null?null:Date.now()-started}));
+          }
+        }
+        ctx.refinement.offer(ready.r);
       };
       evMe(startIdx, `GPU搜索发起 mode=${mode} budget=${budget}ms step=${exact.step}`);
       comboJob("duel", { st: exact, mode, o: {} }, budget, onSearchResult).then(m => {
@@ -636,6 +656,13 @@ function seatPicksBefore(seat, i) { let c = 0; for (let j = 0; j < i; j++) if (F
 let myTurn = null; const myEv = new Map();
 const evMe = (idx, what) => { if (!myEv.has(idx)) myEv.set(idx, []); myEv.get(idx).push([Date.now(), what]); };
 function turnTick(S, startIdx, nTaken) {
+  const current=S.current&&seatIdx(S.current);
+  if(current!=null&&FULL_ORDER[startIdx]===current&&!targetTurnStarts.has(startIdx)){
+    const count=panelCount(S,current);
+    if(count!=null&&count<seatPicksBefore(current,startIdx+1)){
+      const at=Date.now();targetTurnStarts.set(startIdx,at);log("turn",JSON.stringify({event:"target-turn-start",step:startIdx,seat:current,t0:at}));
+    }
+  }
   if (!S.me) return; const me = seatIdx(S.me), n = panelCount(S, me), now = Date.now();
   if (!myTurn && S.my_turn) {
     /* 我刚落子、高亮还停在我身上(引擎已经在算下一位): 面板件数已经够"到 startIdx 为止我该有的数" → 不是新回合。
@@ -644,6 +671,7 @@ function turnTick(S, startIdx, nTaken) {
     if (FULL_ORDER[startIdx] !== me && n != null && n >= seatPicksBefore(me, startIdx)) return;
     const slot = FULL_ORDER[startIdx] === me ? startIdx : orderIndex(me, nTaken);
     myTurn = { t0: now, n0: n, slot, notes: FULL_ORDER[startIdx] === me ? [] : [[now, `轮到我时引擎算的是第${startIdx + 1}手(${FULL_ORDER[startIdx] < 5 ? "L" : "R"}${FULL_ORDER[startIdx] % 5 + 1}), 不是我这一手`]] };
+    if(!targetTurnStarts.has(slot)){targetTurnStarts.set(slot,now);log("turn",JSON.stringify({event:"target-turn-start",step:slot,seat:me,t0:now}));}
     return; }
   if (!myTurn) return;
   if (S.offMsg && !myTurn.off) { myTurn.off = true; myTurn.notes.push([now, "画面不是选技棋盘(切出去了?)"]); }
@@ -775,6 +803,8 @@ function syncShareMode(me) {
 const PLEVELS = [{ name: "团队", delta: 0 }, { name: "略偏个人", delta: 0.01 }, { name: "偏个人", delta: 0.025 }, { name: "贪", delta: 0.05 }];
 let shuttingDown = false;
 parentPort.on("message", async m => {
+  if(m.type==='gpu-benchmark') {const w=comboWorker();if(w)w.postMessage(m);else parentPort.postMessage({type:'gpu-benchmark-result',error:'计算线程不可用，请重启插件后再测试'});return;}
+  if(m.type==='gpu-benchmark-cancel'){COMBO_W?.postMessage(m);return;}
   if (m.type === "shutdown") { if(shuttingDown)return;shuttingDown=true;suppressAdvice=true;cancelComputations("shutdown: "+m.reason);trFlush();
     const child=COMBO_W;if(!child){parentPort.postMessage({type:"shutdown-ready"});return;}
     let replied=false;const done=()=>{if(!replied){replied=true;parentPort.postMessage({type:"shutdown-ready"});}};

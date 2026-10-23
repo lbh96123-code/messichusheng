@@ -54,6 +54,15 @@ settings.look = ADFrames.norm(settings.look);   // v1.23:推荐框的颜色等, 
 if (settings.allowCapture === undefined) settings.allowCapture = false;   // v1.24 直播模式:让直播/录屏软件能抓到覆盖层
 let liveWaiting = true, liveEpoch = 0, liveChecking = false;
 const saveSettings = () => { try { fs.writeFileSync(SETFILE, JSON.stringify(settings, null, 1)); } catch (e) { } }; saveSettings();
+let gpuBenchWorker=null;
+const gpuSettings=require('./gpu_settings').create({dataDir:app.getPath('userData'),settings,save:saveSettings,onChange:()=>sendPanel(),canTest:()=>phase!=='active',
+  sendBenchmark:runtime=>{
+    if(worker&&!liveWaiting){worker.postMessage({type:'gpu-benchmark',runtime});return;}
+    const w=new Worker(path.join(__dirname,'gpu_benchmark_worker.js'),{workerData:{model:path.join(__dirname,'data','netS_f21_60.onnx'),runtime}});gpuBenchWorker=w;
+    w.on('message',m=>m.type==='gpu-benchmark-progress'?gpuSettings.progress(m.message):gpuSettings.finish(m));
+    w.on('error',e=>gpuSettings.finish({error:String(e.message||e)}));
+    w.on('exit',()=>{if(gpuBenchWorker===w){gpuBenchWorker=null;if(gpuSettings.snapshot().phase==='testing')gpuSettings.finish({error:'测速线程提前退出'});}});
+  },cancelBenchmark:()=>{worker?.postMessage({type:'gpu-benchmark-cancel'});gpuBenchWorker?.postMessage({type:'cancel'});}});
 /* v1.32 一键更新(updater.js): 启动 20 秒后查一次、之后每 3 小时查一次, 只提示不自动装;点「立即更新」才下载替换并重启 */
 const updater = require("./updater.js").create({ appDir: __dirname, dataDir: app.getPath("userData"), version: VERSION, electron: process.versions.electron, log });
 updater.onChange(u => { sendPanel(); if (tray && (u.phase === "available" || u.phase === "needFull" || u.phase === "latest")) tray.setContextMenu(buildMenu());
@@ -115,7 +124,7 @@ function recreateOverlay(why) {
 }
 const send = (ch, m) => { overlayState.accept(ch, m); if (overlay && !overlay.isDestroyed()) overlay.webContents.send(ch, m); };
 /* scale = 识别坐标(≤2560 宽) → 覆盖窗 DIP 坐标 的比例 */
-function sendCfg() { if (capWin && !capWin.isDestroyed()) capWin.webContents.send("cap-rate", { active: phase === "active" && !cfg.paused }); const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], aimode: AIModes.normalize(settings.aimode), version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, live: liveInfo() }); sendPanel(); }
+function sendCfg() { if(phase==='active')gpuSettings.cancel();if (capWin && !capWin.isDestroyed()) capWin.webContents.send("cap-rate", { active: phase === "active" && !cfg.paused }); const cs = capSize(); send("cfg", { scale: cs.w / cs.dipW, all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], aimode: AIModes.normalize(settings.aimode), version: VERSION, phase, hotkey: HOTKEY, test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, live: liveInfo() }); sendPanel(); }
 let recognitionNotice = false, visibilityNoticeUntil = 0;
 function overlayWanted() { return !liveWaiting && !cfg.paused && (Date.now() < visibilityNoticeUntil || (!cfg.hidden && (phase === "active" || recognitionNotice))); }
 function setVisible(v) {
@@ -342,12 +351,17 @@ function draftAction(type, source) {
 function startWorker() {
   if (liveWaiting || quitting || worker) return;
   if(stoppingRecognition)return;
+  if(gpuBenchWorker){gpuSettings.cancel();gpuBenchWorker.once('exit',()=>startWorker());return;}
   needFull=true;
-  worker = new Worker(path.join(__dirname, "worker.js"));
+  worker = new Worker(path.join(__dirname, "worker.js"), {workerData:{gpuBackend:gpuSettings.active,cudaRuntime:gpuSettings.dir}});
   worker.postMessage({ type: "logdir", dir: LOGDIR });
   worker.postMessage({ type: "visibility", hidden: cfg.hidden });   // 观测轨迹和日志/截图放一起
   { const cs = capSize(); worker.postMessage({ type: "display", w: cs.w, h: cs.h }); }
-  worker.on("message", m => { if (worker !== me || liveWaiting || quitting) return; workerMsgAt = Date.now(); diagnosticLastWorker = { ts: workerMsgAt, type: m.type, tag: m.tag, message: m.type === "log" ? String(m.msg).slice(0, 500) : undefined };
+  worker.on("message", m => { if (worker !== me || quitting) return;
+    if (m.type === 'gpu-benchmark-progress') {gpuSettings.progress(m.message);return;}
+    if (m.type === 'gpu-benchmark-result') {gpuSettings.finish(m);log('gpu-test',m.error||JSON.stringify(m.result));return;}
+    if (m.type === 'gpu-backend') {gpuSettings.reportBackend(m.info);return;}
+    if(liveWaiting)return;workerMsgAt = Date.now(); diagnosticLastWorker = { ts: workerMsgAt, type: m.type, tag: m.tag, message: m.type === "log" ? String(m.msg).slice(0, 500) : undefined };
     if (m.type === "log") return log(m.tag, m.msg);
     if (m.type === "meManualReset") { cfg.meSeat = "auto"; sync(); return; }   // 换了一局, 手动指定的座位作废
     if (m.type === "want") { if (m.full) needFull = true; if (m.phase && m.phase !== phase) { phase = m.phase; uploader.onPhase(phase); log("cap", phase === "active" ? "选技中: 每 250ms 一张半分辨率扫描帧, 需要时补全分辨率" : "空闲: 每 2s 一张 1/4 分辨率"); setVisible(phase === "active"); sendCfg(); } return; }
@@ -372,6 +386,7 @@ function startWorker() {
   const me = worker;
   worker.on("error", e => { if (worker !== me || liveWaiting || quitting) return; log("error", "worker " + (e && e.stack || e)); send("error", { msg: String(e) + " —— 识别线程已自动重启" }); });
   worker.on("exit", c => { if (worker !== me || quitting) return; log("error", "worker 退出 " + c); crashDiag.record("recognition-worker-exit", { code: c, last: diagnosticLastWorker }, true); diagnosticLog.flushSync();
+    if(!gpuBenchWorker)gpuSettings.finish({error:'识别线程退出，测速已取消'});
     uploader && uploader.crash();
     const now = Date.now(); workerRestarts = workerRestarts.filter(t => now - t < 600e3);
     if (workerRestarts.length >= 5) { log("error", "识别线程 10 分钟内崩了 5 次, 不再自动重启(托盘重启插件)"); return; }
@@ -418,7 +433,7 @@ function openPanel() {
 }
 function sendPanel() { if (!panelWin || panelWin.isDestroyed()) return;
   panelWin.webContents.send("panel", { all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY,
-    manualRecovery, recoveryNotice,
+    manualRecovery, recoveryNotice, gpuCompute:gpuSettings.snapshot(),
     test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, uploadLogs: settings.uploadLogs, arrive: !!settings.arrive, aimode: AIModes.normalize(settings.aimode), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8, refine: settings.comboRefine !== false }, allowCapture: settings.allowCapture, live: liveInfo(), meShown, status: lastStatus, upd: updater.state(), gpuPrio, shareOpt: !!settings.shareOpt }); }
 ipcMain.on("panel-ready", () => sendPanel());
 ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; const { k, v } = m;
@@ -429,6 +444,7 @@ ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; con
   else if (k === "meSeat") cfg.meSeat = /^[LR][1-5]$/.test(String(v)) ? String(v) : "auto";
   else if (k === "uploadLogs") { settings.uploadLogs = !!v; saveSettings(); }
   else if (k === "arrive") { settings.arrive = !!v; saveSettings(); }
+  else if (k === 'gpuBackend') {if(e.sender!==panelWin?.webContents)return;gpuSettings.select(v);return;}
   else if (k === "aimode") { settings.aimode = AIModes.normalize(v); saveSettings(); }
   else if (k === "shareOpt") { settings.shareOpt = !!v; saveSettings(); log("cfg", `双方团队分配=${settings.shareOpt ? "开" : "关"}`); }
   else if (k === "combo" && v && typeof v === "object") { settings.comboK = Math.max(2, Math.min(16, v.K | 0 || 8)); settings.comboR = Math.max(8, Math.min(128, v.R | 0 || 16));
@@ -439,6 +455,13 @@ ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; con
   log("panel", `设置面板改 ${k}=${k === "look" ? JSON.stringify(settings.look) : v}`); sync();
   if (k === "hidden") tray.setToolTip(`AD 选技助手 v${VERSION}${cfg.hidden ? " · 已隐藏" : ""} · ${lastStatus}`); });
 ipcMain.on("panel-act", (e, m) => { const name = m && m.name;
+  if(['gpu-test','gpu-test-cancel','gpu-apply'].includes(name)){
+    if(e.sender!==panelWin?.webContents)return;
+    if(name==='gpu-test')gpuSettings.start();
+    else if(name==='gpu-test-cancel')gpuSettings.cancel();
+    else if(phase!=='active'&&!gpuSettings.busy()){app.relaunch();app.quit();}
+    return;
+  }
   if (name === "recover" || name === "auto-end") draftAction(name, "面板");
   else if (name === "reset") draftAction("relock", "面板");
   else if (name === "snap") { snapOnce = true; log("key", "面板: 保存截图"); }
@@ -559,5 +582,5 @@ app.whenReady().then(() => {
   if (app.isPackaged) { setTimeout(() => updater.check(true), 20e3); setInterval(() => updater.check(true), 3 * 3600e3); }
 });
 app.on("window-all-closed", () => {});
-app.on("before-quit", () => { quitting = true; if (livePoll) clearInterval(livePoll); disposeCapture(); log("stop", "退出"); diagnosticLog.flushSync(); });
+app.on("before-quit", () => { quitting = true;gpuSettings.cancel(); if (livePoll) clearInterval(livePoll); disposeCapture(); log("stop", "退出"); diagnosticLog.flushSync(); });
 process.on("uncaughtException", e => { log("error", "主进程 " + (e && e.stack || e)); diagnosticLog.flushSync(); });

@@ -14,6 +14,8 @@ const cards=()=>texts.includes("组合明细"),recommendation=()=>texts.some(t=>
 handlers.cfg({scale:1,phase:"active",hidden:false});handlers.state(state);
 assert(!cards(),"no recommendation yet: no independent score cards");
 handlers.advice(advice);assert(cards()&&recommendation());
+handlers.advice({...advice,resultState:'final',sampleTarget:256});
+assert(texts.some(t=>t.includes('【最终结果 · 256档】')),'final result label retains its name and shows the completed refinement tier');
 handlers.computing({});assert(cards()&&recommendation(),"keep both while refining a displayed recommendation");
 handlers.clear();assert(!cards()&&!recommendation(),"clear must hide cards together with recommendation");
 handlers.state(state);assert(!cards(),"late state cannot revive cards after clear");

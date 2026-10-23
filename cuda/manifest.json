@@ -1,0 +1,124 @@
+{
+  "id": "ort1232-cuda129-cudnn914-py312-v1",
+  "files": [
+    {
+      "name": "python-3.12.10-embed-amd64.zip",
+      "url": "https://www.python.org/ftp/python/3.12.10/python-3.12.10-embed-amd64.zip",
+      "bytes": 11133606,
+      "sha256": "4acbed6dd1c744b0376e3b1cf57ce906f9dc9e95e68824584c8099a63025a3c3",
+      "kind": "python"
+    },
+    {
+      "name": "onnxruntime_gpu-1.23.2-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/87/da/2685c79e5ea587beddebe083601fead0bdf3620bc2f92d18756e7de8a636/onnxruntime_gpu-1.23.2-cp312-cp312-win_amd64.whl",
+      "bytes": 244508327,
+      "sha256": "fe925a84b00e291e0ad3fac29bfd8f8e06112abc760cdc82cb711b4f3935bd95",
+      "kind": "wheel"
+    },
+    {
+      "name": "numpy-2.2.6-cp312-cp312-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/36/fa/8c9210162ca1b88529ab76b41ba02d433fd54fecaf6feb70ef9f124683f1/numpy-2.2.6-cp312-cp312-win_amd64.whl",
+      "bytes": 12614190,
+      "sha256": "c1f9540be57940698ed329904db803cf7a402f3fc200bfe599334c9bd84a40b2",
+      "kind": "wheel"
+    },
+    {
+      "name": "coloredlogs-15.0.1-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/a7/06/3d6badcf13db419e25b07041d9c7b4a2c331d3f4e7134445ec5df57714cd/coloredlogs-15.0.1-py2.py3-none-any.whl",
+      "bytes": 46018,
+      "sha256": "612ee75c546f53e92e70049c9dbfcc18c935a2b9a53b66085ce9ef6a6e5c0934",
+      "kind": "wheel"
+    },
+    {
+      "name": "humanfriendly-10.0-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/f0/0f/310fb31e39e2d734ccaa2c0fb981ee41f7bd5056ce9bc29b2248bd569169/humanfriendly-10.0-py2.py3-none-any.whl",
+      "bytes": 86794,
+      "sha256": "1697e1a8a8f550fd43c2865cd84542fc175a61dcb779b6fee18cf6b6ccba1477",
+      "kind": "wheel"
+    },
+    {
+      "name": "flatbuffers-25.9.23-py2.py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/ee/1b/00a78aa2e8fbd63f9af08c9c19e6deb3d5d66b4dda677a0f61654680ee89/flatbuffers-25.9.23-py2.py3-none-any.whl",
+      "bytes": 30869,
+      "sha256": "255538574d6cb6d0a79a17ec8bc0d30985913b87513a01cce8bcdb6b4c44d0e2",
+      "kind": "wheel"
+    },
+    {
+      "name": "packaging-25.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl",
+      "bytes": 66469,
+      "sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484",
+      "kind": "wheel"
+    },
+    {
+      "name": "protobuf-6.33.0-cp310-abi3-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/7b/c6/7a465f1825872c55e0341ff4a80198743f73b69ce5d43ab18043699d1d81/protobuf-6.33.0-cp310-abi3-win_amd64.whl",
+      "bytes": 436882,
+      "sha256": "9a031d10f703f03768f2743a1c403af050b6ae1f3480e9c140f39c45f81b13ee",
+      "kind": "wheel"
+    },
+    {
+      "name": "sympy-1.14.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl",
+      "bytes": 6299353,
+      "sha256": "e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5",
+      "kind": "wheel"
+    },
+    {
+      "name": "mpmath-1.3.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl",
+      "bytes": 536198,
+      "sha256": "a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c",
+      "kind": "wheel"
+    },
+    {
+      "name": "nvidia_cuda_runtime_cu12-12.9.79-py3-none-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/59/df/e7c3a360be4f7b93cee39271b792669baeb3846c58a4df6dfcf187a7ffab/nvidia_cuda_runtime_cu12-12.9.79-py3-none-win_amd64.whl",
+      "bytes": 3591604,
+      "sha256": "8e018af8fa02363876860388bd10ccb89eb9ab8fb0aa749aaf58430a9f7c4891",
+      "kind": "wheel"
+    },
+    {
+      "name": "nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/52/de/823919be3b9d0ccbf1f784035423c5f18f4267fb0123558d58b813c6ec86/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-win_amd64.whl",
+      "bytes": 76408187,
+      "sha256": "72972ebdcf504d69462d3bcd67e7b81edd25d0fb85a2c46d3ea3517666636349",
+      "kind": "wheel"
+    },
+    {
+      "name": "nvidia_cufft_cu12-11.4.1.4-py3-none-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/20/ee/29955203338515b940bd4f60ffdbc073428f25ef9bfbce44c9a066aedc5c/nvidia_cufft_cu12-11.4.1.4-py3-none-win_amd64.whl",
+      "bytes": 200067309,
+      "sha256": "8e5bfaac795e93f80611f807d42844e8e27e340e0cde270dcb6c65386d795b80",
+      "kind": "wheel"
+    },
+    {
+      "name": "nvidia_curand_cu12-10.3.10.19-py3-none-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/e5/98/1bd66fd09cbe1a5920cb36ba87029d511db7cca93979e635fd431ad3b6c0/nvidia_curand_cu12-10.3.10.19-py3-none-win_amd64.whl",
+      "bytes": 68774847,
+      "sha256": "e8129e6ac40dc123bd948e33d3e11b4aa617d87a583fa2f21b3210e90c743cde",
+      "kind": "wheel"
+    },
+    {
+      "name": "nvidia_cudnn_cu12-9.14.0.64-py3-none-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/c4/e3/1c5eac24344126324e9c9a58d6a7be2db624d71dae7d73c26cc3a9c6a6f2/nvidia_cudnn_cu12-9.14.0.64-py3-none-win_amd64.whl",
+      "bytes": 633459136,
+      "sha256": "c06ac5ea9e199bcee41f27615d50110ab21fd5318f69770cc9ca40cf0a9528e8",
+      "kind": "wheel"
+    },
+    {
+      "name": "nvidia_cublas_cu12-12.9.1.4-py3-none-win_amd64.whl",
+      "url": "https://files.pythonhosted.org/packages/45/a1/a17fade6567c57452cfc8f967a40d1035bb9301db52f27808167fbb2be2f/nvidia_cublas_cu12-12.9.1.4-py3-none-win_amd64.whl",
+      "bytes": 553153899,
+      "sha256": "1e5fee10662e6e52bd71dec533fbbd4971bb70a5f24f3bc3793e5c2e9dc640bf",
+      "kind": "wheel"
+    },
+    {
+      "name": "pyreadline3-3.5.4-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/5a/dc/491b7661614ab97483abf2056be1deee4dc2490ecbf7bff9ab5cdbac86e1/pyreadline3-3.5.4-py3-none-any.whl",
+      "bytes": 83178,
+      "sha256": "eaf8e6cc3c49bcccf145fc6067ba8643d1df34d604a1ec0eccbf7a18e6d3fae6",
+      "kind": "wheel"
+    }
+  ]
+}

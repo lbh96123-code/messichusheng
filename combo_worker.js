@@ -2,6 +2,7 @@
 /* 组合版专用线程: 推演里要批量编码几百局 + 过显卡, 放单独线程, 不卡读屏识别和原推演。 */
 const { parentPort, workerData } = require("worker_threads");
 const C = require(workerData && workerData.combo ? workerData.combo : "./combo_local.js");
+if (workerData.cudaRuntime) C.setCudaRuntime?.(workerData.cudaRuntime);
 let FE = null; try { FE = require(require("path").join(__dirname, "engine", "server", "mcts_fast.js")); } catch (e) { FE = null; }   // v1.45 份额模式切换   // workerData.combo: 只给 test/combo_queue.js 注入桩用
 let ready = null, readyB = 0;
 let duel = null, shareMode = "expect";
@@ -12,7 +13,16 @@ function duelController() {
 /* v1.30: 预热(开组合版就在后台建会话+逐块显卡测速)、新任务来了取消旧任务(旧任务不再占着显卡跑到超时) */
 /* v1.47 按份额模式换网络: 团队模式(optimalL/R/Both) → workerData.modelTeam(netT300), 路人 → workerData.model(netS300); 文件不在就退回路人版 */
 let MODEL = workerData.model;
-const ensure = bfix => { if (!ready || readyB !== bfix) { readyB = bfix; jobDiag && jobDiag.record("model-init-start", { model: require("path").basename(MODEL || ""), bfix, prefer: workerData.prefer }); ready = C.init(MODEL, workerData.prefer, bfix).then(info => { jobDiag && jobDiag.record("model-init-end", { ep: info.ep, dev: info.dev, bfix: info.bfix, detail: info.detail }); return info; }, e => { jobDiag && jobDiag.record("model-init-error", { stack: String(e && e.stack || e) }, true); throw e; }); } return ready; };
+const ensure = bfix => {
+  if (!ready || readyB !== bfix) {
+    readyB=bfix;jobDiag?.record('model-init-start',{model:require('path').basename(MODEL||''),bfix,prefer:workerData.prefer});
+    ready=C.init(MODEL,workerData.prefer,bfix).then(info=>{
+      if(info.cudaFallback){workerData.prefer='';parentPort.postMessage({type:'gpu-backend',info});}
+      jobDiag?.record('model-init-end',{ep:info.ep,dev:info.dev,bfix:info.bfix,detail:info.detail});return info;
+    },e=>{jobDiag?.record('model-init-error',{stack:String(e?.stack||e)},true);throw e;});
+  }
+  return ready;
+};
 function pickModel(shareMode) { const fs0 = require("fs"); const want = (shareMode && shareMode !== "expect" && workerData.modelTeam && fs0.existsSync(workerData.modelTeam)) ? workerData.modelTeam : workerData.model;
   if (want !== MODEL) { MODEL = want; ready = null; readyB = 0; if (duel) duel.reset(); try { parentPort.postMessage({ type: "log", tag: "engine", msg: "组合版网络 → " + require("path").basename(want) }); } catch (e) { } } }
 /* v1.43 任务排队(09-28): 以前"新任务一来就取消旧任务", 结果后台两步表把刚发出的决赛顶掉(用户看到"出错, 用网络档"),
@@ -21,7 +31,9 @@ function pickModel(shareMode) { const fs0 = require("fs"); const want = (shareMo
    · 后台类 screen/plan: 只取消在跑/排队的后台任务, 不打断前台, 前台跑完再跑;
    · 跟随类 fate/planfinal(理由/两步补算): 谁也不取消, 排在后面按序跑, 同类只留最新一个。 */
 const PRE = new Set(["final", "refine", "job", "duel"]), BG = new Set(["screen", "plan", "duelbg"]);
-let running = null, warming = false, pendingWarm = null, pendingCfg = null, stopping = false, closing = false; const queue = [];
+let running = null, warming = false, pendingWarm = null, pendingCfg = null, stopping = false, closing = false;
+let pendingBenchmark=null, benchmarkActive=null;
+const queue = [];
 const jobDiag = workerData.diagnosticFile ? require("./crash_diagnostics.js").create(workerData.diagnosticFile, { rotate: true, cap:8*1024*1024, context: () => ({ model: require("path").basename(MODEL || ""), shareMode, warming, stopping, running: running ? { id: running.m.id, type: running.m.type, mode:running.m.mode, step: running.m.st && running.m.st.step, cancel: running.cancel, cancelReason: running.cancelReason, elapsedMs: Date.now()-running.startedAt, initMs: running.initMs } : null, queued: queue.length, native: C.nativeSnapshot?.() }) }) : null;
 if (C.setDiagnosticHook) C.setDiagnosticHook((event, details, critical) => jobDiag?.record(event, details, critical));
 if (jobDiag) { jobDiag.start();jobDiag.record('diagnostic-config',{schema:2,version:require('./package.json').version,platform:process.platform,arch:process.arch,node:process.versions.node,resourceAllocation:'exact-16-per-template',file:workerData.diagnosticFile,capBytes:8*1024*1024,waveLogIntervalMs:1000}); process.on("uncaughtExceptionMonitor", e => jobDiag.record("uncaught-exception", { stack: String(e && e.stack || e) }, true)); process.on("exit", code => jobDiag.record("worker-exit", { code }, true)); }
@@ -70,6 +82,13 @@ const pump = () => {
   if (running || warming) return;
   if (stopping) { close();return; }
   if (pendingCfg) { const m=pendingCfg;pendingCfg=null;applyCfg(m); }
+  if (pendingBenchmark) {
+    const m=pendingBenchmark;pendingBenchmark=null;warming=true;benchmarkActive={cancel:false};
+    const job=benchmarkActive;
+    require('./gpu_benchmark').compare({model:MODEL,runtime:m.runtime,cancelled:()=>job.cancel||stopping,onProgress:message=>parentPort.postMessage({type:'gpu-benchmark-progress',message})})
+      .then(result=>parentPort.postMessage({type:'gpu-benchmark-result',result}),e=>parentPort.postMessage({type:'gpu-benchmark-result',error:String(e.message||e)}))
+      .finally(()=>{benchmarkActive=null;warming=false;pump();});return;
+  }
   if (pendingWarm) { const m=pendingWarm;pendingWarm=null;warming=true;const q=Date.now();ensure(m.bfix).then(info=>parentPort.postMessage({type:"warm",info,ms:Date.now()-q}),e=>{ready=null;parentPort.postMessage({type:"warm",err:String(e?.message||e).slice(0,300)});}).finally(()=>{warming=false;pump();});return; }
   if (queue.length)runOne(queue.shift());
 };
@@ -84,7 +103,12 @@ const enqueue = m => {
   pump();
 };
 parentPort.on("message", async m => {
-  if (m.type === "shutdown") { stopping=true;pendingWarm=null;cancelRunning("shutdown",m);while(queue.length)dropAt(queue.length-1,"shutdown");jobDiag?.record("shutdown-request",{reason:m.reason},true);pump();return; }
+  if(m.type==='gpu-benchmark-cancel'){if(benchmarkActive)benchmarkActive.cancel=true;if(pendingBenchmark){pendingBenchmark=null;parentPort.postMessage({type:'gpu-benchmark-result',error:'测速已取消'});}return;}
+  if(m.type==='gpu-benchmark'){
+    if(stopping||pendingBenchmark||benchmarkActive){parentPort.postMessage({type:'gpu-benchmark-result',error:'计算线程忙，请稍后重试'});return;}
+    cancelRunning('gpu-benchmark',m);while(queue.length)dropAt(queue.length-1,'gpu-benchmark');pendingBenchmark=m;pump();return;
+  }
+  if (m.type === "shutdown") { stopping=true;pendingWarm=null;if(pendingBenchmark){pendingBenchmark=null;parentPort.postMessage({type:'gpu-benchmark-result',error:'插件正在退出，测速已取消'});}cancelRunning("shutdown",m);while(queue.length)dropAt(queue.length-1,"shutdown");jobDiag?.record("shutdown-request",{reason:m.reason},true);pump();return; }
   if(stopping)return;
   if (m.type === "cancel") { cancelRunning(m.reason||"recognition-cancel",m); while (queue.length) dropAt(queue.length - 1,m.reason||"recognition-cancel"); return; }
   if (m.type === "cfg") { pendingCfg={...pendingCfg,...m};pump();return; }

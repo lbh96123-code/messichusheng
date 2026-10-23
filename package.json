@@ -1,11 +1,13 @@
 {
   "name": "ad-assistant",
   "productName": "ADAssistant",
-  "version": "1.49.4",
+  "version": "1.49.5",
   "description": "Dota 2 Ability Draft pick assistant: screen capture + model win-rate overlay",
   "main": "main.js",
   "private": true,
   "scripts": {
+    "test:cuda": "node test/cuda_bridge.js && node test/cuda_runtime.js && node test/cuda_backend.js && node test/gpu_benchmark.js && node test/gpu_settings.js && node test/diagnostic_benchmark.js && node test/panel.js && node test/combo_queue.js",
+    "test:advice-refinement": "node test/advice_refinement.js && node test/refinement_turn_clock.js && node test/duel_refinement_results.js && node test/duel_progress_results.js && node test/overlay_content_visibility.js",
     "start": "electron .",
     "test:draft-lifecycle": "node test/draft_lifecycle.js && node test/draft_scene.js && node test/draft_worker.js && node test/draft_checkpoint.js && node test/manual_recovery.js && node test/manual_recovery_main.js && node test/overlay_recovery.js && node test/oct15_turn_advice.js",
     "test:draft-robustness": "node test/draft_interactions.js && node test/draft_photometric.js && node test/draft_robustness.js",
