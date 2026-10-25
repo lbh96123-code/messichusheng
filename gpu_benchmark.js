@@ -18,8 +18,9 @@ function parity(a,b,B){
   }
   return {top1Agreement:agree/B,maxProbabilityDelta,passed:maxProbabilityDelta<=0.02&&agree/B>=0.95};
 }
-async function compare({model,runtime,onProgress=()=>{},cancelled=()=>false,loadDml=()=>require('onnxruntime-node'),loadCuda=()=>bridge.create(runtime)}){
+async function compare({model,runtime,onProgress=()=>{},onDiagnostic=null,cancelled=()=>false,loadDml=()=>require('onnxruntime-node'),loadCuda=()=>bridge.create(runtime,{detailed:!!onDiagnostic})}){
   const results=[];
+  const record=(event,details)=>{try{onDiagnostic?.(event,details);}catch(_){}};
   const check=()=>{if(cancelled())throw Error('测速已取消');};
   const test=async(ort,provider,B,deviceId)=>{
     check();let session;
@@ -29,9 +30,9 @@ async function compare({model,runtime,onProgress=()=>{},cancelled=()=>false,load
       // Use each runtime's own Tensor constructor; identical underlying input values.
       const feeds=Object.fromEntries(Object.entries(f).map(([k,t])=>[k,new ort.Tensor(t.type,t.data,t.dims)]));
       await session.run(feeds);const timings=[];let output;
-      for(let i=0;i<9;i++){check();const start=performance.now();output=await session.run(feeds);timings.push(performance.now()-start);}
+      for(let i=0;i<9;i++){check();const start=performance.now();output=await session.run(feeds);const ms=performance.now()-start;timings.push(ms);record('benchmark-call',{backend:provider,deviceId,batch:B,run:i,ms,cuda:session.lastTiming||null});}
       const sorted=[...timings].sort((a,b)=>a-b);
-      return {medianMs:median(timings),p90Ms:sorted[Math.ceil(sorted.length*.9)-1],deviceId,output:output.logits.data.slice()};
+      return {medianMs:median(timings),p90Ms:sorted[Math.ceil(sorted.length*.9)-1],runsMs:timings,deviceId,output:output.logits.data.slice()};
     }finally{if(session)await session.release();}
   };
   for(const B of [32,128]){

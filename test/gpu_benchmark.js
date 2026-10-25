@@ -16,9 +16,10 @@ const {compare,parity}=require('../gpu_benchmark'),{Tensor}=require('../cuda_bri
   },async release(){sessions--;released++;}};
  }}});
  try{
-  const r=await compare({model,runtime:dir,loadDml:()=>fake('dml'),loadCuda:()=>fake('cuda')});
+  const diagnostics=[];const r=await compare({model,runtime:dir,loadDml:()=>fake('dml'),loadCuda:()=>fake('cuda'),onDiagnostic:(event,details)=>diagnostics.push({event,details})});
   assert.deepEqual(r.results.map(x=>x.batch),[32,128]);assert(r.results.every(x=>x.validation.passed&&x.validation.top1Agreement===1));
   assert.equal(created,4);assert.equal(released,4);assert.equal(runs,40);assert.equal(sessions,0);assert.equal(r.precision,'FP32');assert.equal(r.modelSha256.length,64);
+  assert.equal(diagnostics.length,36,'All nine measured runs for four backend/batch pairs');assert(r.results.every(x=>x.dml.runsMs.length===9&&x.cuda.runsMs.length===9));
   await assert.rejects(compare({model,runtime:dir,loadDml:()=>fake('dml'),loadCuda:()=>fake('cuda',true)}),/CUDA provider unavailable/);assert.equal(sessions,0,'Failed CUDA sessions released');
   await assert.rejects(compare({model,runtime:dir,cancelled:()=>cancel,loadDml:()=>fake('dml'),loadCuda:()=>fake('cuda'),onProgress:()=>{cancel=true;}}),/取消/);assert.equal(sessions,0);
   const a=new Float32Array(60),b=new Float32Array(60);a[20]=10;b[21]=10;

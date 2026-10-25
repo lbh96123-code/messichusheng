@@ -10,7 +10,7 @@ let ort = null, sess = null, EP = null, DEV = null, BFIX = 0, INFO = null, MED =
 let sessionModel = null, sessionPreference = null;
 let cudaRuntime = null, ortKind = null;
 const native = require('./native_monitor').create();
-const nativeRun = (session, feeds) => native.call('infer', { batch: feeds.ids.dims[0] }, () => session.run(feeds));
+const nativeRun = async (session, feeds) => {const r=await native.call('infer', { batch: feeds.ids.dims[0] }, () => session.run(feeds));if(session.lastTiming)native.recordDetail('cuda-call',session.lastTiming);return r;};
 const modelFingerprints=new Map();
 function modelFingerprint(model){try{if(!modelFingerprints.has(model)){const fs=require('fs'),bytes=fs.readFileSync(model);modelFingerprints.set(model,{sha256:require('crypto').createHash('sha256').update(bytes).digest('hex'),bytes:bytes.length});}return modelFingerprints.get(model);}catch(e){return {unavailable:String(e.message||e).slice(0,160)};}}
 const nativeCreate = (model, options) => native.call('session-create', { model: path.basename(model), fingerprint:modelFingerprint(model), providers: options.executionProviders, batch: options.freeDimensionOverrides.B,graphOptimizationLevel:options.graphOptimizationLevel,executionMode:options.executionMode,enableMemPattern:options.enableMemPattern,intraOpNumThreads:options.intraOpNumThreads??null,runtimeVersion:(()=>{if(ortKind==='cuda')return '1.23.2 (private Python)';try{return require('onnxruntime-node/package.json').version;}catch(_){return null;}})() }, () => ort.InferenceSession.create(model, options));
@@ -32,7 +32,7 @@ async function init(modelPath, prefer, bfix) {
   if (sess) { await nativeRelease(sess); sess = null; } FP16 = false;
   const privateCuda = process.platform === 'win32' && prefer === 'cuda';
   const kind = privateCuda ? 'cuda' : 'node';
-  if (!ort || ortKind !== kind) { ort = privateCuda ? require('./cuda_bridge').create(cudaRuntime) : require('onnxruntime-node'); ortKind = kind; }
+  if (!ort || ortKind !== kind) { ort = privateCuda ? require('./cuda_bridge').create(cudaRuntime,{detailed:()=>native.isDetailed()}) : require('onnxruntime-node'); ortKind = kind; }
   const T0 = Date.now(), base = { graphOptimizationLevel: "all", freeDimensionOverrides: { B: bfix } }, notes = [];
   if (process.env.AD_COMBO_THREADS) base.intraOpNumThreads = +process.env.AD_COMBO_THREADS;
   if (prefer !== "cpu") {
@@ -522,4 +522,4 @@ async function dispose() {
   if(sess){await nativeRelease(sess);sess=null;}INFO=null;BFIX=0;sessionModel=null;
   await Promise.all([...(SUBS||[]),...(SUB2||[]).map(s=>s.w)].map(w=>w.terminate()));SUBS=null;SUB2=null;
 }
-module.exports = { dispose, setCudaRuntime: dir => { cudaRuntime=dir; }, setDiagnosticHook: native.setHook, nativeSnapshot: native.snapshot, _setPair: (P, n) => { PAIR = P; PN = n; HAS_EXT = true; }, extFill, fate, plan, planFinal, gainsFor, init, decide, decideMT, ownerOf, encodeRange, views, rng, logits, statReset, statOut, rollouts, screen, final, refine, myCands, LAST, info: () => INFO, simRng, ownKey, mkBuf };
+module.exports = { dispose, setCudaRuntime: dir => { cudaRuntime=dir; }, setDiagnosticHook: native.setHook, setDetailedDiagnosticHook: native.setDetailHook, nativeSnapshot: native.snapshot, _setPair: (P, n) => { PAIR = P; PN = n; HAS_EXT = true; }, extFill, fate, plan, planFinal, gainsFor, init, decide, decideMT, ownerOf, encodeRange, views, rng, logits, statReset, statOut, rollouts, screen, final, refine, myCands, LAST, info: () => INFO, simRng, ownKey, mkBuf };

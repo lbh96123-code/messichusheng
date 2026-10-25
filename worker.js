@@ -297,11 +297,12 @@ function comboWorker() {
   if (COMBO_OFF === "broken") return null;
   if (COMBO_W) return COMBO_W;
   try { const { Worker } = require("worker_threads");
-    COMBO_W = new Worker(path.join(D, "..", "combo_worker.js"), { workerData: { model: path.join(D, COMBO_NET + ".onnx"), modelTeam: path.join(D, COMBO_NET_TEAM + ".onnx"), prefer: workerData?.gpuBackend === 'cuda' ? 'cuda' : process.env.AD_COMBO_EP || "", cudaRuntime:workerData?.cudaRuntime, diagnosticFile: TRDIR ? path.join(TRDIR, `diag_combo_${Date.now()}.jsonl`) : null } });
+    COMBO_W = new Worker(path.join(D, "..", "combo_worker.js"), { workerData: { model: path.join(D, COMBO_NET + ".onnx"), modelTeam: path.join(D, COMBO_NET_TEAM + ".onnx"), prefer: workerData?.gpuBackend === 'cuda' ? 'cuda' : process.env.AD_COMBO_EP || "", cudaRuntime:workerData?.cudaRuntime, detailedLogs:workerData?.detailedLogs, diagnosticFile: TRDIR ? path.join(TRDIR, `diag_combo_${Date.now()}.jsonl`) : null } });
     const launchedCombo = COMBO_W;
     launchedCombo.on("exit", code => { log("crash", `计算线程退出 code=${code} pending=${COMBO_CB.size} mode=${AIMODE} share=${SHARE_MODE}`); if (COMBO_W !== launchedCombo) return;parentPort.postMessage({type:'gpu-benchmark-result',error:'计算线程退出，测速已取消'}); COMBO_OFF = "broken"; COMBO_W = null; for (const cb of COMBO_CB.values()) cb({ type: "err", msg: "计算线程退出 " + code }); COMBO_CB.clear(); COMBO_READY.clear(); });
     COMBO_W.postMessage({ type: "cfg", shareMode: SHARE_MODE });
     COMBO_W.on("message", m => {
+      if(m.type==='detail-flushed')return;
       if(m.type==='gpu-backend'){if(workerData)workerData.gpuBackend='dml';parentPort.postMessage(m);return;}
       if(m.type==='gpu-benchmark-progress'||m.type==='gpu-benchmark-result'){parentPort.postMessage(m);return;}
       if (m.type === "duelready") { const cb = COMBO_READY.get(m.id); if (cb) cb(m); return; }
@@ -803,6 +804,12 @@ function syncShareMode(me) {
 const PLEVELS = [{ name: "团队", delta: 0 }, { name: "略偏个人", delta: 0.01 }, { name: "偏个人", delta: 0.025 }, { name: "贪", delta: 0.05 }];
 let shuttingDown = false;
 parentPort.on("message", async m => {
+  if(m.type==='detailed-logs'){if(workerData)workerData.detailedLogs=!!m.enabled;COMBO_W?.postMessage(m);return;}
+  if(m.type==='detail-flush'){
+    if(!COMBO_W){parentPort.postMessage({type:'detail-flushed',id:m.id});return;}
+    const child=COMBO_W,reply=r=>{if(r.type==='detail-flushed'&&r.id===m.id){child.off('message',reply);parentPort.postMessage(r);}};
+    child.on('message',reply);const cleanup=setTimeout(()=>child.off('message',reply),6000);cleanup.unref?.();child.postMessage(m);return;
+  }
   if(m.type==='gpu-benchmark') {const w=comboWorker();if(w)w.postMessage(m);else parentPort.postMessage({type:'gpu-benchmark-result',error:'计算线程不可用，请重启插件后再测试'});return;}
   if(m.type==='gpu-benchmark-cancel'){COMBO_W?.postMessage(m);return;}
   if (m.type === "shutdown") { if(shuttingDown)return;shuttingDown=true;suppressAdvice=true;cancelComputations("shutdown: "+m.reason);trFlush();

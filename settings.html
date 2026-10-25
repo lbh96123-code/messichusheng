@@ -52,6 +52,8 @@ button.go{background:#8a6a1f;border-color:#d4a73c;color:#fff;font-weight:bold}bu
  <div class="note" id="gp-note"></div>
  <div class="row"><label class="k">计算后端</label><div class="seg"><button id="gpu-dml">DirectML</button><button id="gpu-cuda">CUDA</button></div><button id="b-gpu-apply">应用并重启</button></div>
  <div class="row"><label class="k"></label><button id="b-gpu-test">CUDA / DirectML 对比测速</button><button id="b-gpu-cancel">取消测试</button></div>
+ <div class="row"><label class="k">CUDA 组件位置</label><button id="b-gpu-dir">选择目录（可选 D 盘）</button><button id="b-gpu-dir-app">放到插件目录</button></div>
+ <div class="note">默认从插件服务器下载 CUDA 离线组件包，不访问清华或官方源；支持断点续传和 SHA256 校验，已有完整缓存无需下载。组件可放 D 盘或插件目录；不会自动搬移已有组件，安装目录需可写。</div>
  <div class="note" id="gpu-state" style="white-space:pre-line"></div>
  <div class="note" id="gpu-results" style="white-space:pre-line"></div>
  <div class="row"><label class="k">给谁看推荐</label><div class="seg"><button id="m-solo">单人:只看我</button><button id="m-all">团队:我方五人</button></div></div>
@@ -86,6 +88,8 @@ button.go{background:#8a6a1f;border-color:#d4a73c;color:#fff;font-weight:bold}bu
  <div class="row"><label class="k">运行模式</label><div class="seg"><button id="t-off">正式</button><button id="t-on">🔬 测试(自动截图+细日志)</button></div></div>
  <div class="row"><label class="k">状态估计内核</label><div class="seg"><button id="v-1x">1.x 稳定</button><button id="v-v2">2.0 试验</button></div></div>
  <div class="row"><label class="k">日志</label><label class="sw"><input type="checkbox" id="c-up">打完一局自动上传日志(帮作者排查问题)</label></div>
+ <div class="row"><label class="k">超级详细日志</label><label class="sw"><input type="checkbox" id="c-detail">记录每次推理和 CUDA 分段耗时（默认开启）</label></div>
+ <div class="note">自动压缩，每组细日志保留最近 16 MB，超过后清理较早记录。详细日志会增加少量开销，并记录自身开销及缺失情况。上传仍遵循上方开关。</div>
  <div class="row"><label class="k"></label><button id="b-upload">立即上传本次日志</button><button id="b-snap">保存当前截图</button><button id="b-logs">打开日志文件夹</button></div>
 </section>
 
@@ -130,7 +134,7 @@ function render(m){S=m;look=ADFrames.norm(m.look);
  $("recovery-note").textContent=m.recoveryNotice||(m.manualRecovery?"人工恢复中：自动结束判断已暂停。下一局前请恢复自动判断或重新识别池子。":"误判结束时点“恢复本局”或按 F10；保留原池，完整复核后恢复推荐。");
  $("t-off").className=m.test?"":"on";$("t-on").className=m.test?"on":"";
  $("v-1x").className=m.core==="v2"?"":"on";$("v-v2").className=m.core==="v2"?"on":"";
- $("c-up").checked=!!m.uploadLogs;$("c-live").checked=!!m.allowCapture;
+ $("c-up").checked=!!m.uploadLogs;$("c-live").checked=!!m.allowCapture;$("c-detail").checked=m.detailedLogs!==false;
  const lv=m.live||{};$("live-note").textContent=m.allowCapture?("📺 "+(lv.msg||(lv.mode==="window"?"已捕获游戏窗口, 覆盖层可被抓到":"等待游戏窗口…"))+"  ·  游戏独占全屏会黑屏, 请用无边框窗口"):"默认关:覆盖层对所有截屏/录屏隐身(视频号直播助手、OBS 都抓不到)。开了以后插件改抓游戏窗口而不是整个屏幕, 接通后才放开隐身;游戏要是独占全屏会抓到黑屏, 请用无边框窗口。";
  const hk=m.hotkey||{};$("keys").innerHTML=Object.keys(hk).map(k=>`<div>${k}:<b>${hk[k]||"(被占用, 用面板)"}</b></div>`).join("");
  $("st").textContent=m.status||"";renderUpd(m.upd||{});preview();}
@@ -140,8 +144,9 @@ function renderGpu(g,phase){
  $('gpu-dml').disabled=working;$('gpu-cuda').disabled=working||!g.installed||!r;
  $('b-gpu-test').disabled=working||phase==='active'||!g.supported;
  $('b-gpu-cancel').style.display=working?'':'none';$('b-gpu-cancel').disabled=g.phase==='cancelling';
- $('b-gpu-apply').disabled=working||phase==='active'||g.selected===g.active;
- const progress=g.phase==='installing'&&g.total?` ${(100*g.downloaded/g.total).toFixed(0)}%`:'';
+ $('b-gpu-apply').disabled=working||phase==='active'||(!g.restartRequired&&g.selected===g.active);
+ $('b-gpu-dir').disabled=working||phase==='active';$('b-gpu-dir-app').disabled=working||phase==='active';
+ const progress=g.phase==='installing'&&g.total?` ${(100*g.downloaded/g.total).toFixed(0)}% · ${(g.downloaded/1e6).toFixed(1)} / ${(g.total/1e6).toFixed(1)} MB`:'';
  $('gpu-state').textContent=`当前：${g.active==='cuda'?'CUDA':'DirectML'}${g.selected&&g.selected!==g.active?'（已选择 '+(g.selected==='cuda'?'CUDA':'DirectML')+'，重启生效）':''}\n${g.message||'确认后安装 CUDA 组件并与 DirectML 比较，测速完成后自行选择。'}${progress}\n${g.dir||''}`;
  $('gpu-results').textContent=r?`${r.model} · ${r.precision} · 每批预热后测 ${r.runs} 次\n`+r.results.map(x=>`批量 ${x.batch}：DirectML ${x.dml.medianMs.toFixed(2)} ms（P90 ${x.dml.p90Ms.toFixed(2)}） / CUDA ${x.cuda.medianMs.toFixed(2)} ms（P90 ${x.cuda.p90Ms.toFixed(2)}）\nCUDA 速度为 DirectML 的 ${x.speedup.toFixed(2)} 倍 · 首选一致率 ${(x.validation.top1Agreement*100).toFixed(1)}%`).join('\n')+'\n'+r.scope:'';
 }
@@ -161,6 +166,7 @@ $("b-hidden").onclick=()=>panel.set("hidden",!S.hidden);
 $("b-gpu-test").onclick=()=>{const g=S?.gpuCompute;if(!g)return;const gb=(g.downloadBytes/1e9).toFixed(2);if(confirm(g.installed?'使用相同模型和输入对比 DirectML / CUDA（批量 32、128），完成后可选择后端。现在开始？':`下载约 ${gb} GB CUDA 运行组件到：\n${g.dir}\n\n安装磁盘至少需要 7 GB 空间，不修改系统驱动。安装后会与 DirectML 对比测速。确认开始？`))panel.act('gpu-test');};
 $("b-gpu-cancel").onclick=()=>panel.act('gpu-test-cancel');
 $("gpu-dml").onclick=()=>panel.set('gpuBackend','dml');$("gpu-cuda").onclick=()=>panel.set('gpuBackend','cuda');
+$("b-gpu-dir").onclick=()=>panel.act('gpu-dir-pick');$("b-gpu-dir-app").onclick=()=>panel.act('gpu-dir-app');
 $("b-gpu-apply").onclick=()=>{if(confirm('重启插件以应用所选计算后端？'))panel.act('gpu-apply');};
 for(const mode of ["mcts","net","combo","combo-team","duel","duel-fast"])$("ai-"+mode).onclick=()=>panel.set("aimode",mode);
 for(const id of ["cb-K","cb-R","cb-sec","cb-refine"])$(id).onchange=()=>panel.set("combo",{K:+$("cb-K").value,R:+$("cb-R").value,sec:+$("cb-sec").value,refine:$("cb-refine").checked});
@@ -174,6 +180,7 @@ $("b-recover").onclick=()=>panel.act("recover");$("b-auto-end").onclick=()=>pane
 $("t-off").onclick=()=>panel.set("test",false);$("t-on").onclick=()=>panel.set("test",true);
 $("v-1x").onclick=()=>panel.set("core","1x");$("v-v2").onclick=()=>panel.set("core","v2");
 $("c-up").onchange=e=>panel.set("uploadLogs",e.target.checked);$("c-live").onchange=e=>panel.set("allowCapture",e.target.checked);
+$("c-detail").onchange=e=>panel.set("detailedLogs",e.target.checked);
 $("b-upload").onclick=()=>panel.act("upload");$("b-snap").onclick=()=>panel.act("snap");$("b-logs").onclick=()=>panel.act("logs");
 $("u-check").onclick=()=>panel.act("update-check");$("u-full").onclick=()=>panel.act("update-apply");
 $("u-apply").onclick=()=>{if(S.phase==="active"&&!confirm("正在选技中, 更新会重启插件(这一局剩下的推荐要等重启后重新识别)。现在更新?"))return;panel.act("update-apply");};

@@ -1,13 +1,14 @@
 "use strict";
 // The main process owns installation and settings; inference stays in the GPU queue.
 const runtime=require('./cuda_runtime');
+const fs=require('fs'),path=require('path');
 const successful=r=>r&&r.results?.length===2&&r.results.every(x=>[32,128].includes(x.batch)&&x.validation?.passed&&x.dml?.medianMs>0&&x.cuda?.medianMs>0);
 function create({dataDir,settings,save,onChange=()=>{},sendBenchmark,cancelBenchmark,canTest=()=>true,platform=process.platform}){
-  const dir=runtime.runtimeDir(dataDir);
+  let dir=runtime.runtimeDir(settings.cudaBaseDir||dataDir);const activeDir=dir;
   let state={phase:'idle',message:'',result:successful(settings.gpuBenchmark)?settings.gpuBenchmark:null},abort=null;
   let active=settings.gpuBackend==='cuda'&&runtime.installed(dir)&&state.result?'cuda':'dml';
   const publish=()=>onChange();
-  const snapshot=()=>({...state,dir,downloadBytes:runtime.bytes,supported:platform==='win32',installed:runtime.installed(dir),selected:settings.gpuBackend==='cuda'?'cuda':'dml',active});
+  const snapshot=()=>({...state,dir,activeDir,baseDir:settings.cudaBaseDir||dataDir,restartRequired:dir!==activeDir||(settings.gpuBackend==='cuda'?'cuda':'dml')!==active,downloadBytes:runtime.bytes,supported:platform==='win32',installed:runtime.installed(dir),selected:settings.gpuBackend==='cuda'?'cuda':'dml',active});
   const busy=()=>['installing','testing','cancelling'].includes(state.phase);
   const finish=m=>{
     if(!['testing','cancelling'].includes(state.phase))return;
@@ -16,7 +17,14 @@ function create({dataDir,settings,save,onChange=()=>{},sendBenchmark,cancelBench
     else{settings.gpuBenchmark=m.result;save();state={phase:'done',message:'对比完成，请选择计算后端；切换后重启生效。',result:m.result};}
     publish();
   };
-  return {snapshot,busy,dir,get active(){return active;},
+  return {snapshot,busy,get dir(){return activeDir;},get active(){return active;},
+    setDirectory(base){
+      if(busy()||!canTest())return false;
+      if(typeof base!=='string'||!path.isAbsolute(base)){state={...state,message:'请选择绝对路径的组件目录'};publish();return false;}
+      try{fs.mkdirSync(base,{recursive:true});const probe=path.join(base,'.ad_cuda_write_'+process.pid+'_'+Date.now());const fd=fs.openSync(probe,'wx');fs.closeSync(fd);fs.unlinkSync(probe);
+        settings.cudaBaseDir=base;dir=runtime.runtimeDir(base);save();state={...state,phase:'idle',message:'CUDA 组件目录已设置；新下载写入此目录。已有组件保持原位。路径改变后请应用并重启。'};publish();return true;
+      }catch(e){state={...state,message:'该目录不可写，请选择 D 盘等可写目录：'+e.message};publish();return false;}
+    },
     reportBackend(info){if(info?.cudaFallback){active='dml';settings.gpuBackend='dml';save();state={...state,message:info.detail};publish();}},
     async start(){
       if(busy())return;

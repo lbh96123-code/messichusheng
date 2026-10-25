@@ -34,8 +34,19 @@ const PRE = new Set(["final", "refine", "job", "duel"]), BG = new Set(["screen",
 let running = null, warming = false, pendingWarm = null, pendingCfg = null, stopping = false, closing = false;
 let pendingBenchmark=null, benchmarkActive=null;
 const queue = [];
+let detailedLogs=workerData.detailedLogs!==false,detailLog=null,detailModelSHA256=null;
+function detailContext(){return {job:running?.m.id??null,type:running?.m.type??null,step:running?.m.st?.step??null,model:require('path').basename(MODEL||''),modelSHA256:detailModelSHA256,shareMode};}
+function setDetailedLogs(enabled){
+ detailedLogs=!!enabled;
+ if(detailedLogs&&!detailLog&&workerData.diagnosticFile)detailLog=require('./detail_log').create(workerData.diagnosticFile.replace('diag_combo_','diag_detail_'),{context:detailContext});
+ C.setDetailedDiagnosticHook?.(detailedLogs&&detailLog?(event,details)=>detailLog.record(event,details):null);
+ detailLog?.record('detail-config',{enabled:detailedLogs,version:require('./package.json').version,maxCompressedBytes:16*1024*1024,timingSchema:1,payload:'input shapes and SHA256, no repeated tensor arrays'});
+ if(!detailedLogs)detailLog?.flush();
+}
+setDetailedLogs(detailedLogs);
 const jobDiag = workerData.diagnosticFile ? require("./crash_diagnostics.js").create(workerData.diagnosticFile, { rotate: true, cap:8*1024*1024, context: () => ({ model: require("path").basename(MODEL || ""), shareMode, warming, stopping, running: running ? { id: running.m.id, type: running.m.type, mode:running.m.mode, step: running.m.st && running.m.st.step, cancel: running.cancel, cancelReason: running.cancelReason, elapsedMs: Date.now()-running.startedAt, initMs: running.initMs } : null, queued: queue.length, native: C.nativeSnapshot?.() }) }) : null;
-if (C.setDiagnosticHook) C.setDiagnosticHook((event, details, critical) => jobDiag?.record(event, details, critical));
+if(jobDiag){const record=jobDiag.record;jobDiag.record=(event,details,critical)=>{record(event,details,critical);if(detailedLogs&&event!=='native-start'&&event!=='native-end')detailLog?.record(event,details);};}
+if (C.setDiagnosticHook) C.setDiagnosticHook((event, details, critical) => {if(event==='native-start'&&details.kind==='session-create')detailModelSHA256=details.fingerprint?.sha256||null;jobDiag?.record(event, details, critical);});
 if (jobDiag) { jobDiag.start();jobDiag.record('diagnostic-config',{schema:2,version:require('./package.json').version,platform:process.platform,arch:process.arch,node:process.versions.node,resourceAllocation:'exact-16-per-template',file:workerData.diagnosticFile,capBytes:8*1024*1024,waveLogIntervalMs:1000}); process.on("uncaughtExceptionMonitor", e => jobDiag.record("uncaught-exception", { stack: String(e && e.stack || e) }, true)); process.on("exit", code => jobDiag.record("worker-exit", { code }, true)); }
 const runOne = async m => {
   const performanceProbe=jobDiag?require('./performance_diagnostics').createJobProbe():null;
@@ -71,13 +82,14 @@ const runOne = async m => {
   const r=job.result,native=C.nativeSnapshot?.(),before=job.nativeBefore;
   const resources=performanceProbe?.finish();
   const diagnosticAfter=jobDiag?.stats();
+  if(detailedLogs)detailLog?.record('detail-log-overhead',detailLog.stats());
   const inferenceHistogram=native&&before&&native.inferenceHistogram?native.inferenceHistogram.map((n,i)=>n-(before.inferenceHistogram?.[i]||0)):null;
   if(jobDiag)jobDiag.record('job-performance',{id:m.id,type:m.type,mode:m.mode,step:m.st?.step,shareMode,resources,diagnosticWriteMs:diagnosticAfter.writeMs-diagnosticBefore.writeMs,diagnosticRecords:diagnosticAfter.records-diagnosticBefore.records,diagnosticErrors:diagnosticAfter.errors-diagnosticBefore.errors,inferenceHistogram,histogramUpperMs:native?.histogramUpperMs,inferenceTimingScope:native?.timingScope,inferenceTimingSchema:native?.timingSchema,nativeDiagnosticMs:native&&before?native.diagnosticMs-before.diagnosticMs:null,nonInferenceWallMs:native&&before?Math.max(0,Date.now()-job.startedAt-job.initMs-(native.runMs-before.runMs)):null,nonInferenceScope:'residual wall time, includes CPU work, scheduling and diagnostic writes; not pure CPU time'});
   const budgetMs=m.type==='duel'?(m.budget||8000):null;
   jobDiag && jobDiag.record("job-end", { id: m.id, cancelled: job.cancel, cancelReason:job.cancelReason, device:job.device, queueMs:job.queueMs, initMs:job.initMs, elapsedMs:Date.now()-job.startedAt, computeMs:Date.now()-job.startedAt-job.initMs, budgetMs,searchMs:r?.ms,searchOverrunMs:budgetMs&&r?.ms!=null?Math.max(0,r.ms-budgetMs):null,inferenceCalls:native&&before?native.calls-before.calls:null, inferenceMs:native&&before?native.runMs-before.runMs:null, lifetimeMaxInferenceMs:native?.maxMs, result:r?{reason:r.reason,failure:r.failure,complete:r.complete,partial:r.partial,chosen:r.chosen,topGap:r.rows?.length>=2&&r.rows[0].win!=null&&r.rows[1].win!=null?r.rows[0].win-r.rows[1].win:null,nodes:r.nodes,newSamples:r.newSamples,reusedSamples:r.reusedSamples,requestedSamples:r.requestedSamples,legalCandidates:r.legalCandidates,searchedCandidates:r.searchedCandidates,suspendedSteps:r.suspendedSteps,resumedSteps:r.resumedSteps,calls:r.calls,top:r.rows?.slice(0,8),rounds:r.rounds}:null }); running = null; pump();
 };
 const applyCfg = m => { if (m.shareMode && FE && FE.setShareMode) FE.setShareMode(m.shareMode); if (m.shareMode) { pickModel(m.shareMode); if (shareMode !== m.shareMode && duel) duel.setShareMode(m.shareMode); shareMode = m.shareMode; } if (m.resetSearch && duel) duel.reset(); jobDiag?.record("config-applied",m); };
-const close = async () => { if(closing)return;closing=true;jobDiag?.record("shutdown-drained",{},true);try{await C.dispose?.();jobDiag?.close("shutdown");parentPort.postMessage({type:"shutdown-ready"});parentPort.close();}catch(e){jobDiag?.record("shutdown-error",{stack:String(e?.stack||e)},true);parentPort.postMessage({type:"shutdown-error",msg:String(e)});} };
+const close = async () => { if(closing)return;closing=true;jobDiag?.record("shutdown-drained",{},true);try{await C.dispose?.();jobDiag?.close("shutdown");await detailLog?.close();parentPort.postMessage({type:"shutdown-ready"});parentPort.close();}catch(e){jobDiag?.record("shutdown-error",{stack:String(e?.stack||e)},true);parentPort.postMessage({type:"shutdown-error",msg:String(e)});} };
 const pump = () => {
   if (running || warming) return;
   if (stopping) { close();return; }
@@ -85,7 +97,7 @@ const pump = () => {
   if (pendingBenchmark) {
     const m=pendingBenchmark;pendingBenchmark=null;warming=true;benchmarkActive={cancel:false};
     const job=benchmarkActive;
-    require('./gpu_benchmark').compare({model:MODEL,runtime:m.runtime,cancelled:()=>job.cancel||stopping,onProgress:message=>parentPort.postMessage({type:'gpu-benchmark-progress',message})})
+    require('./gpu_benchmark').compare({model:MODEL,runtime:m.runtime,onDiagnostic:detailedLogs&&detailLog?(event,details)=>detailLog.record(event,details):null,cancelled:()=>job.cancel||stopping,onProgress:message=>parentPort.postMessage({type:'gpu-benchmark-progress',message})})
       .then(result=>parentPort.postMessage({type:'gpu-benchmark-result',result}),e=>parentPort.postMessage({type:'gpu-benchmark-result',error:String(e.message||e)}))
       .finally(()=>{benchmarkActive=null;warming=false;pump();});return;
   }
@@ -103,6 +115,8 @@ const enqueue = m => {
   pump();
 };
 parentPort.on("message", async m => {
+  if(m.type==='detailed-logs'){setDetailedLogs(m.enabled);return;}
+  if(m.type==='detail-flush'){await detailLog?.flush();parentPort.postMessage({type:'detail-flushed',id:m.id});return;}
   if(m.type==='gpu-benchmark-cancel'){if(benchmarkActive)benchmarkActive.cancel=true;if(pendingBenchmark){pendingBenchmark=null;parentPort.postMessage({type:'gpu-benchmark-result',error:'测速已取消'});}return;}
   if(m.type==='gpu-benchmark'){
     if(stopping||pendingBenchmark||benchmarkActive){parentPort.postMessage({type:'gpu-benchmark-result',error:'计算线程忙，请稍后重试'});return;}

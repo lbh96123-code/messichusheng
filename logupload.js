@@ -48,6 +48,19 @@ function pickFiles(logdir, logfile, since) {
   return out;
 }
 
+// Detail chunks stay compressed locally, but the existing receiver accepts JSONL.
+// Decompress/repack bounded batches instead of silently omitting them at CAP.
+function* detailBatches(logdir,since,until=Infinity){
+ const entries=fs.readdirSync(logdir).filter(f=>/^diag_detail_.*\.jsonl\.gz$/.test(f)).map(f=>({f,p:path.join(logdir,f),st:fs.statSync(path.join(logdir,f))})).filter(x=>x.st.mtimeMs>=since&&x.st.mtimeMs<=until).sort((a,b)=>a.st.mtimeMs-b.st.mtimeMs);
+ let files=[],bytes=0;
+ for(const x of entries){
+  let data;try{data=zlib.gunzipSync(fs.readFileSync(x.p),{maxOutputLength:4*1024*1024});}catch(e){throw Error('详细日志读取失败 '+x.f+': '+e.message);}
+  if(files.length&&(bytes+data.length>16*1024*1024||files.length>=180)){yield files;files=[];bytes=0;}
+  files.push({name:x.f.replace(/\.gz$/,''),data});bytes+=data.length;
+ }
+ if(files.length)yield files;
+}
+
 /* v1.38: 截图 PNG(2560×1440 每张 2~4MB)转 JPEG(同分辨率, 质量 85, 约 0.3~0.6MB)。
    09-22 整局包 8MB 左右, 跨境上传常卡住超时(当晚 46b2/8252/baa2 的整局包几乎全失败, 服务器记 499)。
    只在主进程里有 electron;测试环境没有就原样传 PNG。 */
@@ -113,6 +126,10 @@ function pickPrev(logdir, x) {
 function create(opts) {
   let since = Date.now() - 60e3, lastAuto = 0, busy = false, activeSince = 0, sawEnd = false, rejects = 0, timer = null, rejectTimer = null;
   const later = (ms, why) => { clearTimeout(timer); timer = setTimeout(() => run(why, false), ms); };
+  async function uploadDetails(start,end,why){let count=0,bytes=0;for(const files of detailBatches(opts.logdir,start,end)){
+    const zip=makeZip(files),r=await postChunked(zip,{"x-ad-ver":opts.version,"x-ad-id":opts.installId,"x-ad-why":why.slice(0,9)+'_detail'});
+    if(r.code!==200)throw Error('详细日志分包上传失败 HTTP '+r.code+' '+r.body);count+=files.length;bytes+=zip.length;
+  }if(count)opts.log('upload',`超级详细日志已上传 ${count} 段 ${(bytes/1048576).toFixed(2)}MB`);}
   async function run(why, manual) {
     if (busy) return;
     if (!manual && (!opts.enabled() || Date.now() - lastAuto < MIN_GAP)) return;
@@ -122,7 +139,7 @@ function create(opts) {
       const t0 = Date.now(), files = pickFiles(opts.logdir, opts.logfile, since);
       const raw = files.reduce((a, f) => a + f.data.length, 0), zip = makeZip(shrinkSnaps(files));
       const r = await postChunked(zip, { "x-ad-ver": opts.version, "x-ad-id": opts.installId, "x-ad-why": why });
-      if (r.code === 200) { since = t0; if (!manual) lastAuto = Date.now(); opts.log("upload", `日志已上传(${why}) ${files.length} 个文件 ${(zip.length / 1048576).toFixed(1)}MB(原 ${(raw / 1048576).toFixed(1)}MB, 分${r.parts}块) 用时${((Date.now() - t0) / 1000).toFixed(0)}s`); }
+      if (r.code === 200) { await uploadDetails(since,t0,why);since = t0; if (!manual) lastAuto = Date.now(); opts.log("upload", `日志已上传(${why}) ${files.length} 个文件 ${(zip.length / 1048576).toFixed(1)}MB(原 ${(raw / 1048576).toFixed(1)}MB, 分${r.parts}块) 用时${((Date.now() - t0) / 1000).toFixed(0)}s`); }
       else opts.log("upload", `日志上传失败(${why}) HTTP ${r.code} ${r.body}`);
     } catch (e) { opts.log("upload", `日志上传出错(${why}) ${e.message || e}`); }
     finally { busy = false; }
@@ -135,7 +152,7 @@ function create(opts) {
       const picked=pickPrev(opts.logdir,x),names=new Set(evidence.map(f=>f.name));const files=[picked[0],...evidence,...picked.slice(1).filter(f=>!names.has(f.name))];
       let bytes=0;const bounded=files.filter(f=>{if(bytes+f.data.length>CAP)return false;bytes+=f.data.length;return true;}),zip = makeZip(bounded);
       const r = await postChunked(zip, { "x-ad-ver": opts.version, "x-ad-id": opts.installId, "x-ad-why": "prevcrash" });
-      if (r.code === 200) { try { fs.appendFileSync(path.join(opts.logdir, "prevcrash_sent.txt"), x.f + "\n"); } catch (_) {} }
+      if (r.code === 200) { const m=/ad_(\d{4})(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)/.exec(x.f),start=m?new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime():x.st.mtimeMs-6*3600e3;await uploadDetails(start,(x.diagnosticEndMs||x.st.mtimeMs)+60e3,'prevcrash');try { fs.appendFileSync(path.join(opts.logdir, "prevcrash_sent.txt"), x.f + "\n"); } catch (_) {} }
       opts.log("upload", r.code === 200 ? `上一次会话日志已补传 ${bounded.length} 个文件 ${(zip.length / 1048576).toFixed(1)}MB` : `上一次会话日志补传失败 HTTP ${r.code} ${r.body}`);
     } catch (e) { opts.log("upload", "上一次会话日志补传出错 " + (e.message || e)); }
   }, opts.prevDelay != null ? opts.prevDelay : 30e3);
@@ -160,4 +177,4 @@ function create(opts) {
     crash() { if (opts.enabled()) setTimeout(() => run("crash", true), 1500); },
   };
 }
-module.exports = { create, makeZip, pickFiles, postChunked, shrinkSnaps, findPrevUnclean, pickPrev };
+module.exports = { create, makeZip, pickFiles, postChunked, shrinkSnaps, findPrevUnclean, pickPrev, detailBatches };

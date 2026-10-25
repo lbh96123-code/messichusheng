@@ -3,10 +3,10 @@ const assert=require('assert/strict'),fs=require('fs'),path=require('path'),os=r
 (async()=>{
  const root=path.resolve(__dirname,'..'),dir=fs.mkdtempSync(path.join(os.tmpdir(),'ad-cuda-install-'));let payload=Buffer.from('verified archive'),redirect=false;
  const https={get(url,options,cb){const req=new EventEmitter();req.setTimeout=()=>{};req.destroy=e=>req.emit('error',e);setImmediate(()=>{const res=Readable.from([payload]);res.statusCode=redirect?302:200;res.headers=redirect?{location:'https://untrusted.example/payload'}:{};cb(res);});return req;}};
- const context=vm.createContext({module:{exports:{}},__dirname:root,Buffer,URL,process,setTimeout,clearTimeout,require(name){if(name==='https')return https;if(name.startsWith('./'))return require(path.join(root,name));return require(name);}});
+ const context=vm.createContext({module:{exports:{}},__dirname:root,Buffer,URL,process,setTimeout,clearTimeout,require(name){if(name==='https'||name==='http')return https;if(name.startsWith('./'))return require(path.join(root,name));return require(name);}});
  vm.runInContext(fs.readFileSync(path.join(root,'cuda_runtime.js'),'utf8'),context);const r=context.module.exports;
  try{
-  const file={name:'x.zip',url:'https://www.python.org/payload',bytes:payload.length,sha256:crypto.createHash('sha256').update(payload).digest('hex')};
+  const file={name:'x.zip',url:r.offline.url,bytes:payload.length,sha256:crypto.createHash('sha256').update(payload).digest('hex')};
   await r.download(file,path.join(dir,'ok.zip'),undefined,()=>{});assert.equal(fs.readFileSync(path.join(dir,'ok.zip')).toString(),payload.toString());
   await assert.rejects(r.download({...file,sha256:'0'.repeat(64)},path.join(dir,'bad.zip'),undefined,()=>{}),/校验失败/);
   payload=Buffer.from('larger than expected size');await assert.rejects(r.download(file,path.join(dir,'large.zip'),undefined,()=>{}),/超出清单/);

@@ -2,7 +2,7 @@
 /* AD 选技助手 v0.2 主进程:托盘 + 截屏 + 覆盖窗 + 日志。识别/引擎都在 worker.js 线程里。
    v0.2 相对 v0.1:去掉 forward:true(它在 Windows 上装全局底层鼠标钩子,主线程一忙全系统鼠标就卡);
    没看到棋盘时只截半分辨率小图、1.5 s 一帧、覆盖窗隐藏;开局自动锁池子不用按 F10;日志落盘。 */
-const { app, BrowserWindow, screen, desktopCapturer, Tray, Menu, globalShortcut, nativeImage, shell, ipcMain, session } = require("electron");
+const { app, BrowserWindow, screen, desktopCapturer, Tray, Menu, globalShortcut, nativeImage, shell, ipcMain, session, dialog } = require("electron");
 const path = require("path"), fs = require("fs"); const { Worker } = require("worker_threads");
 const AIModes = require("./ai_modes.js");
 const VERSION = require("./package.json").version;
@@ -17,7 +17,7 @@ const HOTKEY = { "隐藏/显示": "F6", "切换显示模式": "F8", "暂停/继�
      core —— 状态估计内核, "1x"(稳定) 或 "v2"(试验)。只管谁来判断"被拿走了没有 / 归谁"。
    两者不耦合:测试模式不会替你换内核, 换内核也不会替你改截图策略。 */
 const cfg = { all: false, paused: false, plevel: 0, hidden: false, showPlayerScores: true, test: false, core: "1x", meSeat: "auto" };   // meSeat = "auto" 或手动指定的 "L1".."R5"(只对当前这一局有效)
-let gpuPrio = null;   // v1.33 组合版抢显卡: { level, name, admin }
+let gpuPrio = null,hardwareSampler=null;   // v1.33 组合版抢显卡: { level, name, admin }
 let meShown = null;   // 最近一次状态里的本人座位(托盘菜单上显示)   // plevel 0..3 = 界面上的 1~4 档;hidden = 一键隐藏(只藏显示, 识别/计算照常跑)
 const PLN = ["1 团队", "2 略偏个人", "3 偏个人", "4 贪"]; let needFull = true, phase = "idle", lastStatus = "", boardSeen = false, capN = 0, capMs = 0, capMsFull = 0, capFull = 0;
 /* ---- 日志:%APPDATA%/ADAssistant/logs/ad_YYYYMMDD_HHMMSS.log,截图也放这里 ---- */
@@ -27,8 +27,15 @@ const LOGFILE = path.join(LOGDIR, `ad_${stamp(new Date())}.log`);
 const diagnosticLog = require("./bounded_log.js").create(LOGFILE);
 function log(tag, msg) { if (diagnosticLog.write(tag, msg) && uploader) { try { uploader.onLog(tag, msg); } catch (_) {} } }
 function flushLog() { return diagnosticLog.flush(); }
+async function flushDetailLogs(){
+ const owner=worker;if(!owner)return;const id='detail-'+Date.now()+'-'+Math.random();
+ await new Promise(resolve=>{let timer;const done=()=>{clearTimeout(timer);owner.off('message',reply);owner.off('exit',done);resolve();},reply=m=>{if(m.type==='detail-flushed'&&m.id===id)done();};
+ owner.on('message',reply);owner.once('exit',done);timer=setTimeout(()=>{log('upload','详细日志缓冲刷新等待超时，将上传已完成的压缩段');done();},5000);
+ try{owner.postMessage({type:'detail-flush',id});}catch(_){done();}
+ });
+}
 function pruneLogs() { try { const now = Date.now(); const fsz = fs.readdirSync(LOGDIR).map(f => ({ f, p: path.join(LOGDIR, f), st: fs.statSync(path.join(LOGDIR, f)) }));
-  for (const x of fsz) if ((x.f.endsWith(".log") || x.f.endsWith(".jsonl")) && now - x.st.mtimeMs > 7 * 86400e3) fs.unlinkSync(x.p);
+  for (const x of fsz) if ((x.f.endsWith(".log") || (x.f.endsWith(".jsonl") || x.f.endsWith(".jsonl.gz"))) && now - x.st.mtimeMs > 7 * 86400e3) fs.unlinkSync(x.p);
   const pngs = fsz.filter(x => x.f.endsWith(".png")).sort((a, b) => b.st.mtimeMs - a.st.mtimeMs); for (const x of pngs.slice(12)) fs.unlinkSync(x.p); } catch (e) { } }
 async function pruneTextLogs() {
   try {
@@ -50,6 +57,7 @@ try { settings = JSON.parse(fs.readFileSync(SETFILE, "utf8")) || {}; } catch (e)
 AIModes.migrate(settings);
 if (!settings.installId) settings.installId = require("crypto").randomBytes(6).toString("hex");
 if (settings.uploadLogs === undefined) settings.uploadLogs = true;
+if (settings.detailedLogs === undefined) settings.detailedLogs = true;
 settings.look = ADFrames.norm(settings.look);   // v1.23:推荐框的颜色等, 缺的补默认、坏的丢掉
 if (settings.allowCapture === undefined) settings.allowCapture = false;   // v1.24 直播模式:让直播/录屏软件能抓到覆盖层
 let liveWaiting = true, liveEpoch = 0, liveChecking = false;
@@ -58,7 +66,7 @@ let gpuBenchWorker=null;
 const gpuSettings=require('./gpu_settings').create({dataDir:app.getPath('userData'),settings,save:saveSettings,onChange:()=>sendPanel(),canTest:()=>phase!=='active',
   sendBenchmark:runtime=>{
     if(worker&&!liveWaiting){worker.postMessage({type:'gpu-benchmark',runtime});return;}
-    const w=new Worker(path.join(__dirname,'gpu_benchmark_worker.js'),{workerData:{model:path.join(__dirname,'data','netS_f21_60.onnx'),runtime}});gpuBenchWorker=w;
+    const w=new Worker(path.join(__dirname,'gpu_benchmark_worker.js'),{workerData:{model:path.join(__dirname,'data','netS_f21_60.onnx'),runtime,detailedLogs:settings.detailedLogs,detailFile:path.join(LOGDIR,`diag_detail_benchmark_${Date.now()}.jsonl`)}});gpuBenchWorker=w;
     w.on('message',m=>m.type==='gpu-benchmark-progress'?gpuSettings.progress(m.message):gpuSettings.finish(m));
     w.on('error',e=>gpuSettings.finish({error:String(e.message||e)}));
     w.on('exit',()=>{if(gpuBenchWorker===w){gpuBenchWorker=null;if(gpuSettings.snapshot().phase==='testing')gpuSettings.finish({error:'测速线程提前退出'});}});
@@ -71,7 +79,7 @@ function doUpdate() { const u = updater.state();
   if (u.phase === "needFull" && u.fullUrl) { log("update", "打开完整包下载 " + u.fullUrl); shell.openExternal(u.fullUrl); return; }
   if (phase === "active") log("update", "选技中点了更新(面板已确认)");
   updater.apply().then(r => { if (r.phase === "needFull") sendPanel(); }); }
-uploader = require("./logupload.js").create({ logdir: LOGDIR, logfile: LOGFILE, version: VERSION, installId: settings.installId, log, flush: () => flushLog(), enabled: () => settings.uploadLogs, collectNativeEvidence: previous => require("./native_evidence").collect({logdir:LOGDIR,previous,crashDir:app.getPath("crashDumps")}) });
+uploader = require("./logupload.js").create({ logdir: LOGDIR, logfile: LOGFILE, version: VERSION, installId: settings.installId, log, flush: async () => {await flushLog();await flushDetailLogs();}, enabled: () => settings.uploadLogs, collectNativeEvidence: previous => require("./native_evidence").collect({logdir:LOGDIR,previous,crashDir:app.getPath("crashDumps")}) });
 let diagnosticLastWorker = null, diagnosticCapture = null, lastVisibilityCause = null;
 const crashDiag = require("./crash_diagnostics.js").install({ app, crashReporter: require("electron").crashReporter, file: path.join(LOGDIR, path.basename(LOGFILE).replace(/^ad_/, "diag_main_").replace(/\.log$/, ".jsonl")), context: () => ({ version: VERSION, phase, waiting: liveWaiting, mode: settings.aimode, core: cfg.core, paused: cfg.paused, hidden: cfg.hidden, status: lastStatus, worker: !!worker, lastWorker: diagnosticLastWorker, capture:diagnosticCapture, visibilityCause:lastVisibilityCause }), log, flush: () => diagnosticLog.flushSync(), onFault: () => uploader && uploader.crash() });
 /* ---- 托盘图标 ---- */
@@ -353,7 +361,7 @@ function startWorker() {
   if(stoppingRecognition)return;
   if(gpuBenchWorker){gpuSettings.cancel();gpuBenchWorker.once('exit',()=>startWorker());return;}
   needFull=true;
-  worker = new Worker(path.join(__dirname, "worker.js"), {workerData:{gpuBackend:gpuSettings.active,cudaRuntime:gpuSettings.dir}});
+  worker = new Worker(path.join(__dirname, "worker.js"), {workerData:{gpuBackend:gpuSettings.active,cudaRuntime:gpuSettings.dir,detailedLogs:settings.detailedLogs}});
   worker.postMessage({ type: "logdir", dir: LOGDIR });
   worker.postMessage({ type: "visibility", hidden: cfg.hidden });   // 观测轨迹和日志/截图放一起
   { const cs = capSize(); worker.postMessage({ type: "display", w: cs.w, h: cs.h }); }
@@ -434,7 +442,7 @@ function openPanel() {
 function sendPanel() { if (!panelWin || panelWin.isDestroyed()) return;
   panelWin.webContents.send("panel", { all: cfg.all, paused: cfg.paused, hidden: cfg.hidden, showPlayerScores: cfg.showPlayerScores, plevel: cfg.plevel, plname: PLN[cfg.plevel], version: VERSION, phase, hotkey: HOTKEY,
     manualRecovery, recoveryNotice, gpuCompute:gpuSettings.snapshot(),
-    test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, uploadLogs: settings.uploadLogs, arrive: !!settings.arrive, aimode: AIModes.normalize(settings.aimode), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8, refine: settings.comboRefine !== false }, allowCapture: settings.allowCapture, live: liveInfo(), meShown, status: lastStatus, upd: updater.state(), gpuPrio, shareOpt: !!settings.shareOpt }); }
+    test: cfg.test, core: cfg.core, meSeat: cfg.meSeat, look: settings.look, uploadLogs: settings.uploadLogs, detailedLogs:settings.detailedLogs, arrive: !!settings.arrive, aimode: AIModes.normalize(settings.aimode), combo: { K: settings.comboK || 8, R: settings.comboR || 16, sec: settings.comboSec || 8, refine: settings.comboRefine !== false }, allowCapture: settings.allowCapture, live: liveInfo(), meShown, status: lastStatus, upd: updater.state(), gpuPrio, shareOpt: !!settings.shareOpt }); }
 ipcMain.on("panel-ready", () => sendPanel());
 ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; const { k, v } = m;
   if(k === "hidden")setHidden(!!v,"panel");
@@ -443,6 +451,7 @@ ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; con
   else if (k === "core") cfg.core = v === "v2" ? "v2" : "1x";
   else if (k === "meSeat") cfg.meSeat = /^[LR][1-5]$/.test(String(v)) ? String(v) : "auto";
   else if (k === "uploadLogs") { settings.uploadLogs = !!v; saveSettings(); }
+  else if (k === "detailedLogs") { if(e.sender!==panelWin?.webContents)return;settings.detailedLogs=!!v;saveSettings();worker?.postMessage({type:'detailed-logs',enabled:settings.detailedLogs});hardwareSampler?.setIntervalMs(settings.detailedLogs?3000:15000); }
   else if (k === "arrive") { settings.arrive = !!v; saveSettings(); }
   else if (k === 'gpuBackend') {if(e.sender!==panelWin?.webContents)return;gpuSettings.select(v);return;}
   else if (k === "aimode") { settings.aimode = AIModes.normalize(v); saveSettings(); }
@@ -454,7 +463,14 @@ ipcMain.on("panel-set", (e, m) => { if (!m || typeof m !== "object") return; con
   else return;
   log("panel", `设置面板改 ${k}=${k === "look" ? JSON.stringify(settings.look) : v}`); sync();
   if (k === "hidden") tray.setToolTip(`AD 选技助手 v${VERSION}${cfg.hidden ? " · 已隐藏" : ""} · ${lastStatus}`); });
+let gpuDirectoryPicking=false;
 ipcMain.on("panel-act", (e, m) => { const name = m && m.name;
+  if(['gpu-dir-pick','gpu-dir-app'].includes(name)){
+    if(e.sender!==panelWin?.webContents||gpuSettings.busy()||phase==='active'||gpuDirectoryPicking)return;
+    if(name==='gpu-dir-app'){gpuSettings.setDirectory(path.dirname(process.execPath));return;}
+    gpuDirectoryPicking=true;dialog.showOpenDialog(panelWin,{title:'选择 CUDA 组件安装位置（可选 D 盘）',defaultPath:settings.cudaBaseDir||app.getPath('userData'),properties:['openDirectory','createDirectory']})
+      .then(r=>{if(!r.canceled&&r.filePaths?.length)gpuSettings.setDirectory(r.filePaths[0]);}).catch(err=>log('gpu-test','选择组件目录失败：'+err.message)).finally(()=>{gpuDirectoryPicking=false;sendPanel();});return;
+  }
   if(['gpu-test','gpu-test-cancel','gpu-apply'].includes(name)){
     if(e.sender!==panelWin?.webContents)return;
     if(name==='gpu-test')gpuSettings.start();
@@ -549,7 +565,7 @@ app.whenReady().then(() => {
   pruneLogs(); updater.cleanupOld(); const d = screen.getPrimaryDisplay();
   log("start", `v${VERSION} electron ${process.versions.electron} ${process.platform} ${process.arch} 主屏 ${d.bounds.width}x${d.bounds.height} 缩放 ${d.scaleFactor} 物理 ${Math.round(d.bounds.width * d.scaleFactor)}x${Math.round(d.bounds.height * d.scaleFactor)} 日志 ${LOGFILE}`);
   logGpu(); preferDiscreteGpu();
-  const hardwareSampler=require('./performance_diagnostics').createHardwareSampler({record:(event,details)=>crashDiag.record(event,details),active:()=>phase==='active'&&!cfg.paused});
+  hardwareSampler=require('./performance_diagnostics').createHardwareSampler({record:(event,details)=>crashDiag.record(event,details),intervalMs:settings.detailedLogs?3000:15000,active:()=>!cfg.paused&&(phase==='active'||gpuSettings.snapshot().phase==='testing')});
   hardwareSampler.start();app.on('before-quit',()=>hardwareSampler.stop());
   require("./gpuprio.js").configure(process.pid, log, r => { gpuPrio = r; crashDiag.record("gpu-priority", r || { supported: false }, true); sendPanel(); }, { target: process.env.AD_GPU_PRIORITY === "normal" ? 2 : 3 });
   if (Math.round(d.bounds.height * d.scaleFactor) !== 1440) log("warn", "主屏不是 1440p, 版式按高度等比缩放(16:9 可用, 带鱼屏未验证)");

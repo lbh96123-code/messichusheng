@@ -34,6 +34,7 @@ function createHardwareSampler({record,active=()=>true,platform=process.platform
   sample();timer=setInterval(sample,intervalMs);timer.unref?.();
  }
  function stop(){closed=true;if(timer)clearInterval(timer);timer=null;try{child?.kill();}catch(_){}child=null;}
- return {start,sample,stop};
+ function setIntervalMs(ms){intervalMs=Math.max(1000,Number(ms)||15000);if(timer){clearInterval(timer);timer=setInterval(sample,intervalMs);timer.unref?.();}safe('gpu-telemetry-interval',{intervalMs});}
+ return {start,sample,stop,setIntervalMs};
 }
 module.exports={createJobProbe,createHardwareSampler,parseGpu,GPU_FIELDS};

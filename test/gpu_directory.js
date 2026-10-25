@@ -1,0 +1,10 @@
+'use strict';
+const assert=require('assert/strict'),fs=require('fs'),path=require('path'),os=require('os'),runtime=require('../cuda_runtime'),{create}=require('../gpu_settings');
+(async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),'ad-gpu-dir-'));const old=runtime.installed;runtime.installed=()=>false;let saved=0,allowed=true;
+ try{const settings={},g=create({dataDir:root,settings,save:()=>saved++,canTest:()=>allowed,sendBenchmark(){},cancelBenchmark(){},platform:'win32'}),initial=g.dir,destination=path.join(root,'D-drive-plugin');
+  assert(g.setDirectory(destination));assert.equal(settings.cudaBaseDir,destination);assert.equal(g.snapshot().dir,runtime.runtimeDir(destination));assert.equal(g.dir,initial,'Live sessions retain their startup directory until restart');assert(g.snapshot().restartRequired);assert.equal(saved,1);
+  const reboot=create({dataDir:root,settings,save(){},sendBenchmark(){},cancelBenchmark(){},platform:'win32'});assert.equal(reboot.dir,runtime.runtimeDir(destination));assert.equal(reboot.snapshot().restartRequired,false);
+  allowed=false;assert.equal(g.setDirectory(path.join(root,'blocked')),false);assert.equal(settings.cudaBaseDir,destination);allowed=true;assert.equal(g.setDirectory('relative-directory'),false);assert.equal(settings.cudaBaseDir,destination);
+  assert.equal(fs.readdirSync(destination).length,0,'Writable probe leaves no temporary file');
+ }finally{runtime.installed=old;fs.rmSync(root,{recursive:true,force:true});}console.log('PASS CUDA directory: writable custom/plugin path, persistence, unchanged live runtime, restart, active-draft guard and relative-path rejection.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

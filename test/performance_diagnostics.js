@@ -11,6 +11,7 @@ time=12;const r=probe.finish();assert.equal(r.cpuUserMs,3);assert.equal(r.eventL
 const rows=[],calls=[];let callback;let killed=false;
 const sampler=createHardwareSampler({platform:'win32',env:{SystemRoot:'C:\\Windows'},intervalMs:60000,record:(event,details)=>rows.push({event,details}),execFile:(exe,args,options,cb)=>{calls.push({exe,args,options});callback=cb;return {kill(){killed=true;}};}});
 sampler.start();sampler.sample();assert.equal(calls.length,1,'Never overlap telemetry processes');
+sampler.setIntervalMs(3000);assert.equal(rows.find(r=>r.event==='gpu-telemetry-interval').details.intervalMs,3000);
 assert(calls[0].args[0].startsWith('--query-gpu='));assert.equal(calls[0].options.timeout,3000);
 callback(null,csv);assert.equal(rows.find(r=>r.event==='gpu-telemetry').details.gpus.length,1);
 sampler.sample();sampler.stop();assert(killed);const n=rows.length;callback(null,csv);assert.equal(rows.length,n,'No logging after shutdown');
